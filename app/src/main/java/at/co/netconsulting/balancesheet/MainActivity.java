@@ -17,14 +17,18 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import at.co.netconsulting.general.DateInputMask;
 import at.co.netconsulting.general.StaticFields;
 
 public class MainActivity extends BaseActivity {
 
     private Toolbar toolbar;
     private FloatingActionButton fabAddButton, fabDeleteButton;
-    private EditText editTextIncome, editTextSpending, editTextPerson, editTextLocation,
-    editTextDate;
+    private EditText editTextIncome,
+            editTextSpending,
+            editTextPerson,
+            editTextLocation,
+            editTextDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +44,10 @@ public class MainActivity extends BaseActivity {
         toolbar = findViewById(R.id.toolbar);
         toolbar.inflateMenu(R.menu.menu_main);
 
-        fabAddButton = (FloatingActionButton) findViewById(R.id.addButton);
-        //onClickListener
+        editTextDate = findViewById(R.id.editTextDate);
+        editTextDate.addTextChangedListener(new DateInputMask(editTextDate));
+
+        fabAddButton = findViewById(R.id.addButton);
         fabAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -49,7 +55,7 @@ public class MainActivity extends BaseActivity {
             }
         });
         fabDeleteButton = (FloatingActionButton) findViewById(R.id.deleteButton);
-        fabAddButton.setOnClickListener(new View.OnClickListener() {
+        fabDeleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -65,6 +71,8 @@ public class MainActivity extends BaseActivity {
 
     private void checkPermissions() {
         checkPermission(Manifest.permission.CAMERA, StaticFields.CAMERA_PERMISSION_CODE);
+        checkPermission(Manifest.permission.INTERNET, StaticFields.INTERNET_PERMISSION_CODE);
+        checkPermission(Manifest.permission.ACCESS_WIFI_STATE, StaticFields.WIFI_PERMISSION_CODE);
     }
 
     public void showMenu(MenuItem item) {
@@ -76,11 +84,8 @@ public class MainActivity extends BaseActivity {
     public void checkPermission(String permission, int requestCode)
     {
         if (ContextCompat.checkSelfPermission(MainActivity.this, permission) == PackageManager.PERMISSION_DENIED) {
-
-            // Requesting the permission
             ActivityCompat.requestPermissions(MainActivity.this, new String[] { permission }, requestCode);
-        }
-        else {
+        } else {
             Toast.makeText(MainActivity.this, "Permission already granted", Toast.LENGTH_SHORT).show();
         }
     }
@@ -88,7 +93,6 @@ public class MainActivity extends BaseActivity {
     // This function is called when the user accepts or decline the permission.
     // Request Code is used to check which permission called this function.
     // This request code is provided when the user is prompt for permission.
-
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,

@@ -6,22 +6,36 @@
     android:layout_height="match_parent"
     tools:context=".SettingsActivity">
 
-    <EditText
-        android:id="@+id/editTextPersonName"
+    <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Name"
-        android:hint="First name"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+
+        <EditText
+            android:id="@+id/editTextFirstName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="First Name"
+            android:inputType="textPersonName" />
+
+        <EditText
+            android:id="@+id/editTextIPAdress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="IP adress"
+            android:inputType="number" />
+    </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
+        android:id="@+id/saveFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="@dimen/fab_margin"
-        android:layout_marginBottom="16dp"
-        app:srcCompat="@android:drawable/ic_input_add" />
-
+        android:clickable="true"
+        app:layout_anchor="@+id/linearLayout"
+        app:layout_anchorGravity="bottom|center"
+        app:srcCompat="@drawable/ic_baseline_add_24" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
