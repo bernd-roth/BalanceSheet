@@ -1,4 +1,4 @@
-package at.co.netconsulting.sql;
+package at.co.netconsulting.sqlite;
 
 import androidx.room.Database;
 import androidx.room.RoomDatabase;

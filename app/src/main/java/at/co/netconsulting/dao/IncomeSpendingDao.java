@@ -7,7 +7,7 @@ import androidx.room.Query;
 
 import java.util.List;
 
-import at.co.netconsulting.sql.IncomeSpending;
+import at.co.netconsulting.sqlite.IncomeSpending;
 
 @Dao
 public interface IncomeSpendingDao {

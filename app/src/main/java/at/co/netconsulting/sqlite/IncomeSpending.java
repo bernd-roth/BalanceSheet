@@ -1,4 +1,4 @@
-package at.co.netconsulting.sql;
+package at.co.netconsulting.sqlite;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
