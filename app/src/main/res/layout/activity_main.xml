@@ -24,8 +24,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_column="1"
-            android:text="Overview"
-            android:gravity="center_horizontal"/>
+            android:gravity="center_horizontal"
+            android:textSize="25dp"
+            android:text="Overview" />
 
         <TableRow
             android:layout_width="fill_parent"
@@ -35,60 +36,29 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_column="1"
-                android:text="Gesamteinnahmen" />
+                android:textSize="20dp"
+                android:text="Total Income" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_column="2"
-                android:hint="Gesamteinnahmen" />
+                android:textSize="20dp" />
         </TableRow>
 
         <TableRow>
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_column="1"
-                android:text="Gesamtausgaben" />
+                android:textSize="20dp"
+                android:text="Total Spending" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_column="2"
-                android:hint="Gesamtausgaben" />
-        </TableRow>
-
-        <TableRow
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_column="1"
-                android:text="Ersparnis" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_column="2"
-                android:hint="Ersparnis" />
-        </TableRow>
-
-        <TableRow>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_column="1"
-                android:text="Basis Essen/Monat" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_column="2"
-                android:hint="Basis Essen/Monat" />
+                android:textSize="20dp" />
         </TableRow>
 
         <TableRow
@@ -99,13 +69,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_column="1"
-                android:text="Reserve Essen/Monat" />
+                android:textSize="20dp"
+                android:text="Savings" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_column="2"
-                android:hint="Reserve Essen/Monat" />
+                android:textSize="20dp" />
         </TableRow>
 
         <TableRow>
@@ -114,43 +85,77 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_column="1"
-                android:text="Essen Ø Ausgabe/Tag" />
+                android:textSize="20dp"
+                android:text="Basis Food/Month" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_column="2"
-                android:hint="Essen Ø Ausgabe/Tag" />
+                android:textSize="20dp" />
         </TableRow>
 
-        <TableRow>
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_column="1"
-                android:text="Reserve Ø Essen/Tag" />
+                android:textSize="20dp"
+                android:text="Reserve Food/Month" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_column="2"
-                android:hint="Reserve Ø Essen/Tag" />
+                android:textSize="20dp" />
         </TableRow>
 
         <TableRow>
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_column="1"
-                android:text="Essen (Monatsanfang)" />
+                android:textSize="20dp"
+                android:text="Food Ø Spending/Day" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_column="2"
-                android:hint="Essen (Monatsanfang)" />
+                android:textSize="20dp" />
+        </TableRow>
+
+        <TableRow>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="1"
+                android:textSize="20dp"
+                android:text="Reserve Ø Fod/Day" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="2"
+                android:textSize="20dp" />
+        </TableRow>
+
+        <TableRow>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="1"
+                android:textSize="20dp"
+                android:text="Food (Beg. month)" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="2"
+                android:textSize="20dp" />
         </TableRow>
 
         <TableRow>
@@ -159,27 +164,29 @@
                 android:layout_width="137dp"
                 android:layout_height="match_parent"
                 android:layout_column="1"
-                android:text="Essen (Jahresanfang)" />
+                android:textSize="20dp"
+                android:text="Food (Beg. year)" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_column="2"
-                android:hint="Essen (Jahresanfang)" />
+                android:textSize="20dp" />
         </TableRow>
 
         <!--From here new TableLayout-->
         <View
             android:layout_width="match_parent"
             android:layout_height="10dp"
-            android:background="#c0c0c0"/>
+            android:background="#c0c0c0" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_column="1"
-            android:text="Input"
-            android:gravity="center_horizontal"/>
+            android:gravity="center_horizontal"
+            android:textSize="25dp"
+            android:text="Input" />
 
         <TableRow
             android:layout_width="fill_parent"
@@ -189,7 +196,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_column="1"
-                android:hint="Einnahmen" />
+                android:textSize="20dp"
+                android:hint="Income" />
 
             <EditText
                 android:id="@+id/editTextIncome"
@@ -197,6 +205,7 @@
                 android:layout_height="wrap_content"
                 android:layout_column="2"
                 android:hint="€"
+                android:textSize="20dp"
                 android:inputType="number" />
         </TableRow>
 
@@ -205,7 +214,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_column="1"
-                android:hint="Ausgaben" />
+                android:textSize="20dp"
+                android:hint="Spending" />
 
             <EditText
                 android:id="@+id/editTextSpending"
@@ -213,7 +223,8 @@
                 android:layout_height="wrap_content"
                 android:layout_column="2"
                 android:hint="€"
-                android:inputType="number"/>
+                android:textSize="20dp"
+                android:inputType="number" />
         </TableRow>
 
         <TableRow
@@ -224,6 +235,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_column="1"
+                android:textSize="20dp"
                 android:hint="Person" />
 
             <EditText
@@ -232,7 +244,8 @@
                 android:layout_height="wrap_content"
                 android:layout_column="2"
                 android:hint="First name"
-                android:inputType="text"/>
+                android:textSize="20dp"
+                android:inputType="text" />
         </TableRow>
 
         <TableRow>
@@ -240,6 +253,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_column="1"
+                android:textSize="20dp"
                 android:hint="Location" />
 
             <EditText
@@ -248,7 +262,8 @@
                 android:layout_height="wrap_content"
                 android:layout_column="2"
                 android:hint="Location"
-                android:inputType="text"/>
+                android:textSize="20dp"
+                android:inputType="text" />
         </TableRow>
 
         <TableRow
@@ -259,6 +274,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_column="1"
+                android:textSize="20dp"
                 android:hint="Date" />
 
             <EditText
@@ -266,9 +282,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_column="2"
-                android:inputType="date"
-                android:hint="Date (dd.mm.yyyy)" />
+                android:hint="Date (dd.mm.yyyy)"
+                android:textSize="20dp"
+                android:inputType="date" />
         </TableRow>
+
         <TableRow
             android:layout_width="fill_parent"
             android:layout_height="fill_parent">
@@ -287,18 +305,18 @@
                     app:srcCompat="@drawable/ic_baseline_delete_24" />
             </FrameLayout>
 
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/addButton"
-                android:layout_width="match_parent"
+            <FrameLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                app:srcCompat="@drawable/ic_baseline_add_24" />
-        </FrameLayout>
+                android:layout_weight="1">
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/addButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    app:srcCompat="@drawable/ic_baseline_add_24" />
+            </FrameLayout>
         </TableRow>
     </TableLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
