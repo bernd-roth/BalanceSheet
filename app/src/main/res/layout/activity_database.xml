@@ -25,12 +25,12 @@
             android:hint="Person" />
 
         <EditText
-            android:id="@+id/editTextInternetAddress"
+            android:id="@+id/editTextWebAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPersonName"
-            android:hint="Web address" />
+            android:hint="Internet address" />
 
         <LinearLayout
             android:layout_width="match_parent"

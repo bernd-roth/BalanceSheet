@@ -17,16 +17,21 @@
             android:id="@+id/editTextFirstName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ems="10"
             android:hint="First Name"
             android:inputType="textPersonName" />
 
         <EditText
-            android:id="@+id/editTextIPAdress"
+            android:id="@+id/editTextIPAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ems="10"
             android:hint="IP adress"
+            android:inputType="text" />
+
+        <EditText
+            android:id="@+id/editTextPort"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="8083"
             android:inputType="number" />
     </LinearLayout>
 

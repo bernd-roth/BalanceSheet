@@ -51,7 +51,7 @@ public class MainActivity extends BaseActivity {
         fabAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                sendInputToDatabase();
             }
         });
         fabDeleteButton = (FloatingActionButton) findViewById(R.id.deleteButton);
@@ -67,6 +67,9 @@ public class MainActivity extends BaseActivity {
         editTextPerson = findViewById(R.id.editTextPerson);
         editTextLocation = findViewById(R.id.editTextLocation);
         editTextDate = findViewById(R.id.editTextDate);
+    }
+
+    private void sendInputToDatabase() {
     }
 
     private void checkPermissions() {
@@ -85,8 +88,6 @@ public class MainActivity extends BaseActivity {
     {
         if (ContextCompat.checkSelfPermission(MainActivity.this, permission) == PackageManager.PERMISSION_DENIED) {
             ActivityCompat.requestPermissions(MainActivity.this, new String[] { permission }, requestCode);
-        } else {
-            Toast.makeText(MainActivity.this, "Permission already granted", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -111,8 +112,7 @@ public class MainActivity extends BaseActivity {
             }
         }
         else if (requestCode == StaticFields.STORAGE_PERMISSION_CODE) {
-            if (grantResults.length > 0
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(MainActivity.this, "Storage Permission Granted", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(MainActivity.this, "Storage Permission Denied", Toast.LENGTH_SHORT).show();

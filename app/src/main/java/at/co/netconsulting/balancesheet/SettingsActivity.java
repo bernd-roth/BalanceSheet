@@ -14,7 +14,7 @@ import at.co.netconsulting.general.StaticFields;
 
 public class SettingsActivity extends AppCompatActivity {
 
-    private EditText editTextFirstName, editTextInternetAddress;
+    private EditText editTextFirstName, editTextIPAddress;
     private FloatingActionButton fabSaveButton;
     private SharedPreferences sharedPreferences;
 
@@ -30,7 +30,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void initializeObjects() {
         editTextFirstName = (EditText) findViewById(R.id.editTextFirstName);
-        editTextInternetAddress = (EditText) findViewById(R.id.editTextInternetAddress);
+        editTextIPAddress = (EditText) findViewById(R.id.editTextIPAddress);
 
         fabSaveButton = findViewById(R.id.saveFab);
         fabSaveButton.setOnClickListener(new View.OnClickListener() {
@@ -54,7 +54,7 @@ public class SettingsActivity extends AppCompatActivity {
                 editTextFirstName.setText(s1);
                 break;
             case StaticFields.SP_INTERNET_ADDRESS:
-                editTextInternetAddress.setText(s1);
+                editTextIPAddress.setText(s1);
                 break;
         }
     }
@@ -70,11 +70,9 @@ public class SettingsActivity extends AppCompatActivity {
                 editor.commit();
                 break;
             case StaticFields.SP_INTERNET_ADDRESS:
-                editor.putString(shared_pref_key, editTextInternetAddress.getText().toString());
+                editor.putString(shared_pref_key, editTextIPAddress.getText().toString());
                 editor.commit();
                 break;
         }
-
-
     }
 }
