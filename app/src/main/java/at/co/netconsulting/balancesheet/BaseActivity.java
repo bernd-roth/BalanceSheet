@@ -29,10 +29,6 @@ public class BaseActivity extends Activity {
                 intent = new Intent(this, SettingsActivity.class);
                 this.startActivity(intent);
                 return true;
-            case R.id.action_database:
-                intent = new Intent(this, DatabaseActivity.class);
-                this.startActivity(intent);
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }

@@ -9,10 +9,4 @@
         android:title="@string/action_settings"
         app:showAsAction="ifRoom"
         android:onClick="showMenu" />
-    <item
-        android:id="@+id/action_database"
-        android:orderInCategory="100"
-        android:title="@string/action_database"
-        app:showAsAction="ifRoom"
-        android:onClick="showMenu" />
 </menu>

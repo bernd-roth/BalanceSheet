@@ -14,7 +14,7 @@ import at.co.netconsulting.general.StaticFields;
 
 public class SettingsActivity extends AppCompatActivity {
 
-    private EditText editTextFirstName, editTextIPAddress;
+    private EditText editTextPort, editTextIPAddress;
     private FloatingActionButton fabSaveButton;
     private SharedPreferences sharedPreferences;
 
@@ -24,19 +24,19 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
 
         initializeObjects();
-        loadSharedPreferences(StaticFields.SP_PERSON_NAME);
         loadSharedPreferences(StaticFields.SP_INTERNET_ADDRESS);
+        loadSharedPreferences(StaticFields.SP_PORT);
     }
 
     private void initializeObjects() {
-        editTextFirstName = (EditText) findViewById(R.id.editTextFirstName);
         editTextIPAddress = (EditText) findViewById(R.id.editTextIPAddress);
+        editTextPort = (EditText) findViewById(R.id.editTextPort);
 
         fabSaveButton = findViewById(R.id.saveFab);
         fabSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveSharedPreferences(StaticFields.SP_PERSON_NAME);
+                saveSharedPreferences(StaticFields.SP_PORT);
                 saveSharedPreferences(StaticFields.SP_INTERNET_ADDRESS);
             }
         });
@@ -50,8 +50,8 @@ public class SettingsActivity extends AppCompatActivity {
         String s1 = sharedPreferences.getString(shared_pref_key, "");
 
         switch(shared_pref_key) {
-            case StaticFields.SP_PERSON_NAME:
-                editTextFirstName.setText(s1);
+            case StaticFields.SP_PORT:
+                editTextPort.setText(s1);
                 break;
             case StaticFields.SP_INTERNET_ADDRESS:
                 editTextIPAddress.setText(s1);
@@ -65,8 +65,8 @@ public class SettingsActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         switch (shared_pref_key) {
-            case StaticFields.SP_PERSON_NAME:
-                editor.putString(shared_pref_key, editTextFirstName.getText().toString());
+            case StaticFields.SP_PORT:
+                editor.putString(shared_pref_key, editTextPort.getText().toString());
                 editor.commit();
                 break;
             case StaticFields.SP_INTERNET_ADDRESS:
