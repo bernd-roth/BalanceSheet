@@ -7,13 +7,13 @@ from decimal import *
 #
 from sqlalchemy import create_engine
 from sqlalchemy.sql import functions
-engine = create_engine('postgresql+psycopg2://postgres:3Jkris67zhnnhz76zhn@192.168.0.18:5432/incomeexpense')
+engine = create_engine('postgresql+psycopg2://postgres:password@192.168.0.18:5432/incomeexpense')
 from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 #
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:3Jkris67zhnnhz76zhn@192.168.0.18:5432/incomeexpense"
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:password@192.168.0.18:5432/incomeexpense"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -59,7 +59,7 @@ def handle_expense_sum():
         import collections
         import psycopg2
 
-        conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
+        conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='password'"
         conn = psycopg2.connect(conn_string)
         cursor = conn.cursor()
         cursor.execute("SELECT sum(expense) FROM incomeexpense")
@@ -81,7 +81,7 @@ def handle_incomexpense_sum():
         import collections
         import psycopg2
 
-        conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
+        conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='password'"
         conn = psycopg2.connect(conn_string)
         cursor = conn.cursor()
         cursor.execute("SELECT SUM(income) FROM incomeexpense")
@@ -103,7 +103,7 @@ def handle_incomexpense_sum_savings():
         import collections
         import psycopg2
 
-        conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
+        conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='password'"
         conn = psycopg2.connect(conn_string)
         cursor = conn.cursor()
         cursor.execute("SELECT SUM(income)-SUM(expense) FROM incomeexpense")
@@ -125,7 +125,7 @@ def handle_incomexpense_sum_food():
         import collections
         import psycopg2
 
-        conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
+        conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='password'"
         conn = psycopg2.connect(conn_string)
         cursor = conn.cursor()
         cursor.execute("SELECT ROUND(ABS(SUM(income)-SUM(expense))/EXTRACT(DAY FROM TIMESTAMP 'NOW()')::numeric,2) FROM incomeexpense WHERE location LIKE 'Food%'")
