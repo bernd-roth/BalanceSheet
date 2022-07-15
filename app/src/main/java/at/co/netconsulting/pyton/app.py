@@ -1,9 +1,19 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+import json
+from sqlalchemy import select
+from decimal import *
+#
+from sqlalchemy import create_engine
+from sqlalchemy.sql import functions
+engine = create_engine('postgresql+psycopg2://postgres:3Jkris67zhnnhz76zhn@192.168.0.18:5432/incomeexpense')
+from sqlalchemy.ext.declarative import declarative_base
+Base = declarative_base()
+#
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:password@hostnameOrip:5432/incomeexpense"
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:3Jkris67zhnnhz76zhn@192.168.0.18:5432/incomeexpense"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -15,8 +25,8 @@ class IncomeExpenseModel(db.Model):
         orderdate = db.Column(db.String())
         who = db.Column(db.String())
         location = db.Column(db.Integer())
-        income = db.Column(db.Numeric(16,2))
-        expense = db.Column(db.Numeric(16,2))
+        income = db.Column(db.Numeric(16,2), nullable=True)
+        expense = db.Column(db.Numeric(16,2), nullable=True)
 
         def __init__(self, orderdate, who, location, income, expense):
                 self.orderdate = orderdate
@@ -28,9 +38,109 @@ class IncomeExpenseModel(db.Model):
         def __repr__(self):
                 return f"IncomeExpenseModel('{self.id}', '{self.orderdate}', '{self.who}', '{self.location}', '{self.income}', '{self.expense}')"
 
-@app.route('/')
-def hello():
-        return {"hello": "world"}
+@app.route('/incomeexpense/all', methods=['GET'])
+def handle_incomexpense_all():
+        incomeexpense = IncomeExpenseModel.query.all();
+
+        if request.method == 'GET':
+                response = []
+                for incomeexpense in IncomeExpenseModel.query.all():
+                        response.append({
+                                "orderdate": incomeexpense.orderdate,
+                                "who": incomeexpense.who,
+                                "location": incomeexpense.location,
+                                "income": incomeexpense.income,
+                                "expense": incomeexpense.expense
+                        })
+                return {"message": "success", "incomeexpense": response}
+
+@app.route('/incomeexpense/sum_expense', methods=['GET'])
+def handle_expense_sum():
+        import collections
+        import psycopg2
+
+        conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
+        conn = psycopg2.connect(conn_string)
+        cursor = conn.cursor()
+        cursor.execute("SELECT sum(expense) FROM incomeexpense")
+        rows = cursor.fetchall()
+        rowarray_list = []
+        for row in rows:
+                t = (row[0])
+                rowarray_list.append(t)
+        print(rowarray_list[0])
+
+        my_dict = {"Total income":[]};
+        my_dict["Total income"].append(rowarray_list[0])
+        print(my_dict)
+
+        return {"message": "success", "incomeexpense": my_dict}
+
+@app.route('/incomeexpense/sum_income', methods=['GET'])
+def handle_incomexpense_sum():
+        import collections
+        import psycopg2
+
+        conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
+        conn = psycopg2.connect(conn_string)
+        cursor = conn.cursor()
+        cursor.execute("SELECT SUM(income) FROM incomeexpense")
+        rows = cursor.fetchall()
+        rowarray_list = []
+        for row in rows:
+                t = (row[0])
+                rowarray_list.append(t)
+        print(rowarray_list[0])
+
+        my_dict = {"Total income":[]};
+        my_dict["Total income"].append(rowarray_list[0])
+        print(my_dict)
+
+        return {"message": "success", "incomeexpense": my_dict}
+
+@app.route('/incomeexpense/sum_savings', methods=['GET'])
+def handle_incomexpense_sum_savings():
+        import collections
+        import psycopg2
+
+        conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
+        conn = psycopg2.connect(conn_string)
+        cursor = conn.cursor()
+        cursor.execute("SELECT SUM(income)-SUM(expense) FROM incomeexpense")
+        rows = cursor.fetchall()
+        rowarray_list = []
+        for row in rows:
+                t = (row[0])
+                rowarray_list.append(t)
+        print(rowarray_list[0])
+
+        my_dict = {"Total income":[]};
+        my_dict["Total income"].append(rowarray_list[0])
+        print(my_dict)
+
+        return {"message": "success", "incomeexpense": my_dict}
+
+@app.route('/incomeexpense/sum_food', methods=['GET'])
+def handle_incomexpense_sum_food():
+        import collections
+        import psycopg2
+
+        conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
+        conn = psycopg2.connect(conn_string)
+        cursor = conn.cursor()
+        cursor.execute("SELECT ROUND(ABS(SUM(income)-SUM(expense))/EXTRACT(DAY FROM TIMESTAMP 'NOW()')::numeric,2) FROM incomeexpense WHERE location LIKE 'Food%'")
+        rows = cursor.fetchall()
+        rowarray_list = []
+        for row in rows:
+                t = (row[0])
+                rowarray_list.append(t)
+        print(rowarray_list[0])
+
+        my_dict = {"Total income":[]};
+        my_dict["Total income"].append(rowarray_list[0])
+        print(my_dict)
+
+        return {"message": "success", "incomeexpense": my_dict}
 
 @app.route('/incomeexpense/<id>', methods=['GET'])
 def handle_incomexpense(id):
@@ -40,16 +150,11 @@ def handle_incomexpense(id):
                 response = {
                         "orderdate": incomeexpense.orderdate,
                         "who": incomeexpense.who,
-                        "location": incomeexpense.location
-                }
-                return {"message": "success", "incomeexpense": response}
-                response = {
-                        "orderdate": incomeexpense.orderdate,
-                        "who": incomeexpense.who,
                         "location": incomeexpense.location,
                         "income": incomeexpense.income,
                         "expense": incomeexpense.expense
                 }
+                return {"message": "success", "incomeexpense": response}
 
 @app.route('/incomeexpense/add', methods=['POST'])
 def handle_incomexpense_add():
@@ -59,10 +164,10 @@ def handle_incomexpense_add():
                 location = request.form.get('location')
                 income = request.form.get('income')
                 expense = request.form.get('expense')
-                entry = IncomeExpenseModel(o, w, l, i, e)
+                entry = IncomeExpenseModel(orderdate, who, location, income, expense)
                 db.session.add(entry)
                 db.session.commit()
                 return jsonify({"message":"Successfully inserted!"})
 
 if __name__ == '__main__':
-        app.run(host="0.0.0.0") #debug=True)
+        app.run(host="0.0.0.0", debug=True)
