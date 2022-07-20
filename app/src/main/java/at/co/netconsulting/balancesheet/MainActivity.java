@@ -149,55 +149,54 @@ public class MainActivity extends BaseActivity {
                 StaticFields.COLON +
                 sharedPref_Port +
                 StaticFields.REST_URL_ADD;
-        StringRequest request = new StringRequest(Request.Method.POST,
-                url, new com.android.volley.Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    // on below line we are displaying a success toast message.
-                    Toast.makeText(MainActivity.this, "Data added to API", Toast.LENGTH_SHORT).show();
-                        // on below line we are parsing the response
-                        // to json object to extract data from it.
-                        try {
-                            JSONObject respObj = new JSONObject(response);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+        StringRequest request = new StringRequest(Request.Method.POST, url, new com.android.volley.Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                //on below line we are displaying a success toast message.
+                //Toast.makeText(MainActivity.this, "Data added to API", Toast.LENGTH_SHORT).show();
+                //on below line we are parsing the response
+                //to json object to extract data from it.
+                try {
+                    JSONObject respObj = new JSONObject(response);
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-            }, new com.android.volley.Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    // method to handle errors.
-                    Toast.makeText(MainActivity.this, "Fail to get response = " + error, Toast.LENGTH_SHORT).show();
-                }
-            }) {
-                @Override
-                protected Map<String, String> getParams() {
-                    // below line we are creating a map for
-                    // storing our values in key and value pair.
-                    Map<String, String> params = new HashMap<String, String>();
+            }
+        }, new com.android.volley.Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // method to handle errors.
+                Toast.makeText(MainActivity.this, "Fail to get response = " + error, Toast.LENGTH_SHORT).show();
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() {
+                // below line we are creating a map for
+                // storing our values in key and value pair.
+                Map<String, String> params = new HashMap<String, String>();
 
-                    // on below line we are passing our key
-                    // and value pair to our parameters.
-                    String orderdate = editTextDate.getText().toString();
-                    String who = editTextPerson.getText().toString();
-                    String location = editTextLocation.getText().toString();
-                    String income = editTextIncome.getText().toString();
-                    String expense = editTextSpending.getText().toString();
+                // on below line we are passing our key
+                // and value pair to our parameters.
+                String orderdate = editTextDate.getText().toString();
+                String who = editTextPerson.getText().toString();
+                String location = editTextLocation.getText().toString();
+                String income = editTextIncome.getText().toString();
+                String expense = editTextSpending.getText().toString();
 
-                    String[] orderDate = orderdate.split("/");
-                    String orderDateAsYYYYMMDD = orderDate[2] + "-" + orderDate[1] + "-" + orderDate[0];
+                String[] orderDate = orderdate.split("/");
+                String orderDateAsYYYYMMDD = orderDate[2] + "-" + orderDate[1] + "-" + orderDate[0];
 
-                    params.put("orderdate", orderDateAsYYYYMMDD);
-                    params.put("who", who);
-                    params.put("location", location);
-                    params.put("income", income);
-                    params.put("expense", expense);
+                params.put("orderdate", orderDateAsYYYYMMDD);
+                params.put("who", who);
+                params.put("location", location);
+                params.put("income", income);
+                params.put("expense", expense);
 
-                    // at last we are
-                    // returning our params.
-                    return params;
-                }
-            };
+                // at last we are
+                // returning our params.
+                return params;
+            }
+        };
             //below line is to make
             //a json object request.
             queue.add(request);
