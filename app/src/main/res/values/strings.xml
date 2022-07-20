@@ -15,4 +15,7 @@
 
     <!--error-->
     <string name="error_fail_response">Fail to get response = %1$s</string>
+
+    <!--general strings-->
+    <string name="general_placeholder">Placeholder</string>
 </resources>

@@ -26,6 +26,13 @@
             android:layout_height="wrap_content"
             android:hint="5000"
             android:inputType="number" />
+
+        <EditText
+            android:id="@+id/editTextPerson"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Person"
+            android:inputType="text" />
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

@@ -35,6 +35,7 @@ import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -56,8 +57,11 @@ public class MainActivity extends BaseActivity {
     private StringRequest mStringRequest;
     private static final String TAG = MainActivity.class.getName();
     private SharedPreferences sharedPreferences;
-    private String sharedPref_IP, sharedPref_Port;
+    private String sharedPref_IP, sharedPref_Port, sharedPref_Person;
     private TextView totalIncome, totalExpense, totalSavings, totalFood;
+    private String[] splitPerson;
+    private ArrayList<String> itemsPerson;
+    private ArrayAdapter<String> adapterPerson;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +76,7 @@ public class MainActivity extends BaseActivity {
         getOutputFromDatabase(StaticFields.FOOD);
         loadSharedPreferences(StaticFields.SP_PORT);
         loadSharedPreferences(StaticFields.SP_INTERNET_ADDRESS);
+        loadSharedPreferences(StaticFields.SP_PERSON);
     }
 
     //SharedPreferences
@@ -86,6 +91,21 @@ public class MainActivity extends BaseActivity {
                 break;
             case StaticFields.SP_INTERNET_ADDRESS:
                 sharedPref_IP = s1;
+                break;
+            case StaticFields.SP_PERSON:
+                sharedPref_Person = s1;
+
+                adapterPerson.clear();
+                if(sharedPref_Person != null) {
+                    splitPerson = sharedPref_Person.split(" ");
+                    for (int i = 0; i<splitPerson.length; i++) {
+                        itemsPerson.add(splitPerson[i]);
+                    }
+                } else {
+                    itemsPerson.add(getString(R.string.general_placeholder));
+                }
+                adapterPerson = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, itemsPerson);
+                spinnerPerson.setAdapter(adapterPerson);
                 break;
         }
     }
@@ -122,8 +142,16 @@ public class MainActivity extends BaseActivity {
         editTextSpending = findViewById(R.id.editTextSpending);
 //        editTextPerson = findViewById(R.id.editTextPerson);
         spinnerPerson = findViewById(R.id.spinner);
-            String[] itemsPerson = new String[]{"Bernd", "Julia"};
-            ArrayAdapter<String> adapterPerson = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, itemsPerson);
+            itemsPerson = new ArrayList<>();
+            if(sharedPref_Person != null) {
+                splitPerson =  sharedPref_Person.split(" ");
+                for (int i = 0; i<=splitPerson.length; i++) {
+                    itemsPerson.add(splitPerson[i]);
+                }
+            } else {
+                itemsPerson.add("Placeholder");
+            }
+            adapterPerson = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, itemsPerson);
             spinnerPerson.setAdapter(adapterPerson);
 //        editTextLocation = findViewById(R.id.editTextLocation);
         spinnerLocation = findViewById(R.id.spinnerLocation);
@@ -360,6 +388,7 @@ public class MainActivity extends BaseActivity {
         super.onResume();
         loadSharedPreferences(StaticFields.SP_PORT);
         loadSharedPreferences(StaticFields.SP_INTERNET_ADDRESS);
+        loadSharedPreferences(StaticFields.SP_PERSON);
         getOutputFromDatabase(StaticFields.INCOME);
         getOutputFromDatabase(StaticFields.EXPENSE);
         getOutputFromDatabase(StaticFields.SAVINGS);

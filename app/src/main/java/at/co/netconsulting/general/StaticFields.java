@@ -10,6 +10,7 @@ public class StaticFields {
     public static final int WIFI_PERMISSION_CODE = 103;
     public static final String SP_PORT = "PORT";
     public static final String SP_INTERNET_ADDRESS = "INTERNET_ADDRESS";
+    public static final String SP_PERSON = "PERSON";
     public static final String PROTOCOL = "http://";
     public static final String REST_URL_ADD = "/incomeexpense/add";
     public static final String REST_URL_GET_ALL = "/incomeexpense/all";

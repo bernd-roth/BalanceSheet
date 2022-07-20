@@ -14,9 +14,10 @@ import at.co.netconsulting.general.StaticFields;
 
 public class SettingsActivity extends AppCompatActivity {
 
-    private EditText editTextPort, editTextIPAddress;
+    private EditText editTextPort, editTextIPAddress, editTextPerson;
     private FloatingActionButton fabSaveButton;
     private SharedPreferences sharedPreferences;
+    private String[] splitPerson;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,11 +27,13 @@ public class SettingsActivity extends AppCompatActivity {
         initializeObjects();
         loadSharedPreferences(StaticFields.SP_INTERNET_ADDRESS);
         loadSharedPreferences(StaticFields.SP_PORT);
+        loadSharedPreferences(StaticFields.SP_PERSON);
     }
 
     private void initializeObjects() {
         editTextIPAddress = (EditText) findViewById(R.id.editTextIPAddress);
         editTextPort = (EditText) findViewById(R.id.editTextPort);
+        editTextPerson = (EditText) findViewById(R.id.editTextPerson);
 
         fabSaveButton = findViewById(R.id.saveFab);
         fabSaveButton.setOnClickListener(new View.OnClickListener() {
@@ -38,6 +41,7 @@ public class SettingsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 saveSharedPreferences(StaticFields.SP_PORT);
                 saveSharedPreferences(StaticFields.SP_INTERNET_ADDRESS);
+                saveSharedPreferences(StaticFields.SP_PERSON);
             }
         });
     }
@@ -56,6 +60,9 @@ public class SettingsActivity extends AppCompatActivity {
             case StaticFields.SP_INTERNET_ADDRESS:
                 editTextIPAddress.setText(s1);
                 break;
+            case StaticFields.SP_PERSON:
+                editTextPerson.setText(s1);
+                break;
         }
     }
 
@@ -71,6 +78,10 @@ public class SettingsActivity extends AppCompatActivity {
                 break;
             case StaticFields.SP_INTERNET_ADDRESS:
                 editor.putString(shared_pref_key, editTextIPAddress.getText().toString());
+                editor.commit();
+                break;
+            case StaticFields.SP_PERSON:
+                editor.putString(shared_pref_key, editTextPerson.getText().toString());
                 editor.commit();
                 break;
         }
