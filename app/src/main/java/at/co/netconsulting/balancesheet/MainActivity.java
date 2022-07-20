@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -29,6 +30,8 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import org.eazegraph.lib.charts.PieChart;
+import org.eazegraph.lib.models.PieModel;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -62,6 +65,7 @@ public class MainActivity extends BaseActivity {
     private String[] splitPerson;
     private ArrayList<String> itemsPerson;
     private ArrayAdapter<String> adapterPerson;
+    private PieChart pieChart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -163,6 +167,7 @@ public class MainActivity extends BaseActivity {
             ArrayAdapter<String> adapterLocation = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, itemsLocation);
             spinnerLocation.setAdapter(adapterLocation);
         editTextDate = findViewById(R.id.editTextDate);
+        pieChart = findViewById(R.id.piechart);
     }
 
     private String setDateCorrectly() {
@@ -309,18 +314,38 @@ public class MainActivity extends BaseActivity {
                         totalIncome.setText("0");
                     } else if(incomeOrExpenseOrSavingsOrFood.equals("income") && !repl.equals("null")){
                         totalIncome.setText(repl);
+                        pieChart.addPieSlice(
+                                new PieModel(
+                                        "Total income",
+                                        Float.parseFloat(repl),
+                                        Color.parseColor("#99CC00")));
                     } else if(incomeOrExpenseOrSavingsOrFood.equals("expense") && repl.equals("null")) {
                         totalExpense.setText("0");
                     } else if(incomeOrExpenseOrSavingsOrFood.equals("expense") && !repl.equals("null")) {
                         totalExpense.setText(repl);
+                        pieChart.addPieSlice(
+                                new PieModel(
+                                        "Total spending",
+                                        Float.parseFloat(repl),
+                                        Color.parseColor("#FF4444")));
                     } else if(incomeOrExpenseOrSavingsOrFood.equals("savings") && repl.equals("null")) {
                         totalSavings.setText("0");
                     } else if(incomeOrExpenseOrSavingsOrFood.equals("savings") && !repl.equals("null")) {
                         totalSavings.setText(repl);
+                        pieChart.addPieSlice(
+                                new PieModel(
+                                        "Total savings",
+                                        Float.parseFloat(repl),
+                                        Color.parseColor("#33B5E5")));
                     } else if(incomeOrExpenseOrSavingsOrFood.equals("food") && repl.equals("null")) {
                         totalFood.setText("0");
                     } else if(incomeOrExpenseOrSavingsOrFood.equals("food") && !repl.equals("null")) {
                         totalFood.setText(repl);
+                        pieChart.addPieSlice(
+                                new PieModel(
+                                        "Food/day",
+                                        Float.parseFloat(repl),
+                                        Color.parseColor("#FFBB33")));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -333,6 +358,8 @@ public class MainActivity extends BaseActivity {
             }
         });
         mRequestQueue.add(mStringRequest);
+        // To animate the pie chart
+        pieChart.startAnimation();
     }
 
     private void checkPermissions() {
