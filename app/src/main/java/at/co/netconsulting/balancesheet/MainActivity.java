@@ -15,7 +15,9 @@ import androidx.core.content.ContextCompat;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,9 +48,10 @@ public class MainActivity extends BaseActivity {
     private FloatingActionButton fabAddButton, fabDeleteButton;
     private EditText editTextIncome,
             editTextSpending,
-            editTextPerson,
+//            editTextPerson,
             editTextLocation,
             editTextDate;
+    private Spinner spinnerPerson, spinnerLocation;
     private RequestQueue mRequestQueue;
     private StringRequest mStringRequest;
     private static final String TAG = MainActivity.class.getName();
@@ -117,8 +120,20 @@ public class MainActivity extends BaseActivity {
 
         editTextIncome = findViewById(R.id.editTextIncome);
         editTextSpending = findViewById(R.id.editTextSpending);
-        editTextPerson = findViewById(R.id.editTextPerson);
-        editTextLocation = findViewById(R.id.editTextLocation);
+//        editTextPerson = findViewById(R.id.editTextPerson);
+        spinnerPerson = findViewById(R.id.spinner);
+            String[] itemsPerson = new String[]{"Bernd", "Julia"};
+            ArrayAdapter<String> adapterPerson = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, itemsPerson);
+            spinnerPerson.setAdapter(adapterPerson);
+//        editTextLocation = findViewById(R.id.editTextLocation);
+        spinnerLocation = findViewById(R.id.spinnerLocation);
+        String[] itemsLocation = new String[]{"Food", "Pharmacy", "Squandering", "Money",
+                "Income", "Expense", "Savings", "Amazon",
+                "Obi", "Wiener Staedtische Versicherung AG", "Internet", "Telephone",
+                "Facility Management", "Wiener Netze", "GTE-Gebäude-Technik-Energie Betrieb",
+                "Loan", "Depot"};
+            ArrayAdapter<String> adapterLocation = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, itemsLocation);
+            spinnerLocation.setAdapter(adapterLocation);
         editTextDate = findViewById(R.id.editTextDate);
     }
 
@@ -131,9 +146,12 @@ public class MainActivity extends BaseActivity {
 
     private void checkInputFields() {
         if (editTextIncome.getText().toString().isEmpty() || editTextSpending.getText().toString().isEmpty()
-                || editTextPerson.getText().toString().isEmpty() || editTextLocation.getText().toString().isEmpty()
+//                || editTextPerson.getText().toString().isEmpty()
+                || spinnerPerson.getSelectedItem().toString().isEmpty()
+//                || editTextLocation.getText().toString().isEmpty()
+                || spinnerLocation.getSelectedItem().toString().isEmpty()
                 || editTextDate.getText().toString().isEmpty()) {
-            Toast.makeText(getApplicationContext(), "All fields must be filled", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), R.string.warning_all_fields, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -166,7 +184,7 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 // method to handle errors.
-                Toast.makeText(MainActivity.this, "Fail to get response = " + error, Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, getString(R.string.error_fail_response, error), Toast.LENGTH_SHORT).show();
             }
         }) {
             @Override
@@ -178,8 +196,10 @@ public class MainActivity extends BaseActivity {
                 // on below line we are passing our key
                 // and value pair to our parameters.
                 String orderdate = editTextDate.getText().toString();
-                String who = editTextPerson.getText().toString();
-                String location = editTextLocation.getText().toString();
+//                String who = editTextPerson.getText().toString();
+                String who = spinnerPerson.getSelectedItem().toString();
+//                String location = editTextLocation.getText().toString();
+                String location = spinnerLocation.getSelectedItem().toString();
                 String income = editTextIncome.getText().toString();
                 String expense = editTextSpending.getText().toString();
 
@@ -200,7 +220,7 @@ public class MainActivity extends BaseActivity {
             //below line is to make
             //a json object request.
             queue.add(request);
-            //updating all fields from overview
+            //update all fields from overview
             getOutputFromDatabase(StaticFields.INCOME);
             getOutputFromDatabase(StaticFields.EXPENSE);
             getOutputFromDatabase(StaticFields.SAVINGS);
@@ -320,17 +340,17 @@ public class MainActivity extends BaseActivity {
 
         if (requestCode == StaticFields.CAMERA_PERMISSION_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(MainActivity.this, "Camera Permission Granted", Toast.LENGTH_SHORT) .show();
+                Toast.makeText(MainActivity.this, R.string.permission_camera_granted, Toast.LENGTH_SHORT) .show();
             }
             else {
-                Toast.makeText(MainActivity.this, "Camera Permission Denied", Toast.LENGTH_SHORT) .show();
+                Toast.makeText(MainActivity.this, R.string.permission_camera_denied, Toast.LENGTH_SHORT) .show();
             }
         }
         else if (requestCode == StaticFields.STORAGE_PERMISSION_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(MainActivity.this, "Storage Permission Granted", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, R.string.permission_storage_granted, Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(MainActivity.this, "Storage Permission Denied", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, R.string.permission_storage_denied, Toast.LENGTH_SHORT).show();
             }
         }
     }
