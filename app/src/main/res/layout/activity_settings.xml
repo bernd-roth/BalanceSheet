@@ -17,7 +17,7 @@
             android:id="@+id/editTextIPAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="IP adress"
+            android:hint="IP address"
             android:inputType="text" />
 
         <EditText
