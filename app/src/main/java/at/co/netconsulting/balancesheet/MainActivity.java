@@ -44,6 +44,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import at.co.netconsulting.Spending;
 import at.co.netconsulting.general.StaticFields;
 
 public class MainActivity extends BaseActivity {
@@ -74,13 +75,13 @@ public class MainActivity extends BaseActivity {
 
         checkPermissions();
         initializeObjects();
+        loadSharedPreferences(StaticFields.SP_PORT);
+        loadSharedPreferences(StaticFields.SP_INTERNET_ADDRESS);
+        loadSharedPreferences(StaticFields.SP_PERSON);
         getOutputFromDatabase(StaticFields.INCOME);
         getOutputFromDatabase(StaticFields.EXPENSE);
         getOutputFromDatabase(StaticFields.SAVINGS);
         getOutputFromDatabase(StaticFields.FOOD);
-        loadSharedPreferences(StaticFields.SP_PORT);
-        loadSharedPreferences(StaticFields.SP_INTERNET_ADDRESS);
-        loadSharedPreferences(StaticFields.SP_PERSON);
     }
 
     //SharedPreferences
@@ -159,11 +160,20 @@ public class MainActivity extends BaseActivity {
             spinnerPerson.setAdapter(adapterPerson);
 //        editTextLocation = findViewById(R.id.editTextLocation);
         spinnerLocation = findViewById(R.id.spinnerLocation);
-        String[] itemsLocation = new String[]{"Food", "Pharmacy", "Squandering", "Money",
-                "Income", "Expense", "Savings", "Amazon",
-                "Obi", "Wiener Staedtische Versicherung AG", "Internet", "Telephone",
-                "Facility Management", "Wiener Netze", "GTE-Gebäude-Technik-Energie Betrieb",
-                "Loan", "Depot"};
+        String[] itemsLocation = new String[]{
+                String.valueOf(Spending.Amazon),
+                String.valueOf(Spending.Depot),
+                String.valueOf(Spending.Expense),
+                String.valueOf(Spending.Facility_Management),
+                String.valueOf(Spending.Food),
+                String.valueOf(Spending.GTE_Gebäude_Technik_Energie_Betrieb),
+                String.valueOf(Spending.Income),
+                String.valueOf(Spending.Internet),
+                String.valueOf(Spending.Loan),
+                String.valueOf(Spending.Squandering),
+                String.valueOf(Spending.Telephone),
+                String.valueOf(Spending.Wiener_Netze),
+                String.valueOf(Spending.Wiener_Staedtische_Versicherung_AG)};
             ArrayAdapter<String> adapterLocation = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, itemsLocation);
             spinnerLocation.setAdapter(adapterLocation);
         editTextDate = findViewById(R.id.editTextDate);
@@ -298,8 +308,6 @@ public class MainActivity extends BaseActivity {
                 new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-//                Toast.makeText(getApplicationContext(),"Response :" + response.toString(), Toast.LENGTH_LONG).show();
-
                 try {
                     JSONObject obj = new JSONObject(response);
                     JSONArray jsonArray = new JSONArray();
@@ -413,6 +421,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        pieChart.clearChart();
         loadSharedPreferences(StaticFields.SP_PORT);
         loadSharedPreferences(StaticFields.SP_INTERNET_ADDRESS);
         loadSharedPreferences(StaticFields.SP_PERSON);
@@ -420,5 +429,11 @@ public class MainActivity extends BaseActivity {
         getOutputFromDatabase(StaticFields.EXPENSE);
         getOutputFromDatabase(StaticFields.SAVINGS);
         getOutputFromDatabase(StaticFields.FOOD);
+        resetEditText();
+    }
+
+    private void resetEditText() {
+        editTextIncome.setText("0");
+        editTextSpending.setText("0");
     }
 }
