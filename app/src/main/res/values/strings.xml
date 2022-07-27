@@ -21,4 +21,5 @@
 
     <!-- TAG -->
     <string name="log_message">VolleyError = %1$s</string>
+    <string name="log_json_message">JSONObject = %1$s</string>
 </resources>

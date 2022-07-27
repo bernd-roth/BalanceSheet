@@ -214,14 +214,12 @@ public class MainActivity extends BaseActivity {
         StringRequest request = new StringRequest(Request.Method.POST, url, new com.android.volley.Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                //on below line we are displaying a success toast message.
-                //Toast.makeText(MainActivity.this, "Data added to API", Toast.LENGTH_SHORT).show();
                 //on below line we are parsing the response
                 //to json object to extract data from it.
                 try {
                     JSONObject respObj = new JSONObject(response);
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, getString(R.string.log_json_message, e.toString()));
                 }
             }
         }, new com.android.volley.Response.ErrorListener() {
@@ -240,9 +238,7 @@ public class MainActivity extends BaseActivity {
                 // on below line we are passing our key
                 // and value pair to our parameters.
                 String orderdate = editTextDate.getText().toString();
-//                String who = editTextPerson.getText().toString();
                 String who = spinnerPerson.getSelectedItem().toString();
-//                String location = editTextLocation.getText().toString();
                 String location = spinnerLocation.getSelectedItem().toString();
                 String income = editTextIncome.getText().toString();
                 String expense = editTextSpending.getText().toString();
@@ -429,8 +425,6 @@ public class MainActivity extends BaseActivity {
         loadSharedPreferences(StaticFields.SP_PORT);
         loadSharedPreferences(StaticFields.SP_INTERNET_ADDRESS);
         loadSharedPreferences(StaticFields.SP_PERSON);
-        // To animate the pie chart
-        pieChart.startAnimation();
         resetEditText();
     }
 
