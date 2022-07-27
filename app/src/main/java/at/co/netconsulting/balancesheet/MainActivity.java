@@ -68,6 +68,7 @@ public class MainActivity extends BaseActivity {
     private ArrayList<String> itemsPerson;
     private ArrayAdapter<String> adapterPerson;
     private PieChart pieChart;
+    private int totalIncomeInt, totalExpenseInt, totalSavingsInt, totalFoodInt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -318,6 +319,7 @@ public class MainActivity extends BaseActivity {
 
                     if(incomeOrExpenseOrSavingsOrFood.equals("income") && repl.equals("null")) {
                         totalIncome.setText("0");
+                        totalIncomeInt = 0;
                     } else if(incomeOrExpenseOrSavingsOrFood.equals("income") && !repl.equals("null")){
                         totalIncome.setText(repl);
                         pieChart.addPieSlice(
@@ -327,6 +329,7 @@ public class MainActivity extends BaseActivity {
                                         Color.parseColor("#99CC00")));
                     } else if(incomeOrExpenseOrSavingsOrFood.equals("expense") && repl.equals("null")) {
                         totalExpense.setText("0");
+                        totalExpenseInt = 0;
                     } else if(incomeOrExpenseOrSavingsOrFood.equals("expense") && !repl.equals("null")) {
                         totalExpense.setText(repl);
                         pieChart.addPieSlice(
@@ -336,6 +339,7 @@ public class MainActivity extends BaseActivity {
                                         Color.parseColor("#FF4444")));
                     } else if(incomeOrExpenseOrSavingsOrFood.equals("savings") && repl.equals("null")) {
                         totalSavings.setText("0");
+                        totalSavingsInt = 0;
                     } else if(incomeOrExpenseOrSavingsOrFood.equals("savings") && !repl.equals("null")) {
                         totalSavings.setText(repl);
                         pieChart.addPieSlice(
@@ -345,6 +349,7 @@ public class MainActivity extends BaseActivity {
                                         Color.parseColor("#33B5E5")));
                     } else if(incomeOrExpenseOrSavingsOrFood.equals("food") && repl.equals("null")) {
                         totalFood.setText("0");
+                        totalFoodInt = 0;
                     } else if(incomeOrExpenseOrSavingsOrFood.equals("food") && !repl.equals("null")) {
                         totalFood.setText(repl);
                         pieChart.addPieSlice(
@@ -355,6 +360,15 @@ public class MainActivity extends BaseActivity {
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
+                }
+                if(totalIncomeInt == 0 && totalExpenseInt == 0 && totalSavingsInt == 0 && totalFoodInt == 0) {
+                    pieChart.addPieSlice(
+                            new PieModel(
+                                    "No income, no expenses",
+                                    0,
+                                    Color.parseColor("#dfe533")));
+                    // To animate the pie chart
+                    pieChart.startAnimation();
                 }
             }
         }, new Response.ErrorListener() {
