@@ -22,6 +22,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -282,7 +283,8 @@ public class MainActivity extends BaseActivity {
                     StaticFields.COLON +
                     sharedPref_Port +
                     StaticFields.REST_URL_GET_SUM_INCOME;
-        } else if (incomeOrExpenseOrSavingsOrFood.equals("expense")) {
+        }
+        else if (incomeOrExpenseOrSavingsOrFood.equals("expense")) {
             url = StaticFields.PROTOCOL +
                     sharedPref_IP +
                     StaticFields.COLON +
@@ -303,7 +305,7 @@ public class MainActivity extends BaseActivity {
         }
 
         //String Request initialized
-        mStringRequest = new StringRequest(Request.Method.GET,
+        StringRequest mStringRequest = new StringRequest(Request.Method.GET,
                 url,
                 new Response.Listener<String>() {
             @Override
@@ -362,9 +364,12 @@ public class MainActivity extends BaseActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.i(TAG,"Error :" + error.toString());
+                Log.e(TAG, getString(R.string.log_message, error.toString()));
             }
         });
+        mStringRequest.setShouldCache(false);
+        DefaultRetryPolicy retryPolicy = new DefaultRetryPolicy(5000, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        mStringRequest.setRetryPolicy(retryPolicy);
         mRequestQueue.add(mStringRequest);
         // To animate the pie chart
         pieChart.startAnimation();
@@ -421,14 +426,11 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        pieChart.clearChart();
         loadSharedPreferences(StaticFields.SP_PORT);
         loadSharedPreferences(StaticFields.SP_INTERNET_ADDRESS);
         loadSharedPreferences(StaticFields.SP_PERSON);
-        getOutputFromDatabase(StaticFields.INCOME);
-        getOutputFromDatabase(StaticFields.EXPENSE);
-        getOutputFromDatabase(StaticFields.SAVINGS);
-        getOutputFromDatabase(StaticFields.FOOD);
+        // To animate the pie chart
+        pieChart.startAnimation();
         resetEditText();
     }
 
