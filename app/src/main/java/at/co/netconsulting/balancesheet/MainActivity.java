@@ -137,6 +137,12 @@ public class MainActivity extends BaseActivity {
             public void onClick(View v) {
                 checkInputFields();
                 sendInputToDatabase();
+                pieChart.clearChart();
+                //update all fields from overview
+                getOutputFromDatabase(StaticFields.INCOME);
+                getOutputFromDatabase(StaticFields.EXPENSE);
+                getOutputFromDatabase(StaticFields.SAVINGS);
+                getOutputFromDatabase(StaticFields.FOOD);
             }
         });
         //fabDeleteButton = (FloatingActionButton) findViewById(R.id.deleteButton);
@@ -261,11 +267,6 @@ public class MainActivity extends BaseActivity {
             //below line is to make
             //a json object request.
             queue.add(request);
-            //update all fields from overview
-            getOutputFromDatabase(StaticFields.INCOME);
-            getOutputFromDatabase(StaticFields.EXPENSE);
-            getOutputFromDatabase(StaticFields.SAVINGS);
-            getOutputFromDatabase(StaticFields.FOOD);
         }
 
     private void getOutputFromDatabase(String incomeOrExpenseOrSavingsOrFood) {
