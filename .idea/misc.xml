@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/user/AppData/Local/Android/Sdk/platforms/android-31/data/res/layout/select_dialog_singlechoice.xml" value="0.23541666666666666" />
         <entry key="..\:/Users/user/Downloads/BalanceSheet/app/src/main/res/drawable/ic_input_add.xml" value="0.196" />
         <entry key="..\:/Users/user/Downloads/BalanceSheet/app/src/main/res/layout/activity_database.xml" value="0.18802083333333333" />
         <entry key="..\:/Users/user/Downloads/BalanceSheet/app/src/main/res/layout/activity_main.xml" value="0.17831813576494426" />
@@ -13,8 +14,10 @@
         <entry key="..\:/Users/user/Downloads/BalanceSheet/app/src/main/res/menu/menu_options.xml" value="0.16875" />
         <entry key="..\:/Users/user/Downloads/BalanceSheet/app/src/main/res/menu/menu_settings.xml" value="0.171875" />
         <entry key="..\:/Users/user/Downloads/BalanceSheet/app/src/main/res/menu/settings_menu.xml" value="0.16875" />
+        <entry key="..\:/projects/BalanceSheet/app/src/main/res/layout/activity_listview.xml" value="0.36666666666666664" />
         <entry key="..\:/projects/BalanceSheet/app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="..\:/projects/BalanceSheet/app/src/main/res/layout/activity_settings.xml" value="0.22135416666666666" />
+        <entry key="..\:/projects/BalanceSheet/app/src/main/res/layout/row.xml" value="0.234375" />
         <entry key="..\:/projects/BalanceSheet/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.207" />
       </map>
     </option>

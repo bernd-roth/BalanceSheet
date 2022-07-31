@@ -1,4 +1,4 @@
-package at.co.netconsulting;
+package at.co.netconsulting.enums;
 
 public enum Spending {
     Amazon,

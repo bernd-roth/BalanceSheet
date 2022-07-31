@@ -1,7 +1,9 @@
 package at.co.netconsulting.balancesheet;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -18,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,6 +32,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.eazegraph.lib.charts.PieChart;
@@ -36,26 +40,28 @@ import org.eazegraph.lib.models.PieModel;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import at.co.netconsulting.Spending;
+import at.co.netconsulting.enums.Spending;
 import at.co.netconsulting.general.StaticFields;
 
 public class MainActivity extends BaseActivity {
 
     private Toolbar toolbar;
-    private FloatingActionButton fabAddButton, fabDeleteButton;
+    private FloatingActionButton fabAddButton;
+    private ExtendedFloatingActionButton fabListButton;
     private EditText editTextIncome,
             editTextSpending,
-//            editTextPerson,
-            editTextLocation,
             editTextDate;
     private Spinner spinnerPerson, spinnerLocation;
     private RequestQueue mRequestQueue;
@@ -65,8 +71,8 @@ public class MainActivity extends BaseActivity {
     private String sharedPref_IP, sharedPref_Port, sharedPref_Person;
     private TextView totalIncome, totalExpense, totalSavings, totalFood;
     private String[] splitPerson;
-    private ArrayList<String> itemsPerson;
-    private ArrayAdapter<String> adapterPerson;
+    private ArrayList<String> itemsPerson, arrayListOfIncomeAndExpense;
+    private ArrayAdapter<String> adapterPerson, adapter;
     private PieChart pieChart;
     private int totalIncomeInt, totalExpenseInt, totalSavingsInt, totalFoodInt;
 
@@ -84,6 +90,7 @@ public class MainActivity extends BaseActivity {
         getOutputFromDatabase(StaticFields.EXPENSE);
         getOutputFromDatabase(StaticFields.SAVINGS);
         getOutputFromDatabase(StaticFields.FOOD);
+        getOutputFromDatabase(StaticFields.ALL);
     }
 
     //SharedPreferences
@@ -145,28 +152,40 @@ public class MainActivity extends BaseActivity {
                 getOutputFromDatabase(StaticFields.FOOD);
             }
         });
-        //fabDeleteButton = (FloatingActionButton) findViewById(R.id.deleteButton);
-        //fabDeleteButton.setOnClickListener(new View.OnClickListener() {
-        //    @Override
-        //    public void onClick(View v) {}
-        //});
+        fabListButton = (ExtendedFloatingActionButton) findViewById(R.id.listButton);
+        fabListButton.setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View v) {
+                 Month currentMonth = LocalDate.now().getMonth();
+
+                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                 alertDialog.setTitle("" + currentMonth);
+                 View rowList = getLayoutInflater().inflate(R.layout.row, null);
+                 ListView listView = rowList.findViewById(R.id.listView);
+                 adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, arrayListOfIncomeAndExpense);
+                 if(!adapter.isEmpty())
+                    listView.setAdapter(adapter);
+                 adapter.notifyDataSetChanged();
+                 alertDialog.setView(rowList);
+                 AlertDialog dialog = alertDialog.create();
+                 dialog.show();
+             }
+        });
 
         editTextIncome = findViewById(R.id.editTextIncome);
         editTextSpending = findViewById(R.id.editTextSpending);
-//        editTextPerson = findViewById(R.id.editTextPerson);
         spinnerPerson = findViewById(R.id.spinner);
-            itemsPerson = new ArrayList<>();
-            if(sharedPref_Person != null) {
-                splitPerson =  sharedPref_Person.split(" ");
-                for (int i = 0; i<=splitPerson.length; i++) {
-                    itemsPerson.add(splitPerson[i]);
-                }
-            } else {
-                itemsPerson.add("Placeholder");
+        itemsPerson = new ArrayList<>();
+        if(sharedPref_Person != null) {
+            splitPerson =  sharedPref_Person.split(" ");
+            for (int i = 0; i<=splitPerson.length; i++) {
+                itemsPerson.add(splitPerson[i]);
             }
-            adapterPerson = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, itemsPerson);
-            spinnerPerson.setAdapter(adapterPerson);
-//        editTextLocation = findViewById(R.id.editTextLocation);
+        } else {
+            itemsPerson.add("Placeholder");
+        }
+        adapterPerson = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, itemsPerson);
+        spinnerPerson.setAdapter(adapterPerson);
         spinnerLocation = findViewById(R.id.spinnerLocation);
         String[] itemsLocation = new String[]{
                 String.valueOf(Spending.Amazon),
@@ -186,9 +205,10 @@ public class MainActivity extends BaseActivity {
             spinnerLocation.setAdapter(adapterLocation);
         editTextDate = findViewById(R.id.editTextDate);
         pieChart = findViewById(R.id.piechart);
+        arrayListOfIncomeAndExpense = new ArrayList<>();
     }
 
-    private String setDateCorrectly() {
+     private String setDateCorrectly() {
         Date date = Calendar.getInstance().getTime();
         DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
         String today = formatter.format(date);
@@ -197,9 +217,7 @@ public class MainActivity extends BaseActivity {
 
     private void checkInputFields() {
         if (editTextIncome.getText().toString().isEmpty() || editTextSpending.getText().toString().isEmpty()
-//                || editTextPerson.getText().toString().isEmpty()
                 || spinnerPerson.getSelectedItem().toString().isEmpty()
-//                || editTextLocation.getText().toString().isEmpty()
                 || spinnerLocation.getSelectedItem().toString().isEmpty()
                 || editTextDate.getText().toString().isEmpty()) {
             Toast.makeText(getApplicationContext(), R.string.warning_all_fields, Toast.LENGTH_LONG).show();
@@ -281,8 +299,7 @@ public class MainActivity extends BaseActivity {
                     StaticFields.COLON +
                     sharedPref_Port +
                     StaticFields.REST_URL_GET_SUM_INCOME;
-        }
-        else if (incomeOrExpenseOrSavingsOrFood.equals("expense")) {
+        } else if (incomeOrExpenseOrSavingsOrFood.equals("expense")) {
             url = StaticFields.PROTOCOL +
                     sharedPref_IP +
                     StaticFields.COLON +
@@ -300,6 +317,12 @@ public class MainActivity extends BaseActivity {
                     StaticFields.COLON +
                     sharedPref_Port +
                     StaticFields.REST_URL_GET_SUM_FOOD;
+        } else if (incomeOrExpenseOrSavingsOrFood.equals("all")) {
+            url = StaticFields.PROTOCOL +
+                    sharedPref_IP +
+                    StaticFields.COLON +
+                    sharedPref_Port +
+                    StaticFields.REST_URL_GET_ALL;
         }
 
         //String Request initialized
@@ -313,63 +336,85 @@ public class MainActivity extends BaseActivity {
                     JSONArray jsonArray = new JSONArray();
                     jsonArray.put(obj);
 
-                    JSONObject locs = obj.getJSONObject("incomeexpense");
-                    JSONArray recs = locs.getJSONArray("Total income");
+                    if (obj.has("incomeexpense")) {
+                        JSONObject dataObject = obj.optJSONObject("incomeexpense");
+                        if (dataObject != null) {
+                            Log.d(TAG, dataObject.toString());
+                            JSONObject locs = obj.getJSONObject("incomeexpense");
+                            JSONArray recs = locs.getJSONArray("Total income");
 
-                    String repl = recs.getString(0);
+                            String repl = recs.getString(0);
 
-                    if(incomeOrExpenseOrSavingsOrFood.equals("income") && repl.equals("null")) {
-                        totalIncome.setText("0");
-                        totalIncomeInt = 0;
-                    } else if(incomeOrExpenseOrSavingsOrFood.equals("income") && !repl.equals("null")){
-                        totalIncome.setText(repl);
-                        pieChart.addPieSlice(
-                                new PieModel(
-                                        "Total income",
-                                        Float.parseFloat(repl),
-                                        Color.parseColor("#99CC00")));
-                    } else if(incomeOrExpenseOrSavingsOrFood.equals("expense") && repl.equals("null")) {
-                        totalExpense.setText("0");
-                        totalExpenseInt = 0;
-                    } else if(incomeOrExpenseOrSavingsOrFood.equals("expense") && !repl.equals("null")) {
-                        totalExpense.setText(repl);
-                        pieChart.addPieSlice(
-                                new PieModel(
-                                        "Total spending",
-                                        Float.parseFloat(repl),
-                                        Color.parseColor("#FF4444")));
-                    } else if(incomeOrExpenseOrSavingsOrFood.equals("savings") && repl.equals("null")) {
-                        totalSavings.setText("0");
-                        totalSavingsInt = 0;
-                    } else if(incomeOrExpenseOrSavingsOrFood.equals("savings") && !repl.equals("null")) {
-                        totalSavings.setText(repl);
-                        pieChart.addPieSlice(
-                                new PieModel(
-                                        "Total savings",
-                                        Float.parseFloat(repl),
-                                        Color.parseColor("#33B5E5")));
-                    } else if(incomeOrExpenseOrSavingsOrFood.equals("food") && repl.equals("null")) {
-                        totalFood.setText("0");
-                        totalFoodInt = 0;
-                    } else if(incomeOrExpenseOrSavingsOrFood.equals("food") && !repl.equals("null")) {
-                        totalFood.setText(repl);
-                        pieChart.addPieSlice(
-                                new PieModel(
-                                        "Food/day",
-                                        Float.parseFloat(repl),
-                                        Color.parseColor("#FFBB33")));
+                            if (incomeOrExpenseOrSavingsOrFood.equals("income") && repl.equals("null")) {
+                                totalIncome.setText("0");
+                                totalIncomeInt = 0;
+                            } else if (incomeOrExpenseOrSavingsOrFood.equals("income") && !repl.equals("null")) {
+                                totalIncome.setText(repl);
+                                pieChart.addPieSlice(
+                                        new PieModel(
+                                                "Total income",
+                                                Float.parseFloat(repl),
+                                                Color.parseColor("#99CC00")));
+                            } else if (incomeOrExpenseOrSavingsOrFood.equals("expense") && repl.equals("null")) {
+                                totalExpense.setText("0");
+                                totalExpenseInt = 0;
+                            } else if (incomeOrExpenseOrSavingsOrFood.equals("expense") && !repl.equals("null")) {
+                                totalExpense.setText(repl);
+                                pieChart.addPieSlice(
+                                        new PieModel(
+                                                "Total spending",
+                                                Float.parseFloat(repl),
+                                                Color.parseColor("#FF4444")));
+                            } else if (incomeOrExpenseOrSavingsOrFood.equals("savings") && repl.equals("null")) {
+                                totalSavings.setText("0");
+                                totalSavingsInt = 0;
+                            } else if (incomeOrExpenseOrSavingsOrFood.equals("savings") && !repl.equals("null")) {
+                                totalSavings.setText(repl);
+                                pieChart.addPieSlice(
+                                        new PieModel(
+                                                "Total savings",
+                                                Float.parseFloat(repl),
+                                                Color.parseColor("#33B5E5")));
+                            } else if (incomeOrExpenseOrSavingsOrFood.equals("food") && repl.equals("null")) {
+                                totalFood.setText("0");
+                                totalFoodInt = 0;
+                            } else if (incomeOrExpenseOrSavingsOrFood.equals("food") && !repl.equals("null")) {
+                                totalFood.setText(repl);
+                                pieChart.addPieSlice(
+                                        new PieModel(
+                                                "Food/day",
+                                                Float.parseFloat(repl),
+                                                Color.parseColor("#FFBB33")));
+                            } else if (incomeOrExpenseOrSavingsOrFood.equals("all") && repl.equals("null")) {
+                                totalFood.setText("0");
+                                totalFoodInt = 0;
+                            } else if (incomeOrExpenseOrSavingsOrFood.equals("all") && !repl.equals("null")) {
+                                arrayListOfIncomeAndExpense.add(repl.toString());
+                            }
+                        } else {
+                            JSONArray array = obj.optJSONArray("incomeexpense");
+                            for (int i = 0; i < array.length(); i++) {
+                                JSONObject jsn = array.getJSONObject(i);
+                                String expense = jsn.getString("expense");
+                                String income = jsn.getString("income");
+                                String location = jsn.getString("location");
+                                String who = jsn.getString("who");
+                                String orderdate = jsn.getString("orderdate");
+                                arrayListOfIncomeAndExpense.add("When: " + ":" + orderdate + "\nPerson: " + who + "\nWhere: " + location + "\nIncome: " + income + "\nExpense: " + expense);
+                            }
+                        }
+                        if (totalIncomeInt == 0 && totalExpenseInt == 0 && totalSavingsInt == 0 && totalFoodInt == 0) {
+                            pieChart.addPieSlice(
+                                    new PieModel(
+                                            "No income, no expenses",
+                                            0,
+                                            Color.parseColor("#dfe533")));
+                            // To animate the pie chart
+                            pieChart.startAnimation();
+                        }
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
-                }
-                if(totalIncomeInt == 0 && totalExpenseInt == 0 && totalSavingsInt == 0 && totalFoodInt == 0) {
-                    pieChart.addPieSlice(
-                            new PieModel(
-                                    "No income, no expenses",
-                                    0,
-                                    Color.parseColor("#dfe533")));
-                    // To animate the pie chart
-                    pieChart.startAnimation();
                 }
             }
         }, new Response.ErrorListener() {

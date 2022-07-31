@@ -23,4 +23,5 @@ public class StaticFields {
     public static final String EXPENSE = "expense";
     public static final String SAVINGS = "savings";
     public static final String FOOD = "food";
+    public static final String ALL = "all";
 }
