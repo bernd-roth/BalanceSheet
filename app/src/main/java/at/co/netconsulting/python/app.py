@@ -7,13 +7,13 @@ from decimal import *
 #
 from sqlalchemy import create_engine
 from sqlalchemy.sql import functions
-engine = create_engine('postgresql+psycopg2://postgres:password@192.168.0.18:5432/incomeexpense')
+engine = create_engine('postgresql+psycopg2://postgres:password@ip:db-port/incomeexpense')
 from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 #
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:password@192.168.0.18:5432/incomeexpense"
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:password@ip:db-port/incomeexpense"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -40,11 +40,12 @@ class IncomeExpenseModel(db.Model):
 
 @app.route('/incomeexpense/all', methods=['GET'])
 def handle_incomexpense_all():
-    incomeexpense = IncomeExpenseModel.query.all();
+    #incomeexpense = IncomeExpenseModel.query.order_by(IncomeExpenseModel.orderdate.desc()).all();
 
     if request.method == 'GET':
         response = []
-        for incomeexpense in IncomeExpenseModel.query.all():
+        #               for incomeexpense in IncomeExpenseModel.query.all():
+        for incomeexpense in IncomeExpenseModel.query.order_by(IncomeExpenseModel.orderdate.desc()).all():
             response.append({
                 "orderdate": incomeexpense.orderdate,
                 "who": incomeexpense.who,
@@ -128,7 +129,6 @@ def handle_incomexpense_sum_food():
     conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='password'"
     conn = psycopg2.connect(conn_string)
     cursor = conn.cursor()
-    #Let us cut the output to two decimals
     cursor.execute("SELECT ROUND(ABS(SUM(income)-SUM(expense))/EXTRACT(DAY FROM TIMESTAMP 'NOW()')::numeric,2) FROM incomeexpense WHERE location LIKE 'Food%'")
     rows = cursor.fetchall()
     rowarray_list = []
@@ -169,6 +169,27 @@ def handle_incomexpense_add():
         db.session.add(entry)
         db.session.commit()
         return jsonify({"message":"Successfully inserted!"})
+
+#@app.route('/incomeexpense/all', methods=['GET'])
+#def handle_incomexpense_all():
+#       import collections
+#       import psycopg2
+
+#       conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
+#       conn = psycopg2.connect(conn_string)
+#       cursor = conn.cursor()
+#       cursor.execute("SELECT orderdate, who, location, income, expense FROM incomeexpense order by orderdate DESC")
+#       rows = cursor.fetchall()
+#       rowarray_list = []
+#       for row in rows:
+#               t = (row[0])
+#               rowarray_list.append(t)
+#       print(rowarray_list[0])
+#
+#       my_dict = {"Total income":[]};
+#       my_dict["Total income"].append(rowarray_list[0])
+#       print(my_dict)
+#       return {"message": "success", "incomeexpense": my_dict}
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", debug=True)
