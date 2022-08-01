@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.util.Log;
 import android.view.MenuItem;
@@ -75,6 +76,7 @@ public class MainActivity extends BaseActivity {
     private ArrayAdapter<String> adapterPerson, adapter;
     private PieChart pieChart;
     private int totalIncomeInt, totalExpenseInt, totalSavingsInt, totalFoodInt;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -206,6 +208,22 @@ public class MainActivity extends BaseActivity {
         editTextDate = findViewById(R.id.editTextDate);
         pieChart = findViewById(R.id.piechart);
         arrayListOfIncomeAndExpense = new ArrayList<>();
+        swipeRefreshLayout = (SwipeRefreshLayout)findViewById(R.id.refreshLayout);
+        // Refresh  the layout
+        swipeRefreshLayout.setOnRefreshListener(
+                new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        pieChart.clearChart();
+                        getOutputFromDatabase(StaticFields.INCOME);
+                        getOutputFromDatabase(StaticFields.EXPENSE);
+                        getOutputFromDatabase(StaticFields.SAVINGS);
+                        getOutputFromDatabase(StaticFields.FOOD);
+                        getOutputFromDatabase(StaticFields.ALL);
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                }
+        );
     }
 
      private String setDateCorrectly() {
@@ -386,8 +404,6 @@ public class MainActivity extends BaseActivity {
                                                 Float.parseFloat(repl),
                                                 Color.parseColor("#FFBB33")));
                             } else if (incomeOrExpenseOrSavingsOrFood.equals("all") && repl.equals("null")) {
-                                totalFood.setText("0");
-                                totalFoodInt = 0;
                             } else if (incomeOrExpenseOrSavingsOrFood.equals("all") && !repl.equals("null")) {
                                 arrayListOfIncomeAndExpense.add(repl.toString());
                             }
