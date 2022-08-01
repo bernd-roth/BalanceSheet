@@ -12,6 +12,8 @@
 
     <!--warning-->
     <string name="warning_all_fields">Warning! All fields must be filled</string>
+    <string name="warning_income_expense_equality">Warning! Income and expense have the same amount</string>
+    <string name="warning_income_expense_greater_than_zero">Warning! Income and expense must not greather than 0 at the same time</string>
 
     <!--error-->
     <string name="error_fail_response">Fail to get response = %1$s</string>

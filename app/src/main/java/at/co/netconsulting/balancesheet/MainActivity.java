@@ -144,14 +144,15 @@ public class MainActivity extends BaseActivity {
         fabAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                checkInputFields();
-                sendInputToDatabase();
-                pieChart.clearChart();
-                //update all fields from overview
-                getOutputFromDatabase(StaticFields.INCOME);
-                getOutputFromDatabase(StaticFields.EXPENSE);
-                getOutputFromDatabase(StaticFields.SAVINGS);
-                getOutputFromDatabase(StaticFields.FOOD);
+                if(checkInputFields()) {
+                    sendInputToDatabase();
+                    pieChart.clearChart();
+                    //update all fields from overview
+                    getOutputFromDatabase(StaticFields.INCOME);
+                    getOutputFromDatabase(StaticFields.EXPENSE);
+                    getOutputFromDatabase(StaticFields.SAVINGS);
+                    getOutputFromDatabase(StaticFields.FOOD);
+                }
             }
         });
         fabListButton = (ExtendedFloatingActionButton) findViewById(R.id.listButton);
@@ -243,13 +244,39 @@ public class MainActivity extends BaseActivity {
         return today;
     }
 
-    private void checkInputFields() {
+    private boolean checkInputFields() {
+        boolean isInputSave = true;
         if (editTextIncome.getText().toString().isEmpty() || editTextSpending.getText().toString().isEmpty()
                 || spinnerPerson.getSelectedItem().toString().isEmpty()
                 || spinnerLocation.getSelectedItem().toString().isEmpty()
                 || editTextDate.getText().toString().isEmpty()) {
-            Toast.makeText(getApplicationContext(), R.string.warning_all_fields, Toast.LENGTH_LONG).show();
+            //Toast.makeText(getApplicationContext(), R.string.warning_all_fields, Toast.LENGTH_LONG).show();
+            isInputSave = showAlertDialog(R.string.warning_all_fields);
         }
+        double income = Double.parseDouble(editTextIncome.getText().toString());
+        double expense = Double.parseDouble(editTextSpending.getText().toString());
+
+        if (income==expense) {
+            //Toast.makeText(getApplicationContext(), R.string.warning_income_expense_equality, Toast.LENGTH_LONG).show();
+            isInputSave = showAlertDialog(R.string.warning_income_expense_equality);
+        } else if(income > 0 && expense > 0){
+            isInputSave = showAlertDialog(R.string.warning_income_expense_greater_than_zero);
+        }
+        return isInputSave;
+    }
+
+    private boolean showAlertDialog(int alertMessage) {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+        alertDialog.setTitle("Alert!");
+        alertDialog.setMessage(alertMessage);
+        alertDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        alertDialog.show();
+        return false;
     }
 
     private void sendInputToDatabase() {
