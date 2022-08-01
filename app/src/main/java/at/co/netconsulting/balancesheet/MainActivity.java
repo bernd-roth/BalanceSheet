@@ -169,6 +169,12 @@ public class MainActivity extends BaseActivity {
                     listView.setAdapter(adapter);
                  adapter.notifyDataSetChanged();
                  alertDialog.setView(rowList);
+                 alertDialog.setPositiveButton("Return", new DialogInterface.OnClickListener() {
+                     @Override
+                     public void onClick(DialogInterface dialog, int which) {
+                         refreshAndRequestOutputFromDatabase(false);
+                     }
+                 });
                  AlertDialog dialog = alertDialog.create();
                  dialog.show();
              }
@@ -214,19 +220,23 @@ public class MainActivity extends BaseActivity {
                 new SwipeRefreshLayout.OnRefreshListener() {
                     @Override
                     public void onRefresh() {
-                        pieChart.clearChart();
-                        getOutputFromDatabase(StaticFields.INCOME);
-                        getOutputFromDatabase(StaticFields.EXPENSE);
-                        getOutputFromDatabase(StaticFields.SAVINGS);
-                        getOutputFromDatabase(StaticFields.FOOD);
-                        getOutputFromDatabase(StaticFields.ALL);
-                        swipeRefreshLayout.setRefreshing(false);
+                        refreshAndRequestOutputFromDatabase(false);
                     }
                 }
         );
     }
 
-     private String setDateCorrectly() {
+    private void refreshAndRequestOutputFromDatabase(boolean isRefreshing) {
+        pieChart.clearChart();
+        getOutputFromDatabase(StaticFields.INCOME);
+        getOutputFromDatabase(StaticFields.EXPENSE);
+        getOutputFromDatabase(StaticFields.SAVINGS);
+        getOutputFromDatabase(StaticFields.FOOD);
+        getOutputFromDatabase(StaticFields.ALL);
+        swipeRefreshLayout.setRefreshing(isRefreshing);
+    }
+
+    private String setDateCorrectly() {
         Date date = Calendar.getInstance().getTime();
         DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
         String today = formatter.format(date);
