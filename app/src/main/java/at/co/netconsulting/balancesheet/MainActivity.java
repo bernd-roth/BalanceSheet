@@ -419,6 +419,9 @@ public class MainActivity extends BaseActivity {
                             }
                         } else {
                             JSONArray array = obj.optJSONArray("incomeexpense");
+                            //when coming back from AlertDialog, array has to be emptied,
+                            //if not array will be doubled, tripled, ...
+                            arrayListOfIncomeAndExpense.clear();
                             for (int i = 0; i < array.length(); i++) {
                                 JSONObject jsn = array.getJSONObject(i);
                                 String expense = jsn.getString("expense");
