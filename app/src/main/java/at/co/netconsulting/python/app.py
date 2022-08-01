@@ -4,16 +4,21 @@ from flask_migrate import Migrate
 import json
 from sqlalchemy import select
 from decimal import *
+#date
+from datetime import date, timedelta
+import datetime
+import calendar
+#date
 #
 from sqlalchemy import create_engine
 from sqlalchemy.sql import functions
-engine = create_engine('postgresql+psycopg2://postgres:password@ip:db-port/incomeexpense')
+engine = create_engine('postgresql+psycopg2://postgres:3Jkris67zhnnhz76zhn@192.168.0.18:5432/incomeexpense')
 from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 #
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:password@ip:db-port/incomeexpense"
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:3Jkris67zhnnhz76zhn@192.168.0.18:5432/incomeexpense"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -40,12 +45,15 @@ class IncomeExpenseModel(db.Model):
 
 @app.route('/incomeexpense/all', methods=['GET'])
 def handle_incomexpense_all():
-    #incomeexpense = IncomeExpenseModel.query.order_by(IncomeExpenseModel.orderdate.desc()).all();
+    incomeexpense = IncomeExpenseModel.query.order_by(IncomeExpenseModel.orderdate.desc()).all();
 
     if request.method == 'GET':
         response = []
         #               for incomeexpense in IncomeExpenseModel.query.all():
-        for incomeexpense in IncomeExpenseModel.query.order_by(IncomeExpenseModel.orderdate.desc()).all():
+        first_day = datetime.date.today().replace(day=1)
+        last_day = datetime.date.today().replace(day=calendar.monthrange(datetime.date.today().year, datetime.date.today().month)[1])
+        for incomeexpense in IncomeExpenseModel.query.filter(IncomeExpenseModel.orderdate.between(first_day, last_day)).order_by(IncomeExpenseModel.orderdate.desc()).all():
+            #               for incomeexpense in IncomeExpenseModel.query.order_by(IncomeExpenseModel.orderdate.desc()).all():
             response.append({
                 "orderdate": incomeexpense.orderdate,
                 "who": incomeexpense.who,
@@ -60,7 +68,7 @@ def handle_expense_sum():
     import collections
     import psycopg2
 
-    conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='password'"
+    conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
     conn = psycopg2.connect(conn_string)
     cursor = conn.cursor()
     cursor.execute("SELECT sum(expense) FROM incomeexpense")
@@ -82,7 +90,7 @@ def handle_incomexpense_sum():
     import collections
     import psycopg2
 
-    conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='password'"
+    conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
     conn = psycopg2.connect(conn_string)
     cursor = conn.cursor()
     cursor.execute("SELECT SUM(income) FROM incomeexpense")
@@ -104,7 +112,7 @@ def handle_incomexpense_sum_savings():
     import collections
     import psycopg2
 
-    conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='password'"
+    conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
     conn = psycopg2.connect(conn_string)
     cursor = conn.cursor()
     cursor.execute("SELECT SUM(income)-SUM(expense) FROM incomeexpense")
@@ -126,7 +134,7 @@ def handle_incomexpense_sum_food():
     import collections
     import psycopg2
 
-    conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='password'"
+    conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
     conn = psycopg2.connect(conn_string)
     cursor = conn.cursor()
     cursor.execute("SELECT ROUND(ABS(SUM(income)-SUM(expense))/EXTRACT(DAY FROM TIMESTAMP 'NOW()')::numeric,2) FROM incomeexpense WHERE location LIKE 'Food%'")
