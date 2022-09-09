@@ -1,5 +1,5 @@
 # BalanceSheet
-An overview of income and expenses, programmed in Android and SpringBoot
+An overview of income and expenses, programmed in Android and Flask (Python)
 
 # Pictures
 ![main_screen](app/src/main/res/github_pictures/main_screen.png)
