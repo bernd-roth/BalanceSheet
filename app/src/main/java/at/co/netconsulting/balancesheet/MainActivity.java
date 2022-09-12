@@ -16,6 +16,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -182,7 +184,45 @@ public class MainActivity extends BaseActivity {
         });
 
         editTextIncome = findViewById(R.id.editTextIncome);
+        editTextIncome.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                Double income = Double.parseDouble(editTextIncome.getText().toString());
+                if(income > 0)
+                    fabAddButton.setEnabled(true);
+                else
+                    fabAddButton.setEnabled(false);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
         editTextSpending = findViewById(R.id.editTextSpending);
+        editTextSpending.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                Double spending = Double.parseDouble(editTextSpending.getText().toString());
+                if(spending > 0)
+                    fabAddButton.setEnabled(true);
+                else
+                    fabAddButton.setEnabled(false);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
         spinnerPerson = findViewById(R.id.spinner);
         itemsPerson = new ArrayList<>();
         if(sharedPref_Person != null) {

@@ -242,6 +242,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="left"
+                        android:enabled="false"
                         app:srcCompat="@drawable/ic_baseline_add_24" />
 
                     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
