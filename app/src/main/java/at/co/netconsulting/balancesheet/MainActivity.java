@@ -191,11 +191,19 @@ public class MainActivity extends BaseActivity {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                Double income = Double.parseDouble(editTextIncome.getText().toString());
-                if(income > 0)
-                    fabAddButton.setEnabled(true);
-                else
+                if(editTextIncome.getText().length() !=0) {
+                    Double income = Double.parseDouble(editTextIncome.getText().toString());
+                    if(editTextSpending.getText().length() != 0) {
+                        Double spending = Double.parseDouble(editTextSpending.getText().toString());
+                        if(income > 0 && spending == 0) {
+                            fabAddButton.setEnabled(true);
+                        } else {
+                            fabAddButton.setEnabled(false);
+                        }
+                    }
+                } else {
                     fabAddButton.setEnabled(false);
+                }
             }
 
             @Override
@@ -211,11 +219,19 @@ public class MainActivity extends BaseActivity {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                Double spending = Double.parseDouble(editTextSpending.getText().toString());
-                if(spending > 0)
-                    fabAddButton.setEnabled(true);
-                else
+                if(editTextSpending.getText().length() !=0) {
+                    Double spending = Double.parseDouble(editTextSpending.getText().toString());
+                    if(editTextIncome.getText().length() !=0) {
+                        Double income = Double.parseDouble(editTextIncome.getText().toString());
+                        if(spending > 0 && income == 0) {
+                            fabAddButton.setEnabled(true);
+                        } else {
+                            fabAddButton.setEnabled(false);
+                        }
+                    }
+                } else {
                     fabAddButton.setEnabled(false);
+                }
             }
 
             @Override
