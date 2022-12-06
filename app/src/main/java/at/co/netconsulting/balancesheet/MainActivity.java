@@ -156,8 +156,8 @@ public class MainActivity extends BaseActivity {
                     getOutputFromDatabase(StaticFields.FOOD);
                     //deactivate fabAddButton and reset all textfields to 0
                     fabAddButton.setEnabled(false);
-                    editTextIncome.setEnabled(false);
-                    editTextSpending.setEnabled(false);
+                    editTextIncome.setText(0);
+                    editTextSpending.setText(0);
                 }
             }
         });
