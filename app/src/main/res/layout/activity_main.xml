@@ -199,6 +199,22 @@
                     android:layout_height="wrap_content"
                     android:layout_column="1"
                     android:textSize="20dp"
+                    android:hint="Position" />
+
+                <Spinner
+                    android:id="@+id/spinnerPosition"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:drawable/btn_dropdown"
+                    android:spinnerMode="dropdown"/>
+            </TableRow>
+
+            <TableRow>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:textSize="20dp"
                     android:hint="Location" />
 
                 <Spinner

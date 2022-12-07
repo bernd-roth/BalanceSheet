@@ -33,6 +33,7 @@ android {
     buildFeatures {
         viewBinding true
     }
+    namespace 'at.co.netconsulting.balancesheet'
 }
 
 dependencies {

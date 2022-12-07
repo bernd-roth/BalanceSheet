@@ -43,7 +43,6 @@ import org.eazegraph.lib.models.PieModel;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -55,6 +54,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import at.co.netconsulting.enums.Location;
 import at.co.netconsulting.enums.Spending;
 import at.co.netconsulting.general.StaticFields;
 
@@ -66,7 +66,7 @@ public class MainActivity extends BaseActivity {
     private EditText editTextIncome,
             editTextSpending,
             editTextDate;
-    private Spinner spinnerPerson, spinnerLocation;
+    private Spinner spinnerPerson, spinnerLocation, spinnerPosition;
     private RequestQueue mRequestQueue;
     private StringRequest mStringRequest;
     private static final String TAG = MainActivity.class.getName();
@@ -254,8 +254,8 @@ public class MainActivity extends BaseActivity {
         }
         adapterPerson = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, itemsPerson);
         spinnerPerson.setAdapter(adapterPerson);
-        spinnerLocation = findViewById(R.id.spinnerLocation);
-        String[] itemsLocation = new String[]{
+        spinnerPosition = findViewById(R.id.spinnerPosition);
+        String[] itemsPosition = new String[]{
                 String.valueOf(Spending.Amazon),
                 String.valueOf(Spending.Depot),
                 String.valueOf(Spending.Expense),
@@ -269,8 +269,14 @@ public class MainActivity extends BaseActivity {
                 String.valueOf(Spending.Telephone),
                 String.valueOf(Spending.Wiener_Netze),
                 String.valueOf(Spending.Wiener_Staedtische_Versicherung_AG)};
-            ArrayAdapter<String> adapterLocation = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, itemsLocation);
-            spinnerLocation.setAdapter(adapterLocation);
+            ArrayAdapter<String> adaperPosition = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, itemsPosition);
+            spinnerPosition.setAdapter(adaperPosition);
+        spinnerLocation = findViewById(R.id.spinnerLocation);
+        String[] itemsLocation = new String[]{
+                String.valueOf(Location.Hollgasse_1_1),
+                String.valueOf(Location.Hollgasse_1_54)};
+        ArrayAdapter<String> adapterLocation = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, itemsLocation);
+        spinnerLocation.setAdapter(adapterLocation);
         editTextDate = findViewById(R.id.editTextDate);
         pieChart = findViewById(R.id.piechart);
         arrayListOfIncomeAndExpense = new ArrayList<>();
@@ -307,8 +313,9 @@ public class MainActivity extends BaseActivity {
         boolean isInputSave = true;
         if (editTextIncome.getText().toString().isEmpty() || editTextSpending.getText().toString().isEmpty()
                 || spinnerPerson.getSelectedItem().toString().isEmpty()
-                || spinnerLocation.getSelectedItem().toString().isEmpty()
-                || editTextDate.getText().toString().isEmpty()) {
+                || spinnerPosition.getSelectedItem().toString().isEmpty()
+                || editTextDate.getText().toString().isEmpty()
+                || spinnerLocation.getSelectedItem().toString().isEmpty()) {
             //Toast.makeText(getApplicationContext(), R.string.warning_all_fields, Toast.LENGTH_LONG).show();
             isInputSave = showAlertDialog(R.string.warning_all_fields);
         }
@@ -378,18 +385,20 @@ public class MainActivity extends BaseActivity {
                 // and value pair to our parameters.
                 String orderdate = editTextDate.getText().toString();
                 String who = spinnerPerson.getSelectedItem().toString();
-                String location = spinnerLocation.getSelectedItem().toString();
+                String position = spinnerPosition.getSelectedItem().toString();
                 String income = editTextIncome.getText().toString();
                 String expense = editTextSpending.getText().toString();
+                String location = spinnerLocation.getSelectedItem().toString();
 
                 String[] orderDate = orderdate.split("/");
                 String orderDateAsYYYYMMDD = orderDate[2] + "-" + orderDate[1] + "-" + orderDate[0];
 
                 params.put("orderdate", orderDateAsYYYYMMDD);
                 params.put("who", who);
-                params.put("location", location);
+                params.put("position", position);
                 params.put("income", income);
                 params.put("expense", expense);
+                params.put("location", location);
 
                 // at last we are
                 // returning our params.
@@ -515,7 +524,11 @@ public class MainActivity extends BaseActivity {
                                 String location = jsn.getString("location");
                                 String who = jsn.getString("who");
                                 String orderdate = jsn.getString("orderdate");
-                                arrayListOfIncomeAndExpense.add("When: " + ":" + orderdate + "\nPerson: " + who + "\nWhere: " + location + "\nIncome: " + income + "\nExpense: " + expense);
+                                String position = jsn.getString("position");
+                                arrayListOfIncomeAndExpense.add("When: " + ":" + orderdate +
+                                        "\nPerson: " + who + "\nLocation: " + location +
+                                        "\nIncome: " + income + "\nExpense: " + expense +
+                                        "\nPosition: " + position) ;
                             }
                         }
                         if (totalIncomeInt == 0 && totalExpenseInt == 0 && totalSavingsInt == 0 && totalFoodInt == 0) {
