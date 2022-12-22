@@ -257,24 +257,31 @@ public class MainActivity extends BaseActivity {
         spinnerPosition = findViewById(R.id.spinnerPosition);
         String[] itemsPosition = new String[]{
                 String.valueOf(Spending.Amazon),
+                String.valueOf(Spending.Car),
                 String.valueOf(Spending.Depot),
                 String.valueOf(Spending.Expense),
-                String.valueOf(Spending.Facility_Management),
+                String.valueOf(Spending.Dr_W_W_Donath_Immobilienverwaltung),
                 String.valueOf(Spending.Food),
                 String.valueOf(Spending.GTE_Gebäude_Technik_Energie_Betrieb),
                 String.valueOf(Spending.Income),
                 String.valueOf(Spending.Internet),
-                String.valueOf(Spending.Loan),
+                String.valueOf(Spending.Loan_Bank99),
+                String.valueOf(Spending.Loan_Unicredit_Bank_Austria),
+                String.valueOf(Spending.Moebel_Ludwig),
+                String.valueOf(Spending.Obi),
+                String.valueOf(Spending.Pharmacy),
                 String.valueOf(Spending.Squandering),
                 String.valueOf(Spending.Telephone),
                 String.valueOf(Spending.Wiener_Netze),
-                String.valueOf(Spending.Wiener_Staedtische_Versicherung_AG)};
+                String.valueOf(Spending.Wiener_Staedtische_Versicherung_AG),
+                String.valueOf(Spending.XXX_Lutz)};
             ArrayAdapter<String> adaperPosition = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, itemsPosition);
             spinnerPosition.setAdapter(adaperPosition);
         spinnerLocation = findViewById(R.id.spinnerLocation);
         String[] itemsLocation = new String[]{
                 String.valueOf(Location.Hollgasse_1_1),
-                String.valueOf(Location.Hollgasse_1_54)};
+                String.valueOf(Location.Hollgasse_1_54),
+                String.valueOf(Location.Stipcakgasse_8_1_4)};
         ArrayAdapter<String> adapterLocation = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, itemsLocation);
         spinnerLocation.setAdapter(adapterLocation);
         editTextDate = findViewById(R.id.editTextDate);

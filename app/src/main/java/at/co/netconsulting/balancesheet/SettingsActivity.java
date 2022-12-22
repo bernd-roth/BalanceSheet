@@ -1,6 +1,7 @@
 package at.co.netconsulting.balancesheet;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
@@ -15,7 +16,7 @@ import at.co.netconsulting.general.StaticFields;
 public class SettingsActivity extends AppCompatActivity {
 
     private EditText editTextPort, editTextIPAddress, editTextPerson;
-    private FloatingActionButton fabSaveButton;
+    private FloatingActionButton fabSaveButton, fabReturnButton;
     private SharedPreferences sharedPreferences;
     private String[] splitPerson;
 
@@ -42,6 +43,16 @@ public class SettingsActivity extends AppCompatActivity {
                 saveSharedPreferences(StaticFields.SP_PORT);
                 saveSharedPreferences(StaticFields.SP_INTERNET_ADDRESS);
                 saveSharedPreferences(StaticFields.SP_PERSON);
+            }
+        });
+
+        fabReturnButton = findViewById(R.id.returnFab);
+        fabReturnButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
             }
         });
     }

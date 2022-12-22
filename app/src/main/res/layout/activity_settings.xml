@@ -36,11 +36,21 @@
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/returnFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:layout_anchor="@+id/linearLayout"
+        app:layout_anchorGravity="bottom|left"
+        app:srcCompat="@android:drawable/ic_menu_revert" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/saveFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:clickable="true"
         app:layout_anchor="@+id/linearLayout"
-        app:layout_anchorGravity="bottom|center"
+        app:layout_anchorGravity="bottom|right"
         app:srcCompat="@drawable/ic_baseline_add_24" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
