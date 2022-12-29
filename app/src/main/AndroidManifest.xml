@@ -31,6 +31,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".BarChartAllMonths"
+            android:exported="false"
+            android:label="@string/title_barchartallmonths"
+            android:theme="@style/Theme.BalanceSheet.NoActionBar" />
     </application>
 
 </manifest>

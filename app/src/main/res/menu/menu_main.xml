@@ -9,4 +9,11 @@
         android:title="@string/action_settings"
         app:showAsAction="ifRoom"
         android:onClick="showMenu" />
+
+    <item
+        android:id="@+id/action_barChartAllMonths"
+        android:orderInCategory="200"
+        android:title="@string/action_barChartAllMonths"
+        app:showAsAction="ifRoom"
+        android:onClick="showBarChartAllMonths" />
 </menu>

@@ -579,6 +579,9 @@ public class MainActivity extends BaseActivity {
     public void showMenu(MenuItem item) {
         onOptionsItemSelected(item);
     }
+    public void showBarChartAllMonths(MenuItem item) {
+        onOptionsItemSelected(item);
+    }
 
     // check permission is done here
     // Function to check and request permission.
