@@ -157,6 +157,7 @@ public class MainActivity extends BaseActivity {
                     //deactivate fabAddButton and reset all textfields to 0
                     fabAddButton.setEnabled(false);
                     resetEditText();
+                    refreshAndRequestOutputFromDatabase(false);
                 }
             }
         });
@@ -166,8 +167,8 @@ public class MainActivity extends BaseActivity {
              public void onClick(View v) {
                  Month currentMonth = LocalDate.now().getMonth();
 
-                 //when sending a put request and then clickling on show list,
-                 //the last entry is always missing, therefore doing an initiating an refresh
+                 //when sending a put request and then clicking on show list,
+                 //the last entry is always missing, therefore initiating an refresh
                  refreshAndRequestOutputFromDatabase(false);
 
                  AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
