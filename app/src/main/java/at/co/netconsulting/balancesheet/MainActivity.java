@@ -37,9 +37,6 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import org.eazegraph.lib.charts.PieChart;
-import org.eazegraph.lib.models.PieModel;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -76,7 +73,7 @@ public class MainActivity extends BaseActivity {
     private String[] splitPerson;
     private ArrayList<String> itemsPerson, arrayListOfIncomeAndExpense;
     private ArrayAdapter<String> adapterPerson, adapter;
-    private PieChart pieChart;
+    //private PieChart pieChart;
     private int totalIncomeInt, totalExpenseInt, totalSavingsInt, totalFoodInt;
     private SwipeRefreshLayout swipeRefreshLayout;
 
@@ -134,7 +131,6 @@ public class MainActivity extends BaseActivity {
         toolbar.inflateMenu(R.menu.menu_main);
 
         editTextDate = findViewById(R.id.editTextDate);
-        //editTextDate.addTextChangedListener(new DateInputMask(editTextDate));
         editTextDate.setText(setDateCorrectly());
 
         totalIncome = findViewById(R.id.textViewTotalIncome);
@@ -148,15 +144,11 @@ public class MainActivity extends BaseActivity {
             public void onClick(View v) {
                 if(checkInputFields()) {
                     sendInputToDatabase();
-                    pieChart.clearChart();
-                    //update all fields from overview
-                    getOutputFromDatabase(StaticFields.INCOME);
-                    getOutputFromDatabase(StaticFields.EXPENSE);
-                    getOutputFromDatabase(StaticFields.SAVINGS);
-                    getOutputFromDatabase(StaticFields.FOOD);
+                    //pieChart.clearChart();
                     //deactivate fabAddButton and reset all textfields to 0
                     fabAddButton.setEnabled(false);
                     resetEditText();
+                    //update all fields from overview
                     refreshAndRequestOutputFromDatabase(false);
                 }
             }
@@ -290,7 +282,7 @@ public class MainActivity extends BaseActivity {
         ArrayAdapter<String> adapterLocation = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, itemsLocation);
         spinnerLocation.setAdapter(adapterLocation);
         editTextDate = findViewById(R.id.editTextDate);
-        pieChart = findViewById(R.id.piechart);
+        //pieChart = findViewById(R.id.piechart);
         arrayListOfIncomeAndExpense = new ArrayList<>();
         swipeRefreshLayout = (SwipeRefreshLayout)findViewById(R.id.refreshLayout);
         // Refresh  the layout
@@ -305,7 +297,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void refreshAndRequestOutputFromDatabase(boolean isRefreshing) {
-        pieChart.clearChart();
+        //pieChart.clearChart();
         getOutputFromDatabase(StaticFields.INCOME);
         getOutputFromDatabase(StaticFields.EXPENSE);
         getOutputFromDatabase(StaticFields.SAVINGS);
@@ -485,41 +477,41 @@ public class MainActivity extends BaseActivity {
                                 totalIncomeInt = 0;
                             } else if (incomeOrExpenseOrSavingsOrFood.equals("income") && !repl.equals("null")) {
                                 totalIncome.setText(repl);
-                                pieChart.addPieSlice(
+                                /*pieChart.addPieSlice(
                                         new PieModel(
                                                 "Total income",
                                                 Float.parseFloat(repl),
-                                                Color.parseColor("#99CC00")));
+                                                Color.parseColor("#99CC00")));*/
                             } else if (incomeOrExpenseOrSavingsOrFood.equals("expense") && repl.equals("null")) {
                                 totalExpense.setText("0");
                                 totalExpenseInt = 0;
                             } else if (incomeOrExpenseOrSavingsOrFood.equals("expense") && !repl.equals("null")) {
                                 totalExpense.setText(repl);
-                                pieChart.addPieSlice(
+                                /*pieChart.addPieSlice(
                                         new PieModel(
                                                 "Total spending",
                                                 Float.parseFloat(repl),
-                                                Color.parseColor("#FF4444")));
+                                                Color.parseColor("#FF4444")));*/
                             } else if (incomeOrExpenseOrSavingsOrFood.equals("savings") && repl.equals("null")) {
                                 totalSavings.setText("0");
                                 totalSavingsInt = 0;
                             } else if (incomeOrExpenseOrSavingsOrFood.equals("savings") && !repl.equals("null")) {
                                 totalSavings.setText(repl);
-                                pieChart.addPieSlice(
+                                /*pieChart.addPieSlice(
                                         new PieModel(
                                                 "Total savings",
                                                 Float.parseFloat(repl),
-                                                Color.parseColor("#33B5E5")));
+                                                Color.parseColor("#33B5E5")));*/
                             } else if (incomeOrExpenseOrSavingsOrFood.equals("food") && repl.equals("null")) {
                                 totalFood.setText("0");
                                 totalFoodInt = 0;
                             } else if (incomeOrExpenseOrSavingsOrFood.equals("food") && !repl.equals("null")) {
                                 totalFood.setText(repl);
-                                pieChart.addPieSlice(
+                                /*pieChart.addPieSlice(
                                         new PieModel(
                                                 "Food/day",
                                                 Float.parseFloat(repl),
-                                                Color.parseColor("#FFBB33")));
+                                                Color.parseColor("#FFBB33")));*/
                             } else if (incomeOrExpenseOrSavingsOrFood.equals("all") && repl.equals("null")) {
                             } else if (incomeOrExpenseOrSavingsOrFood.equals("all") && !repl.equals("null")) {
                                 arrayListOfIncomeAndExpense.add(repl.toString());
@@ -544,13 +536,13 @@ public class MainActivity extends BaseActivity {
                             }
                         }
                         if (totalIncomeInt == 0 && totalExpenseInt == 0 && totalSavingsInt == 0 && totalFoodInt == 0) {
-                            pieChart.addPieSlice(
+                            /*pieChart.addPieSlice(
                                     new PieModel(
                                             "No income, no expenses",
                                             0,
                                             Color.parseColor("#dfe533")));
                             // To animate the pie chart
-                            pieChart.startAnimation();
+                            pieChart.startAnimation();*/
                         }
                     }
                 } catch (JSONException e) {
@@ -568,7 +560,7 @@ public class MainActivity extends BaseActivity {
         mStringRequest.setRetryPolicy(retryPolicy);
         mRequestQueue.add(mStringRequest);
         // To animate the pie chart
-        pieChart.startAnimation();
+//        pieChart.startAnimation();
     }
 
     private void checkPermissions() {
@@ -580,7 +572,7 @@ public class MainActivity extends BaseActivity {
     public void showMenu(MenuItem item) {
         onOptionsItemSelected(item);
     }
-    public void showBarChartAllMonths(MenuItem item) {
+    public void showBarChart(MenuItem item) {
         onOptionsItemSelected(item);
     }
 

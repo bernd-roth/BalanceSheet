@@ -25,12 +25,12 @@ public class BaseActivity extends Activity {
                 intent = new Intent(this, MainActivity.class);
                 this.startActivity(intent);
                 return true;
-            case R.id.action_settings:
-                intent = new Intent(this, SettingsActivity.class);
-                this.startActivity(intent);
-                return true;
-            case R.id.action_barChartAllMonths:
-                intent = new Intent(this, BarChartAllMonths.class);
+//            case R.id.action_settings:
+//                intent = new Intent(this, SettingsActivity.class);
+//                this.startActivity(intent);
+//                return true;
+            case R.id.action_barChart:
+                intent = new Intent(this, BarChartActivity.class);
                 this.startActivity(intent);
                 return true;
             default:

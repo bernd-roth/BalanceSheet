@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".BarAllMonthsChart">
+    android:layout_height="match_parent">
+    <!--tools:context=".BarAllMonthsChart">-->
     <!--Swipe Refresh Layout -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/refreshLayout"
@@ -111,7 +111,7 @@
                 android:layout_height="10dp"
                 android:background="#c0c0c0" />
 
-            <org.eazegraph.lib.charts.PieChart
+<!--            <org.eazegraph.lib.charts.PieChart
                 android:id="@+id/piechart"
                 android:layout_width="386dp"
                 android:layout_height="505dp"
@@ -120,13 +120,13 @@
                 android:layout_marginBottom="15dp"
                 android:layout_weight="1"
                 android:padding="6dp"
-                app:egLegendTextSize="8sp" />
+                app:egLegendTextSize="8sp" />-->
 
-            <View
+<!--            <View
                 android:layout_width="match_parent"
                 android:layout_height="10dp"
                 android:background="#c0c0c0" />
-
+-->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

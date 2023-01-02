@@ -1,19 +1,26 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="at.co.netconsulting.parkingticket.MainActivity">
+    tools:context="at.co.netconsulting.balancesheet.MainActivity">
 
-    <item
+<!--    <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:title="@string/action_settings"
         app:showAsAction="ifRoom"
         android:onClick="showMenu" />
+-->
+    <item
+        android:id="@+id/action_barChart"
+        android:orderInCategory="100"
+        android:title="@string/action_barChart"
+        app:showAsAction="ifRoom"
+        android:onClick="showBarChart" />
 
     <item
-        android:id="@+id/action_barChartAllMonths"
+        android:id="@+id/action_main"
         android:orderInCategory="200"
-        android:title="@string/action_barChartAllMonths"
+        android:title="@string/action_main"
         app:showAsAction="ifRoom"
-        android:onClick="showBarChartAllMonths" />
+        android:onClick="showMenu" />
 </menu>
