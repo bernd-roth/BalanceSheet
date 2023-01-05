@@ -12,13 +12,13 @@ import calendar
 #
 from sqlalchemy import create_engine
 from sqlalchemy.sql import functions
-engine = create_engine('postgresql+psycopg2://postgres:password@ip-address:5432/incomeexpense')
+engine = create_engine('postgresql+psycopg2://postgres:password@ipAddress:5432/incomeexpense')
 from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 #
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:password@ip-address:5432/incomeexpense"
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:password@ipAddress:5432/incomeexpense"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -183,6 +183,72 @@ def handle_incomexpense_add():
 		db.session.add(entry)
 		db.session.commit()
 		return jsonify({"message":"Successfully inserted!"})
+
+@app.route('/incomeexpense/sum_average_spending_day_of_month', methods=['GET'])
+def handle_incomexpense_sum_average_spending_day_of_month():
+	import collections
+	import psycopg2
+
+	conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='password'"
+	conn = psycopg2.connect(conn_string)
+	cursor = conn.cursor()
+	cursor.execute("SELECT SUM(expense)/EXTRACT(days FROM date_trunc('day', current_date)) AS averageDayPerMonth FROM incomeexpense WHERE position='Food' AND orderdate BETWEEN date_trunc('year', now()) AND date_trunc('day', current_date);")
+	rows = cursor.fetchall()
+	rowarray_list = []
+	for row in rows:
+		t = (row[0])
+		rowarray_list.append(t)
+		print(rowarray_list[0])
+
+	my_dict = {"Total income":[]};
+	my_dict["Total income"].append(rowarray_list[0])
+	print(my_dict)
+
+	return {"message": "success", "incomeexpense": my_dict}
+
+@app.route('/incomeexpense/sum_reserved_per_day_until_end_of_month', methods=['GET'])
+def handle_incomexpense_sum_reserved_per_day_until_end_of_month():
+	import collections
+	import psycopg2
+
+	conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='password'"
+	conn = psycopg2.connect(conn_string)
+	cursor = conn.cursor()
+	cursor.execute("SELECT ROUND(CAST(FLOAT8 (350-SUM(expense))/(date_part('days',(date_trunc('month', current_date) + interval '1 month - 1 day'))-EXTRACT(DAY FROM current_date-1)) AS NUMERIC),2) FROM incomeexpense WHERE position='Food' AND orderdate BETWEEN date_trunc('year', now()) AND date_trunc('day', current_date);")
+	rows = cursor.fetchall()
+	rowarray_list = []
+	for row in rows:
+		t = (row[0])
+		rowarray_list.append(t)
+		print(rowarray_list[0])
+
+	my_dict = {"Total income":[]};
+	my_dict["Total income"].append(rowarray_list[0])
+	print(my_dict)
+
+	return {"message": "success", "incomeexpense": my_dict}
+
+@app.route('/incomeexpense/sum_spending_food_since_beginning_of_year', methods=['GET'])
+def handle_incomexpense_sum_spending_food_since_beginning_of_year():
+	import collections
+	import psycopg2
+
+	conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='password'"
+	conn = psycopg2.connect(conn_string)
+	cursor = conn.cursor()
+	cursor.execute("SELECT sum(expense) FROM incomeexpense WHERE position = 'Food' AND orderdate BETWEEN date_trunc('year', now()) AND date_trunc('year', now() + interval '1 year') - interval '1 day';")
+	rows = cursor.fetchall()
+	rowarray_list = []
+	for row in rows:
+		t = (row[0])
+		rowarray_list.append(t)
+		print(rowarray_list[0])
+
+	my_dict = {"Total income":[]};
+	my_dict["Total income"].append(rowarray_list[0])
+	print(my_dict)
+
+	return {"message": "success", "incomeexpense": my_dict}
 
 #@app.route('/incomeexpense/all', methods=['GET'])
 #def handle_incomexpense_all():
