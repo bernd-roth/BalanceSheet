@@ -145,9 +145,13 @@ public class MainActivity extends BaseActivity {
                     sendInputToDatabase();
                     //deactivate fabAddButton and reset all textfields to 0
                     fabAddButton.setEnabled(false);
-                    resetEditText();
                     //update all fields from overview
-                    refreshAndRequestOutputFromDatabase(false);
+                    getOutputFromDatabase(StaticFields.INCOME);
+                    getOutputFromDatabase(StaticFields.EXPENSE);
+                    getOutputFromDatabase(StaticFields.SAVINGS);
+                    getOutputFromDatabase(StaticFields.FOOD);
+                    getOutputFromDatabase(StaticFields.ALL);
+                    resetEditText();
                 }
             }
         });

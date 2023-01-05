@@ -26,6 +26,7 @@
 
     <!--general strings-->
     <string name="general_placeholder">Placeholder</string>
+    <string name="zero">0</string>
 
     <!-- TAG -->
     <string name="log_message">VolleyError = %1$s</string>
