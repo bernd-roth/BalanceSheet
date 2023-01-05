@@ -174,7 +174,7 @@ public class MainActivity extends BaseActivity {
                     listView.setAdapter(adapter);
                  adapter.notifyDataSetChanged();
                  alertDialog.setView(rowList);
-                 alertDialog.setPositiveButton("Return", new DialogInterface.OnClickListener() {
+                 alertDialog.setPositiveButton(R.string.button_return, new DialogInterface.OnClickListener() {
                      @Override
                      public void onClick(DialogInterface dialog, int which) {
                          refreshAndRequestOutputFromDatabase(false);
