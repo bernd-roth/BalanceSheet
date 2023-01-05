@@ -312,6 +312,9 @@ public class MainActivity extends BaseActivity {
         getOutputFromDatabase(StaticFields.SAVINGS);
         getOutputFromDatabase(StaticFields.FOOD);
         getOutputFromDatabase(StaticFields.ALL);
+        getOutputFromDatabase(StaticFields.AVERAGE_FOOD);
+        getOutputFromDatabase(StaticFields.AVERAGE_FOOD_UNTIL_END_OF_MONTH);
+        getOutputFromDatabase(StaticFields.SUM_SPENDING_FOOD_BEGINNING_OF_YEAR);
         swipeRefreshLayout.setRefreshing(isRefreshing);
     }
 
