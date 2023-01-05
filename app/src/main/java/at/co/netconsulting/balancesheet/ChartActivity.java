@@ -1,6 +1,5 @@
 package at.co.netconsulting.balancesheet;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
@@ -8,7 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
+
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.data.BarData;
@@ -21,7 +20,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BarChartActivity extends BaseActivity {
+public class ChartActivity extends BaseActivity {
 
     private Toolbar toolbar;
     private BarChart chart;
@@ -33,7 +32,7 @@ public class BarChartActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_barchart);
+        setContentView(R.layout.activity_chart);
         initializeObjects();
 
 //        setTitle("BarChartActivity");

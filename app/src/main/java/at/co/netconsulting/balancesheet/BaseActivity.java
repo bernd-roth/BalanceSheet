@@ -30,7 +30,7 @@ public class BaseActivity extends Activity {
 //                this.startActivity(intent);
 //                return true;
             case R.id.action_barChart:
-                intent = new Intent(this, BarChartActivity.class);
+                intent = new Intent(this, ChartActivity.class);
                 this.startActivity(intent);
                 return true;
             default:

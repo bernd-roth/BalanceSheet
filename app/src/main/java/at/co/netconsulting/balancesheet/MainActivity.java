@@ -145,9 +145,13 @@ public class MainActivity extends BaseActivity {
                     sendInputToDatabase();
                     //deactivate fabAddButton and reset all textfields to 0
                     fabAddButton.setEnabled(false);
-                    resetEditText();
                     //update all fields from overview
-                    refreshAndRequestOutputFromDatabase(false);
+                    getOutputFromDatabase(StaticFields.INCOME);
+                    getOutputFromDatabase(StaticFields.EXPENSE);
+                    getOutputFromDatabase(StaticFields.SAVINGS);
+                    getOutputFromDatabase(StaticFields.FOOD);
+                    getOutputFromDatabase(StaticFields.ALL);
+                    resetEditText();
                 }
             }
         });
@@ -170,7 +174,7 @@ public class MainActivity extends BaseActivity {
                     listView.setAdapter(adapter);
                  adapter.notifyDataSetChanged();
                  alertDialog.setView(rowList);
-                 alertDialog.setPositiveButton("Return", new DialogInterface.OnClickListener() {
+                 alertDialog.setPositiveButton(R.string.button_return, new DialogInterface.OnClickListener() {
                      @Override
                      public void onClick(DialogInterface dialog, int which) {
                          refreshAndRequestOutputFromDatabase(false);

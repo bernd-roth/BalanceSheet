@@ -32,7 +32,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".BarChartActivity"
+            android:name=".ChartActivity"
             android:exported="false"
             android:label="@string/title_barchart"
             android:theme="@style/Theme.BalanceSheet.NoActionBar" />
