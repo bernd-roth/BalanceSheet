@@ -94,13 +94,64 @@
                     android:layout_height="wrap_content"
                     android:layout_column="1"
                     android:textSize="20dp"
-                    android:text="Food Ø Spending/Day" />
+                    android:text="Food Spend/Month" />
 
                 <TextView
                     android:id="@+id/textViewTotalFood"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@android:color/holo_orange_light"
+                    android:layout_column="2"
+                    android:textSize="20dp" />
+            </TableRow>
+
+            <TableRow>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:textSize="20dp"
+                    android:text="Food Ø Spend/Day Month" />
+
+                <TextView
+                    android:id="@+id/textViewAverageTotalFood"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/holo_blue_dark"
+                    android:layout_column="2"
+                    android:textSize="20dp" />
+            </TableRow>
+
+            <TableRow>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:textSize="20dp"
+                    android:text="Food Ø Reserved/Day" />
+
+                <TextView
+                    android:id="@+id/textViewReservedAverageDayFood"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/holo_purple"
+                    android:layout_column="2"
+                    android:textSize="20dp" />
+            </TableRow>
+
+            <TableRow>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:textSize="20dp"
+                    android:text="Food Total Year" />
+
+                <TextView
+                    android:id="@+id/textViewTotalYearFood"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/holo_red_dark"
                     android:layout_column="2"
                     android:textSize="20dp" />
             </TableRow>
