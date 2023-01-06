@@ -4,21 +4,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-
-import androidx.appcompat.app.AppCompatActivity;
-
+import androidx.appcompat.widget.Toolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import at.co.netconsulting.general.StaticFields;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends BaseActivity {
 
     private EditText editTextPort, editTextIPAddress, editTextPerson;
     private FloatingActionButton fabSaveButton, fabReturnButton;
     private SharedPreferences sharedPreferences;
     private String[] splitPerson;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +31,10 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void initializeObjects() {
+        //set the toolbar
+        toolbar = findViewById(R.id.toolbar);
+        toolbar.inflateMenu(R.menu.menu_settings);
+
         editTextIPAddress = (EditText) findViewById(R.id.editTextIPAddress);
         editTextPort = (EditText) findViewById(R.id.editTextPort);
         editTextPerson = (EditText) findViewById(R.id.editTextPerson);
@@ -96,5 +99,12 @@ public class SettingsActivity extends AppCompatActivity {
                 editor.commit();
                 break;
         }
+    }
+
+    public void showMenu(MenuItem item) {
+        onOptionsItemSelected(item);
+    }
+    public void showBarChart(MenuItem item) {
+        onOptionsItemSelected(item);
     }
 }

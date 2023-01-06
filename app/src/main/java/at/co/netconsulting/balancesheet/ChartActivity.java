@@ -68,7 +68,7 @@ public class ChartActivity extends BaseActivity {
 
     private void initializeObjects() {
         //set the toolbar
-        toolbar = findViewById(R.id.toolbarBarChart);
+        toolbar = findViewById(R.id.toolbar);
         toolbar.inflateMenu(R.menu.menu_chart);
 
         chart = findViewById(R.id.barChart);

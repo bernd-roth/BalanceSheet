@@ -2,9 +2,23 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/action_barChart"
+        android:orderInCategory="300"
+        android:title="@string/action_barChart"
+        app:showAsAction="never"
+        android:onClick="showBarChart" />
+
+    <item
         android:id="@+id/action_main"
         android:orderInCategory="100"
         android:title="@string/action_main"
-        app:showAsAction="ifRoom"
+        app:showAsAction="never"
+        android:onClick="showMenu" />
+
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="200"
+        android:title="@string/action_settings"
+        app:showAsAction="never"
         android:onClick="showMenu" />
 </menu>
