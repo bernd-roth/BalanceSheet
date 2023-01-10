@@ -62,11 +62,11 @@ public class MainActivity extends BaseActivity {
     private static final String TAG = MainActivity.class.getName();
     private SharedPreferences sharedPreferences;
     private String sharedPref_IP, sharedPref_Port, sharedPref_Person;
-    private TextView totalIncome, totalExpense, totalSavings, totalFood, textViewAverageTotalFood, textViewReservedAverageDayFood, textViewTotalYearFood;
+    private TextView totalIncome, totalExpense, totalSavings, totalFood, textViewAverageTotalFood, textViewReservedAverageDayFood, textViewTotalYearFood, textViewTotalYearIncome;
     private String[] splitPerson;
     private ArrayList<String> itemsPerson, arrayListOfIncomeAndExpense;
     private ArrayAdapter<String> adapterPerson, adapter;
-    private int totalIncomeInt, totalExpenseInt, totalSavingsInt, totalFoodInt, averageFoodPerDayOfMonthInt, reservedAverageDayFoodInt, totalYearFood;
+    private int totalIncomeInt, totalExpenseInt, totalSavingsInt, totalFoodInt, averageFoodPerDayOfMonthInt, reservedAverageDayFoodInt, totalYearFood, totalYearIncome;
     private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
@@ -87,6 +87,7 @@ public class MainActivity extends BaseActivity {
         getOutputFromDatabase(StaticFields.AVERAGE_FOOD);
         getOutputFromDatabase(StaticFields.AVERAGE_FOOD_UNTIL_END_OF_MONTH);
         getOutputFromDatabase(StaticFields.SUM_SPENDING_FOOD_BEGINNING_OF_YEAR);
+        getOutputFromDatabase(StaticFields.SUM_INCOME_YEAR);
     }
 
     //SharedPreferences
@@ -135,6 +136,7 @@ public class MainActivity extends BaseActivity {
         textViewAverageTotalFood = findViewById(R.id.textViewAverageTotalFood);
         textViewReservedAverageDayFood = findViewById(R.id.textViewReservedAverageDayFood);
         textViewTotalYearFood = findViewById(R.id.textViewTotalYearFood);
+        textViewTotalYearIncome = findViewById(R.id.textViewTotalYearIncome);
 
         fabAddButton = findViewById(R.id.addButton);
         fabAddButton.setOnClickListener(new View.OnClickListener() {
@@ -153,6 +155,7 @@ public class MainActivity extends BaseActivity {
                     getOutputFromDatabase(StaticFields.AVERAGE_FOOD);
                     getOutputFromDatabase(StaticFields.AVERAGE_FOOD_UNTIL_END_OF_MONTH);
                     getOutputFromDatabase(StaticFields.SUM_SPENDING_FOOD_BEGINNING_OF_YEAR);
+                    getOutputFromDatabase(StaticFields.SUM_INCOME_YEAR);
                     resetEditText();
                 }
             }
@@ -308,6 +311,7 @@ public class MainActivity extends BaseActivity {
         getOutputFromDatabase(StaticFields.AVERAGE_FOOD);
         getOutputFromDatabase(StaticFields.AVERAGE_FOOD_UNTIL_END_OF_MONTH);
         getOutputFromDatabase(StaticFields.SUM_SPENDING_FOOD_BEGINNING_OF_YEAR);
+        getOutputFromDatabase(StaticFields.SUM_INCOME_YEAR);
         swipeRefreshLayout.setRefreshing(isRefreshing);
     }
 
@@ -473,6 +477,12 @@ public class MainActivity extends BaseActivity {
                     StaticFields.COLON +
                     sharedPref_Port +
                     StaticFields.REST_URL_GET_SUM_SPENDING_FOOD_BEGINNING_OF_YEAR;
+        } else if (incomeOrExpenseOrSavingsOrFood.equals("sumIncomeYear")) {
+            url = StaticFields.PROTOCOL +
+                    sharedPref_IP +
+                    StaticFields.COLON +
+                    sharedPref_Port +
+                    StaticFields.REST_URL_GET_SUM_INCOME_YEAR;
         }
 
         //String Request initialized
@@ -533,6 +543,11 @@ public class MainActivity extends BaseActivity {
                                 totalYearFood = 0;
                             } else if (incomeOrExpenseOrSavingsOrFood.equals("sumSpendingFoodBeginningOfYear") && !repl.equals("null")) {
                                 textViewTotalYearFood.setText(repl);
+                            } else if (incomeOrExpenseOrSavingsOrFood.equals("sumIncomeYear") && repl.equals("null")) {
+                                textViewTotalYearIncome.setText("0");
+                                totalYearFood = 0;
+                            } else if (incomeOrExpenseOrSavingsOrFood.equals("sumIncomeYear") && !repl.equals("null")) {
+                                textViewTotalYearIncome.setText(repl);
                             }
                         } else {
                             JSONArray array = obj.optJSONArray("incomeexpense");

@@ -11,42 +11,58 @@
         android:background="?attr/colorPrimary"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme" />
-
+<!--
     <TextView
-        android:id="@+id/textViewDay"
+        android:id="@+id/textViewDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Day" />
 
-        <Spinner
-            android:id="@+id/spinnerDay"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:entries="@array/array_name" />
+    <Spinner
+        android:id="@+id/spinnerDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:spinnerMode="dropdown"/>
 
-        <TextView
-            android:id="@+id/textViewMonth"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Month" />
+    <TextView
+        android:id="@+id/textViewMonth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Month"
+        android:spinnerMode="dropdown"/>
 
-        <Spinner
-            android:id="@+id/spinnerMonth"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:entries="@array/array_name"/>
+    <Spinner
+        android:id="@+id/spinnerMonth"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/arrayMonth"
+        android:spinnerMode="dropdown"/>
 
-        <TextView
-            android:id="@+id/textViewYear"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Year" />
+    <TextView
+        android:id="@+id/textViewYear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Year" />
 
-        <Spinner
-            android:id="@+id/spinnerYear"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:entries="@array/array_name"/>
+    <Spinner
+        android:id="@+id/spinnerYear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/arrayYear"
+        android:spinnerMode="dropdown"/>
+
+    <TextView
+        android:id="@+id/textViewPosition"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Position" />
+
+    <Spinner
+        android:id="@+id/spinnerPosition"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/arrayPosition"/>
+-->
 
     <com.github.mikephil.charting.charts.BarChart
         android:id="@+id/barChart"

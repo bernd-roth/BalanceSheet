@@ -21,6 +21,7 @@ public class StaticFields {
     public static final String REST_URL_GET_AVERAGE_FOOD_DAY_OF_MONTH = "/incomeexpense/sum_average_spending_day_of_month";
     public static final String REST_URL_GET_SUM_RESERVED_PER_DAY_UNTIL_END_OF_MONTH = "/incomeexpense/sum_reserved_per_day_until_end_of_month";
     public static final String REST_URL_GET_SUM_SPENDING_FOOD_BEGINNING_OF_YEAR = "/incomeexpense/sum_spending_food_since_beginning_of_year";
+    public static final String REST_URL_GET_SUM_INCOME_YEAR = "/incomeexpense/sum_income_year";
     public static final String COLON = ":";
     public static final String INCOME = "income";
     public static final String EXPENSE = "expense";
@@ -30,4 +31,5 @@ public class StaticFields {
     public static final String AVERAGE_FOOD = "averageDayPerMonth";
     public static final String AVERAGE_FOOD_UNTIL_END_OF_MONTH = "averageDayUntilEndOfMonth";
     public static final String SUM_SPENDING_FOOD_BEGINNING_OF_YEAR = "sumSpendingFoodBeginningOfYear";
+    public static final String SUM_INCOME_YEAR = "sumIncomeYear";
 }

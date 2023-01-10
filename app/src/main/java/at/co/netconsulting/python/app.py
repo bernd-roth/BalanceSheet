@@ -250,6 +250,28 @@ def handle_incomexpense_sum_spending_food_since_beginning_of_year():
 
 	return {"message": "success", "incomeexpense": my_dict}
 
+@app.route('/incomeexpense/sum_income_year', methods=['GET'])
+def handle_sum_income_year():
+    import collections
+    import psycopg2
+
+    conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
+    conn = psycopg2.connect(conn_string)
+    cursor = conn.cursor()
+    cursor.execute("SELECT sum(income) FROM incomeexpense WHERE position = 'Income' AND orderdate BETWEEN date_trunc('year', now()) AND date_trunc('year', now() + interval '1 year') - interval '1 day';")
+    rows = cursor.fetchall()
+    rowarray_list = []
+    for row in rows:
+        t = (row[0])
+        rowarray_list.append(t)
+        print(rowarray_list[0])
+
+    my_dict = {"Total income":[]};
+    my_dict["Total income"].append(rowarray_list[0])
+    print(my_dict)
+
+    return {"message": "success", "incomeexpense": my_dict}
+
 #@app.route('/incomeexpense/all', methods=['GET'])
 #def handle_incomexpense_all():
 #	import collections

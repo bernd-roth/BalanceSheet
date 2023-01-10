@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.Legend;
@@ -17,16 +19,24 @@ import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.model.GradientColor;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ChartActivity extends BaseActivity {
 
     private Toolbar toolbar;
     private BarChart chart;
     private FloatingActionButton fabReturnButton;
-//    private SeekBar seekBarX, seekBarY;
-//    private TextView tvX, tvY;
+    //    private Spinner spinnerDate;
+    private ArrayAdapter<String> adapterDate;
+    //    private LocalDate startDate, endDate;
+    long numOfDays;
+    //    List<LocalDate> listOfDates;
+//    ArrayList<String> finalDateArrayList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,9 +44,7 @@ public class ChartActivity extends BaseActivity {
 
         setContentView(R.layout.activity_chart);
         initializeObjects();
-
-//        setTitle("BarChartActivity");
-//        chart.setOnChartValueSelectedListener(this);
+        drawChart();
 
         chart.setDrawBarShadow(false);
         chart.setDrawValueAboveBar(true);
@@ -62,16 +70,62 @@ public class ChartActivity extends BaseActivity {
         l.setTextSize(11f);
         l.setXEntrySpace(4f);
 
-
         setData(5, 100);
     }
 
+    private void drawChart() {
+        //get selected date
+//        String date = spinnerDate.getSelectedItem().toString();
+    }
+
+    private void createListOfWeekDays() {
+        //create day, month, and year list
+//        startDate = LocalDate.of(2022, 8, 01);
+//        endDate = startDate.plusMonths(29);
+
+//        numOfDays = ChronoUnit.DAYS.between(startDate, endDate);
+
+//        listOfDates = Stream.iterate(startDate, date -> date.plusDays(1))
+//                .limit(numOfDays)
+//                .collect(Collectors.toList());
+
+//        for(int i =0 ; i < listOfDates.size(); i++)
+//        {
+//            finalDateArrayList.add(listOfDates.get(i).toString());
+//        }
+    }
+
     private void initializeObjects() {
-        //set the toolbar
+        //findViewById
         toolbar = findViewById(R.id.toolbar);
         toolbar.inflateMenu(R.menu.menu_chart);
-
+//        spinnerDate = findViewById(R.id.spinnerDate);
         chart = findViewById(R.id.barChart);
+
+        //initialize common objects
+//        finalDateArrayList = new ArrayList();
+//        createListOfWeekDays();
+//        createListOfMonths();
+
+//        adapterDate = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, finalDateArrayList);
+//        spinnerDate.setAdapter(adapterDate);
+    }
+
+    private void createListOfMonths() {
+        //create day, month, and year list
+//        startDate = LocalDate.of(2022, 8, 01);
+//        endDate = startDate.plus(31);
+
+//        numOfDays = ChronoUnit.DAYS.between(startDate, endDate);
+
+//        listOfDates = Stream.iterate(startDate, date -> date.plusDays(1))
+//                .limit(numOfDays)
+//                .collect(Collectors.toList());
+
+//        for(int i =0 ; i < listOfDates.size(); i++)
+//        {
+//            finalDateArrayList.add(listOfDates.get(i).toString());
+//        }
     }
 
     private void setData(int count, float range) {
