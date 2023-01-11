@@ -6,10 +6,16 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import java.math.BigInteger;
+
 
 public class BaseActivity extends Activity {
 
     private Intent intent;
+    private float totalIncome;
+    private float totalExpense;
+    private float totalSavings;
+    private float totalFood;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -30,11 +36,23 @@ public class BaseActivity extends Activity {
                 this.startActivity(intent);
                 return true;
             case R.id.action_barChart:
+                getValuesForChart();
                 intent = new Intent(this, ChartActivity.class);
+                intent.putExtra("totalIncome",totalIncome);
+                intent.putExtra("totalExpense",totalExpense);
+                intent.putExtra("totalSavings",totalSavings);
+                intent.putExtra("totalFood",totalFood);
                 this.startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void getValuesForChart() {
+        totalIncome = MainActivity.totalIncomeStatic;
+        totalExpense = MainActivity.totalExpenseStatic;
+        totalSavings = MainActivity.totalSavingsStatic;
+        totalFood = MainActivity.totalFoodStatic;
     }
 }

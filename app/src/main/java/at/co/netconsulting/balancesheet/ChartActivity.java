@@ -4,6 +4,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.widget.Spinner;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.LegendEntry;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
@@ -34,9 +36,12 @@ public class ChartActivity extends BaseActivity {
     //    private Spinner spinnerDate;
     private ArrayAdapter<String> adapterDate;
     //    private LocalDate startDate, endDate;
-    long numOfDays;
+    private long numOfDays;
     //    List<LocalDate> listOfDates;
 //    ArrayList<String> finalDateArrayList;
+    private float totalIncome, totalExpense, totalSavings, totalFood;
+    private BarDataSet set;
+    private BarData data;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,55 +49,50 @@ public class ChartActivity extends BaseActivity {
 
         setContentView(R.layout.activity_chart);
         initializeObjects();
+        getBundleValues();
         drawChart();
+    }
 
-        chart.setDrawBarShadow(false);
-        chart.setDrawValueAboveBar(true);
-
+    private void drawChart() {
+//        chart.setDrawBarShadow(false);
+//        chart.setDrawValueAboveBar(true);
         chart.getDescription().setEnabled(false);
 
         // if more than 60 entries are displayed in the chart, no values will be
         // drawn
-        chart.setMaxVisibleValueCount(60);
+//        chart.setMaxVisibleValueCount(60);
 
         // scaling can now only be done on x- and y-axis separately
-        chart.setPinchZoom(false);
+//        chart.setPinchZoom(false);
+//        chart.setDrawGridBackground(false);
 
-        chart.setDrawGridBackground(false);
+        setLegend();
+        setData();
+    }
 
+    private void setLegend() {
         Legend l = chart.getLegend();
-        l.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
-        l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.LEFT);
-        l.setOrientation(Legend.LegendOrientation.HORIZONTAL);
-        l.setDrawInside(false);
+//        l.setDrawInside(false);
         l.setForm(Legend.LegendForm.SQUARE);
-        l.setFormSize(9f);
-        l.setTextSize(11f);
-        l.setXEntrySpace(4f);
+//        l.setFormSize(9f);
+//        l.setTextSize(9f);
+//        l.setXEntrySpace(4f);
 
-        setData(5, 100);
+        LegendEntry l1=new LegendEntry("Total Income",Legend.LegendForm.CIRCLE,10f,2f,null, Color.GREEN);
+        LegendEntry l2=new LegendEntry("Total Expense", Legend.LegendForm.CIRCLE,10f,2f,null,Color.RED);
+        LegendEntry l3=new LegendEntry("Total Savings", Legend.LegendForm.CIRCLE,10f,2f,null,Color.BLUE);
+        LegendEntry l4=new LegendEntry("Total Food", Legend.LegendForm.CIRCLE,10f,2f,null,Color.YELLOW);
+
+        l.setCustom(new LegendEntry[]{l1,l2, l3, l4});
+        l.setEnabled(true);
     }
 
-    private void drawChart() {
-        //get selected date
-//        String date = spinnerDate.getSelectedItem().toString();
-    }
-
-    private void createListOfWeekDays() {
-        //create day, month, and year list
-//        startDate = LocalDate.of(2022, 8, 01);
-//        endDate = startDate.plusMonths(29);
-
-//        numOfDays = ChronoUnit.DAYS.between(startDate, endDate);
-
-//        listOfDates = Stream.iterate(startDate, date -> date.plusDays(1))
-//                .limit(numOfDays)
-//                .collect(Collectors.toList());
-
-//        for(int i =0 ; i < listOfDates.size(); i++)
-//        {
-//            finalDateArrayList.add(listOfDates.get(i).toString());
-//        }
+    private void getBundleValues() {
+        Bundle getBundle = this.getIntent().getExtras();
+        totalIncome = getBundle.getFloat("totalIncome");
+        totalExpense = getBundle.getFloat("totalExpense");
+        totalSavings = getBundle.getFloat("totalSavings");
+        totalFood = getBundle.getFloat("totalFood");
     }
 
     private void initializeObjects() {
@@ -101,92 +101,37 @@ public class ChartActivity extends BaseActivity {
         toolbar.inflateMenu(R.menu.menu_chart);
 //        spinnerDate = findViewById(R.id.spinnerDate);
         chart = findViewById(R.id.barChart);
-
-        //initialize common objects
-//        finalDateArrayList = new ArrayList();
-//        createListOfWeekDays();
-//        createListOfMonths();
-
-//        adapterDate = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, finalDateArrayList);
-//        spinnerDate.setAdapter(adapterDate);
     }
 
-    private void createListOfMonths() {
-        //create day, month, and year list
-//        startDate = LocalDate.of(2022, 8, 01);
-//        endDate = startDate.plus(31);
-
-//        numOfDays = ChronoUnit.DAYS.between(startDate, endDate);
-
-//        listOfDates = Stream.iterate(startDate, date -> date.plusDays(1))
-//                .limit(numOfDays)
-//                .collect(Collectors.toList());
-
-//        for(int i =0 ; i < listOfDates.size(); i++)
-//        {
-//            finalDateArrayList.add(listOfDates.get(i).toString());
-//        }
-    }
-
-    private void setData(int count, float range) {
-
-        float start = 1f;
-
+    private void setData() {
         ArrayList<BarEntry> values = new ArrayList<>();
 
-        for (int i = (int) start; i < start + count; i++) {
-            float val = (float) (Math.random() * (range + 1));
+        values.add(new BarEntry(1, totalIncome));
+        values.add(new BarEntry(2, totalExpense));
+        values.add(new BarEntry(3, totalSavings));
+        values.add(new BarEntry(4, totalFood));
 
-//            if (Math.random() * 100 < 25) {
-//                values.add(new BarEntry(i, val, getResources().getDrawable(R.drawable.star)));
-//            } else {
-                values.add(new BarEntry(i, val));
-//            }
-        }
-
-        BarDataSet set1;
-
-        if (chart.getData() != null &&
-                chart.getData().getDataSetCount() > 0) {
-            set1 = (BarDataSet) chart.getData().getDataSetByIndex(0);
-            set1.setValues(values);
-            chart.getData().notifyDataChanged();
-            chart.notifyDataSetChanged();
-
-        } else {
-            set1 = new BarDataSet(values, "The year 2021");
-
-            set1.setDrawIcons(false);
-
-            int startColor1 = ContextCompat.getColor(this, android.R.color.holo_orange_light);
-            int startColor2 = ContextCompat.getColor(this, android.R.color.holo_blue_light);
-            int startColor3 = ContextCompat.getColor(this, android.R.color.holo_orange_light);
-            int startColor4 = ContextCompat.getColor(this, android.R.color.holo_green_light);
-            int startColor5 = ContextCompat.getColor(this, android.R.color.holo_red_light);
-            int endColor1 = ContextCompat.getColor(this, android.R.color.holo_blue_dark);
-            int endColor2 = ContextCompat.getColor(this, android.R.color.holo_purple);
-            int endColor3 = ContextCompat.getColor(this, android.R.color.holo_green_dark);
-            int endColor4 = ContextCompat.getColor(this, android.R.color.holo_red_dark);
-            int endColor5 = ContextCompat.getColor(this, android.R.color.holo_orange_dark);
-
-            List<GradientColor> gradientFills = new ArrayList<>();
-            gradientFills.add(new GradientColor(startColor1, endColor1));
-            gradientFills.add(new GradientColor(startColor2, endColor2));
-            gradientFills.add(new GradientColor(startColor3, endColor3));
-            gradientFills.add(new GradientColor(startColor4, endColor4));
-            gradientFills.add(new GradientColor(startColor5, endColor5));
-
-            set1.setGradientColors(gradientFills);
+//        if (chart.getData() != null &&
+//                chart.getData().getDataSetCount() > 0) {
+//            set = (BarDataSet) chart.getData().getDataSetByIndex(0);
+//            set.setValues(values);
+//            chart.getData().notifyDataChanged();
+//            chart.notifyDataSetChanged();
+//
+//        } else {
+            set = new BarDataSet(values, "Income, Expense, Savings, and Food for the year 2023");
+            set.setColors(new int[]{Color.GREEN, Color.RED, Color.BLUE, Color.YELLOW});
+//            set.setDrawIcons(false);
 
             ArrayList<IBarDataSet> dataSets = new ArrayList<>();
-            dataSets.add(set1);
+            dataSets.add(set);
 
-            BarData data = new BarData(dataSets);
-            data.setValueTextSize(10f);
-            data.setBarWidth(0.9f);
+            data = new BarData(dataSets);
+            data.setValueTextSize(12f);
+//            data.setBarWidth(0.9f);
 
             chart.setData(data);
-        }
+//        }
 
         fabReturnButton = findViewById(R.id.returnFab);
         fabReturnButton.setOnClickListener(new View.OnClickListener() {

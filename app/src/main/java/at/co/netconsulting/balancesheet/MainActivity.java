@@ -35,6 +35,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -66,7 +68,8 @@ public class MainActivity extends BaseActivity {
     private String[] splitPerson;
     private ArrayList<String> itemsPerson, arrayListOfIncomeAndExpense;
     private ArrayAdapter<String> adapterPerson, adapter;
-    private int totalIncomeInt, totalExpenseInt, totalSavingsInt, totalFoodInt, averageFoodPerDayOfMonthInt, reservedAverageDayFoodInt, totalYearFood, totalYearIncome;
+    private int totalIncomeInt, totalExpenseInt, totalSavingsInt, totalFoodInt, averageFoodPerDayOfMonthInt, reservedAverageDayFoodInt, totalYearFood;
+    public static float totalIncomeStatic, totalSavingsStatic, totalExpenseStatic, totalFoodStatic;
     private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
@@ -510,21 +513,25 @@ public class MainActivity extends BaseActivity {
                                 totalIncomeInt = 0;
                             } else if (incomeOrExpenseOrSavingsOrFood.equals("income") && !repl.equals("null")) {
                                 totalIncome.setText(repl);
+                                totalIncomeStatic = Float.valueOf(repl);
                             } else if (incomeOrExpenseOrSavingsOrFood.equals("expense") && repl.equals("null")) {
                                 totalExpense.setText("0");
                                 totalExpenseInt = 0;
                             } else if (incomeOrExpenseOrSavingsOrFood.equals("expense") && !repl.equals("null")) {
                                 totalExpense.setText(repl);
+                                totalExpenseStatic = Float.valueOf(repl);
                             } else if (incomeOrExpenseOrSavingsOrFood.equals("savings") && repl.equals("null")) {
                                 totalSavings.setText("0");
                                 totalSavingsInt = 0;
                             } else if (incomeOrExpenseOrSavingsOrFood.equals("savings") && !repl.equals("null")) {
                                 totalSavings.setText(repl);
+                                totalSavingsStatic = Float.valueOf(repl);
                             } else if (incomeOrExpenseOrSavingsOrFood.equals("food") && repl.equals("null")) {
                                 totalFood.setText("0");
                                 totalFoodInt = 0;
                             } else if (incomeOrExpenseOrSavingsOrFood.equals("food") && !repl.equals("null")) {
                                 totalFood.setText(repl);
+                                totalFoodStatic = Float.valueOf(repl);
                             } else if (incomeOrExpenseOrSavingsOrFood.equals("all") && repl.equals("null")) {
                             } else if (incomeOrExpenseOrSavingsOrFood.equals("all") && !repl.equals("null")) {
                                 arrayListOfIncomeAndExpense.add(repl.toString());
@@ -592,6 +599,7 @@ public class MainActivity extends BaseActivity {
     }
 
     public void showMenu(MenuItem item) {
+        getOutputFromDatabase(StaticFields.INCOME);
         onOptionsItemSelected(item);
     }
     public void showBarChart(MenuItem item) {
