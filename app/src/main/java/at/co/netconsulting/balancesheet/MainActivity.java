@@ -63,14 +63,15 @@ public class MainActivity extends BaseActivity {
     private StringRequest mStringRequest;
     private static final String TAG = MainActivity.class.getName();
     private SharedPreferences sharedPreferences;
-    private String sharedPref_IP, sharedPref_Port, sharedPref_Person;
-    private TextView totalIncome, totalExpense, totalSavings, totalFood, textViewAverageTotalFood, textViewReservedAverageDayFood, textViewTotalYearFood, textViewTotalYearIncome;
+    private String sharedPref_IP, sharedPref_Port, sharedPref_Person, sharedPref_Food;
+    private TextView    totalIncome, totalExpense, totalSavings, totalFood, textViewAverageTotalFood, textViewReservedAverageDayFood, textViewTotalYearFood, textViewTotalYearIncome,
+                        textViewSumFoodJuliaMonth, textViewSumFoodBerndMonth;
     private String[] splitPerson;
     private ArrayList<String> itemsPerson, arrayListOfIncomeAndExpense;
     private ArrayAdapter<String> adapterPerson, adapter;
     private int totalIncomeInt, totalExpenseInt, totalSavingsInt, totalFoodInt, averageFoodPerDayOfMonthInt, reservedAverageDayFoodInt, totalYearFood;
     public static float totalIncomeStatic, totalSavingsStatic, totalExpenseStatic, totalFoodStatic;
-    private SwipeRefreshLayout swipeRefreshLayout;
+//    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +83,7 @@ public class MainActivity extends BaseActivity {
         loadSharedPreferences(StaticFields.SP_PORT);
         loadSharedPreferences(StaticFields.SP_INTERNET_ADDRESS);
         loadSharedPreferences(StaticFields.SP_PERSON);
+        loadSharedPreferences(StaticFields.SP_MONEY_FOOD);
         getOutputFromDatabase(StaticFields.INCOME);
         getOutputFromDatabase(StaticFields.EXPENSE);
         getOutputFromDatabase(StaticFields.SAVINGS);
@@ -91,6 +93,8 @@ public class MainActivity extends BaseActivity {
         getOutputFromDatabase(StaticFields.AVERAGE_FOOD_UNTIL_END_OF_MONTH);
         getOutputFromDatabase(StaticFields.SUM_SPENDING_FOOD_BEGINNING_OF_YEAR);
         getOutputFromDatabase(StaticFields.SUM_INCOME_YEAR);
+        sendInputAndReceiveOutputFromDatabase(StaticFields.SUM_FOOD_JULIA_MONTH);
+        sendInputAndReceiveOutputFromDatabase(StaticFields.SUM_FOOD_BERND_MONTH);
     }
 
     //SharedPreferences
@@ -108,6 +112,8 @@ public class MainActivity extends BaseActivity {
                 break;
             case StaticFields.SP_PERSON:
                 sharedPref_Person = s1;
+            case StaticFields.SP_MONEY_FOOD:
+                sharedPref_Food = s1;
 
                 adapterPerson.clear();
                 if(sharedPref_Person != null) {
@@ -140,6 +146,8 @@ public class MainActivity extends BaseActivity {
         textViewReservedAverageDayFood = findViewById(R.id.textViewReservedAverageDayFood);
         textViewTotalYearFood = findViewById(R.id.textViewTotalYearFood);
         textViewTotalYearIncome = findViewById(R.id.textViewTotalYearIncome);
+        textViewSumFoodJuliaMonth  = findViewById(R.id.textViewSumFoodJuliaMonth);
+        textViewSumFoodBerndMonth  = findViewById(R.id.textViewSumFoodBerndMonth);
 
         fabAddButton = findViewById(R.id.addButton);
         fabAddButton.setOnClickListener(new View.OnClickListener() {
@@ -159,6 +167,8 @@ public class MainActivity extends BaseActivity {
                     getOutputFromDatabase(StaticFields.AVERAGE_FOOD_UNTIL_END_OF_MONTH);
                     getOutputFromDatabase(StaticFields.SUM_SPENDING_FOOD_BEGINNING_OF_YEAR);
                     getOutputFromDatabase(StaticFields.SUM_INCOME_YEAR);
+                    sendInputAndReceiveOutputFromDatabase(StaticFields.SUM_FOOD_JULIA_MONTH);
+                    sendInputAndReceiveOutputFromDatabase(StaticFields.SUM_FOOD_BERND_MONTH);
                     resetEditText();
                 }
             }
@@ -293,16 +303,70 @@ public class MainActivity extends BaseActivity {
         spinnerLocation.setAdapter(adapterLocation);
         editTextDate = findViewById(R.id.editTextDate);
         arrayListOfIncomeAndExpense = new ArrayList<>();
-        swipeRefreshLayout = (SwipeRefreshLayout)findViewById(R.id.refreshLayout);
+//        swipeRefreshLayout = (SwipeRefreshLayout)findViewById(R.id.refreshLayout);
         // Refresh  the layout
-        swipeRefreshLayout.setOnRefreshListener(
-                new SwipeRefreshLayout.OnRefreshListener() {
-                    @Override
-                    public void onRefresh() {
-                        refreshAndRequestOutputFromDatabase(false);
+//        swipeRefreshLayout.setOnRefreshListener(
+//                new SwipeRefreshLayout.OnRefreshListener() {
+//                    @Override
+//                    public void onRefresh() {
+//                        refreshAndRequestOutputFromDatabase(false);
+//                    }
+//                }
+//        );
+    }
+
+    private void sendInputAndReceiveOutputFromDatabase(String sumFood) {
+        // creating a new variable for our request queue
+        RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
+        String url = null;
+
+        // on below line we are calling a string
+        // request method to post the data to our API
+        // in this we are calling a post method.
+        if(sumFood.equals("sumFoodJuliaMonth"))
+            url = StaticFields.PROTOCOL +
+                    sharedPref_IP +
+                    StaticFields.COLON +
+                    sharedPref_Port +
+                    StaticFields.REST_URL_GET_SUM_FOOD_SPEND_JULIA +
+                    sharedPref_Food;
+        else if(sumFood.equals("sumFoodBerndMonth")) {
+            url = StaticFields.PROTOCOL +
+                    sharedPref_IP +
+                    StaticFields.COLON +
+                    sharedPref_Port +
+                    StaticFields.REST_URL_GET_SUM_FOOD_SPEND_BERND +
+                    sharedPref_Food;
+        }
+
+        StringRequest request = new StringRequest(Request.Method.GET, url, new com.android.volley.Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                //on below line we are parsing the response
+                //to json object to extract data from it.
+                try {
+                    JSONObject respObj = new JSONObject(response);
+                    JSONObject locs = respObj.getJSONObject("incomeexpense");
+                    JSONArray recs = locs.getJSONArray("Total income");
+
+                    String repl = recs.getString(0);
+                    if(sumFood.equals("sumFoodJuliaMonth")) {
+                        textViewSumFoodJuliaMonth.setText(repl);
+                    } else if(sumFood.equals("sumFoodBerndMonth")) {
+                        textViewSumFoodBerndMonth.setText(repl);
                     }
+                } catch (JSONException e) {
+                    Log.e(TAG, getString(R.string.log_json_message, e.toString()));
                 }
-        );
+            }
+        }, new com.android.volley.Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // method to handle errors.
+                Toast.makeText(MainActivity.this, getString(R.string.error_fail_response, error), Toast.LENGTH_SHORT).show();
+            }
+        });
+        queue.add(request);
     }
 
     private void refreshAndRequestOutputFromDatabase(boolean isRefreshing) {
@@ -315,7 +379,9 @@ public class MainActivity extends BaseActivity {
         getOutputFromDatabase(StaticFields.AVERAGE_FOOD_UNTIL_END_OF_MONTH);
         getOutputFromDatabase(StaticFields.SUM_SPENDING_FOOD_BEGINNING_OF_YEAR);
         getOutputFromDatabase(StaticFields.SUM_INCOME_YEAR);
-        swipeRefreshLayout.setRefreshing(isRefreshing);
+        getOutputFromDatabase(StaticFields.SUM_FOOD_JULIA_MONTH);
+        getOutputFromDatabase(StaticFields.SUM_FOOD_BERND_MONTH);
+//        swipeRefreshLayout.setRefreshing(isRefreshing);
     }
 
     private String setDateCorrectly() {
@@ -486,6 +552,18 @@ public class MainActivity extends BaseActivity {
                     StaticFields.COLON +
                     sharedPref_Port +
                     StaticFields.REST_URL_GET_SUM_INCOME_YEAR;
+        } else if (incomeOrExpenseOrSavingsOrFood.equals("sumFoodJuliaMonth")) {
+            url = StaticFields.PROTOCOL +
+                    sharedPref_IP +
+                    StaticFields.COLON +
+                    sharedPref_Port +
+                    StaticFields.REST_URL_GET_SUM_FOOD_SPEND_JULIA;
+        } else if (incomeOrExpenseOrSavingsOrFood.equals("sumFoodBerndMonth")) {
+            url = StaticFields.PROTOCOL +
+                    sharedPref_IP +
+                    StaticFields.COLON +
+                    sharedPref_Port +
+                    StaticFields.REST_URL_GET_SUM_FOOD_SPEND_BERND;
         }
 
         //String Request initialized
@@ -555,7 +633,17 @@ public class MainActivity extends BaseActivity {
                                 totalYearFood = 0;
                             } else if (incomeOrExpenseOrSavingsOrFood.equals("sumIncomeYear") && !repl.equals("null")) {
                                 textViewTotalYearIncome.setText(repl);
-                            }
+                            }/* else if (incomeOrExpenseOrSavingsOrFood.equals("sumFoodJuliaMonth") && repl.equals("null")) {
+                                textViewSumFoodJuliaMonth.setText("0");
+                                totalYearFood = 0;
+                            } else if (incomeOrExpenseOrSavingsOrFood.equals("sumFoodJuliaMonth") && !repl.equals("null")) {
+                                textViewSumFoodJuliaMonth.setText(repl);
+                            } else if (incomeOrExpenseOrSavingsOrFood.equals("sumFoodBerndMonth") && repl.equals("null")) {
+                                textViewSumFoodBerndMonth.setText("0");
+                                totalYearFood = 0;
+                            } else if (incomeOrExpenseOrSavingsOrFood.equals("sumFoodBerndMonth") && !repl.equals("null")) {
+                                textViewSumFoodBerndMonth.setText(repl);
+                            }*/
                         } else {
                             JSONArray array = obj.optJSONArray("incomeexpense");
                             //when coming back from AlertDialog, array has to be emptied,

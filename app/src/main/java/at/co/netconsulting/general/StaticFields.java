@@ -8,9 +8,12 @@ public class StaticFields {
     public static final int STORAGE_PERMISSION_CODE = 101;
     public static final int INTERNET_PERMISSION_CODE = 102;
     public static final int WIFI_PERMISSION_CODE = 103;
+    //Settings Activity
     public static final String SP_PORT = "PORT";
     public static final String SP_INTERNET_ADDRESS = "INTERNET_ADDRESS";
     public static final String SP_PERSON = "PERSON";
+    public static final String SP_MONEY_FOOD = "MONEY_FOOD";
+    //Settings Activity
     public static final String PROTOCOL = "http://";
     public static final String REST_URL_ADD = "/incomeexpense/add";
     public static final String REST_URL_GET_ALL = "/incomeexpense/all";
@@ -22,6 +25,8 @@ public class StaticFields {
     public static final String REST_URL_GET_SUM_RESERVED_PER_DAY_UNTIL_END_OF_MONTH = "/incomeexpense/sum_reserved_per_day_until_end_of_month";
     public static final String REST_URL_GET_SUM_SPENDING_FOOD_BEGINNING_OF_YEAR = "/incomeexpense/sum_spending_food_since_beginning_of_year";
     public static final String REST_URL_GET_SUM_INCOME_YEAR = "/incomeexpense/sum_income_year";
+    public static final String REST_URL_GET_SUM_FOOD_SPEND_JULIA = "/incomeexpense/sum_spending_food_by_julia_current_month?julia_food=";
+    public static final String REST_URL_GET_SUM_FOOD_SPEND_BERND = "/incomeexpense/sum_spending_food_by_bernd_current_month?bernd_food=";
     public static final String COLON = ":";
     public static final String INCOME = "income";
     public static final String EXPENSE = "expense";
@@ -32,4 +37,6 @@ public class StaticFields {
     public static final String AVERAGE_FOOD_UNTIL_END_OF_MONTH = "averageDayUntilEndOfMonth";
     public static final String SUM_SPENDING_FOOD_BEGINNING_OF_YEAR = "sumSpendingFoodBeginningOfYear";
     public static final String SUM_INCOME_YEAR = "sumIncomeYear";
+    public static final String SUM_FOOD_JULIA_MONTH = "sumFoodJuliaMonth";
+    public static final String SUM_FOOD_BERND_MONTH = "sumFoodBerndMonth";
 }

@@ -13,7 +13,7 @@ import at.co.netconsulting.general.StaticFields;
 
 public class SettingsActivity extends BaseActivity {
 
-    private EditText editTextPort, editTextIPAddress, editTextPerson;
+    private EditText editTextPort, editTextIPAddress, editTextPerson, editTextMoneyOnFoodToSpend;
     private FloatingActionButton fabSaveButton, fabReturnButton;
     private SharedPreferences sharedPreferences;
     private String[] splitPerson;
@@ -28,6 +28,7 @@ public class SettingsActivity extends BaseActivity {
         loadSharedPreferences(StaticFields.SP_INTERNET_ADDRESS);
         loadSharedPreferences(StaticFields.SP_PORT);
         loadSharedPreferences(StaticFields.SP_PERSON);
+        loadSharedPreferences(StaticFields.SP_MONEY_FOOD);
     }
 
     private void initializeObjects() {
@@ -38,6 +39,7 @@ public class SettingsActivity extends BaseActivity {
         editTextIPAddress = (EditText) findViewById(R.id.editTextIPAddress);
         editTextPort = (EditText) findViewById(R.id.editTextPort);
         editTextPerson = (EditText) findViewById(R.id.editTextPerson);
+        editTextMoneyOnFoodToSpend = (EditText) findViewById(R.id.editTextMoneyOnFoodToSpend);
 
         fabSaveButton = findViewById(R.id.saveFab);
         fabSaveButton.setOnClickListener(new View.OnClickListener() {
@@ -46,6 +48,7 @@ public class SettingsActivity extends BaseActivity {
                 saveSharedPreferences(StaticFields.SP_PORT);
                 saveSharedPreferences(StaticFields.SP_INTERNET_ADDRESS);
                 saveSharedPreferences(StaticFields.SP_PERSON);
+                saveSharedPreferences(StaticFields.SP_MONEY_FOOD);
             }
         });
 
@@ -77,6 +80,9 @@ public class SettingsActivity extends BaseActivity {
             case StaticFields.SP_PERSON:
                 editTextPerson.setText(s1);
                 break;
+            case StaticFields.SP_MONEY_FOOD:
+                editTextMoneyOnFoodToSpend.setText(s1);
+                break;
         }
     }
 
@@ -96,6 +102,10 @@ public class SettingsActivity extends BaseActivity {
                 break;
             case StaticFields.SP_PERSON:
                 editor.putString(shared_pref_key, editTextPerson.getText().toString());
+                editor.commit();
+                break;
+            case StaticFields.SP_MONEY_FOOD:
+                editor.putString(shared_pref_key, editTextMoneyOnFoodToSpend.getText().toString());
                 editor.commit();
                 break;
         }

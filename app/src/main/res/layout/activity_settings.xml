@@ -40,6 +40,13 @@
             android:layout_height="wrap_content"
             android:hint="Person"
             android:inputType="text" />
+
+        <EditText
+            android:id="@+id/editTextMoneyOnFoodToSpend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="How much money for food/month"
+            android:inputType="numberDecimal" />
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
