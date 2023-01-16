@@ -346,14 +346,16 @@ public class MainActivity extends BaseActivity {
                 //to json object to extract data from it.
                 try {
                     JSONObject respObj = new JSONObject(response);
-                    JSONObject locs = respObj.getJSONObject("incomeexpense");
-                    JSONArray recs = locs.getJSONArray("Total income");
+                    if(respObj != null) {
+                        JSONObject locs = respObj.getJSONObject("incomeexpense");
+                        JSONArray recs = locs.getJSONArray("Total income");
 
-                    String repl = recs.getString(0);
-                    if(sumFood.equals("sumFoodJuliaMonth")) {
-                        textViewSumFoodJuliaMonth.setText(repl);
-                    } else if(sumFood.equals("sumFoodBerndMonth")) {
-                        textViewSumFoodBerndMonth.setText(repl);
+                        String repl = recs.getString(0);
+                        if (sumFood.equals("sumFoodJuliaMonth")) {
+                            textViewSumFoodJuliaMonth.setText(repl);
+                        } else if (sumFood.equals("sumFoodBerndMonth")) {
+                            textViewSumFoodBerndMonth.setText(repl);
+                        }
                     }
                 } catch (JSONException e) {
                     Log.e(TAG, getString(R.string.log_json_message, e.toString()));
@@ -580,7 +582,6 @@ public class MainActivity extends BaseActivity {
                     if (obj.has("incomeexpense")) {
                         JSONObject dataObject = obj.optJSONObject("incomeexpense");
                         if (dataObject != null) {
-                            Log.d(TAG, dataObject.toString());
                             JSONObject locs = obj.getJSONObject("incomeexpense");
                             JSONArray recs = locs.getJSONArray("Total income");
 
@@ -738,6 +739,7 @@ public class MainActivity extends BaseActivity {
         loadSharedPreferences(StaticFields.SP_PORT);
         loadSharedPreferences(StaticFields.SP_INTERNET_ADDRESS);
         loadSharedPreferences(StaticFields.SP_PERSON);
+        loadSharedPreferences(StaticFields.SP_MONEY_FOOD);
         resetEditText();
     }
 
