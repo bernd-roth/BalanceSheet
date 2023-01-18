@@ -20,12 +20,24 @@
             android:minHeight="?attr/actionBarSize"
             android:theme="?attr/actionBarTheme" />
 
+        <TextView
+            android:id="@+id/textViewIpAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/textViewIpAddress" />
+
         <EditText
             android:id="@+id/editTextIPAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="IP address"
             android:inputType="text" />
+
+        <TextView
+            android:id="@+id/textViewPort"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/textViewPort" />
 
         <EditText
             android:id="@+id/editTextPort"
@@ -34,12 +46,24 @@
             android:hint="5000"
             android:inputType="number" />
 
+        <TextView
+            android:id="@+id/textViewPerson"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/textViewPerson" />
+
         <EditText
             android:id="@+id/editTextPerson"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Person"
             android:inputType="text" />
+
+        <TextView
+            android:id="@+id/textViewMoneyLeft"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/textViewMoneyLeftForFoodJustForPerson" />
 
         <EditText
             android:id="@+id/editTextMoneyOnFoodToSpend"
