@@ -34,7 +34,7 @@
                     android:layout_column="1"
                     android:gravity="center_horizontal"
                     android:textSize="25dp"
-                    android:text="Overview" />
+                    android:text="@string/overview" />
 
                 <TableRow
                     android:layout_width="fill_parent"
@@ -44,7 +44,7 @@
                         android:layout_height="wrap_content"
                         android:layout_column="1"
                         android:textSize="20dp"
-                        android:text="Total income" />
+                        android:text="@string/sum_income" />
 
                     <TextView
                         android:id="@+id/textViewTotalIncome"
@@ -56,12 +56,13 @@
                 </TableRow>
 
                 <TableRow>
+
                     <TextView
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_column="1"
-                        android:textSize="20dp"
-                        android:text="Total spending" />
+                        android:text="@string/sum_spending"
+                        android:textSize="20dp" />
 
                     <TextView
                         android:id="@+id/textViewTotalExpense"
@@ -81,7 +82,7 @@
                         android:layout_height="wrap_content"
                         android:layout_column="1"
                         android:textSize="20dp"
-                        android:text="Total savings" />
+                        android:text="@string/sum_savings" />
 
                     <TextView
                         android:id="@+id/textViewTotalSavings"
@@ -98,7 +99,7 @@
                         android:layout_height="wrap_content"
                         android:layout_column="1"
                         android:textSize="20dp"
-                        android:text="Food Spend/Month" />
+                        android:text="@string/sum_food_spending_month" />
 
                     <TextView
                         android:id="@+id/textViewTotalFood"
@@ -115,7 +116,7 @@
                         android:layout_height="wrap_content"
                         android:layout_column="1"
                         android:textSize="20dp"
-                        android:text="Food Ø Spend/Day Month" />
+                        android:text="@string/average_food_spending_day_month" />
 
                     <TextView
                         android:id="@+id/textViewAverageTotalFood"
@@ -132,7 +133,7 @@
                         android:layout_height="wrap_content"
                         android:layout_column="1"
                         android:textSize="20dp"
-                        android:text="Food Ø Reserved/Day" />
+                        android:text="@string/average_food_reserved_day" />
 
                     <TextView
                         android:id="@+id/textViewReservedAverageDayFood"
@@ -149,7 +150,7 @@
                         android:layout_height="wrap_content"
                         android:layout_column="1"
                         android:textSize="20dp"
-                        android:text="Food Total Year" />
+                        android:text="@string/sum_food_year" />
 
                     <TextView
                         android:id="@+id/textViewTotalYearFood"
@@ -166,7 +167,7 @@
                         android:layout_height="wrap_content"
                         android:layout_column="1"
                         android:textSize="20dp"
-                        android:text="Income Total Year" />
+                        android:text="@string/sum_income_year" />
 
                     <TextView
                         android:id="@+id/textViewTotalYearIncome"
@@ -183,7 +184,7 @@
                         android:layout_height="wrap_content"
                         android:layout_column="1"
                         android:textSize="20dp"
-                        android:text="Sum Food by Julia/month" />
+                        android:text="@string/sum_left_food_julia_month" />
 
                     <TextView
                         android:id="@+id/textViewSumFoodJuliaMonth"
@@ -200,13 +201,13 @@
                         android:layout_height="wrap_content"
                         android:layout_column="1"
                         android:textSize="20dp"
-                        android:text="Sum Food by Bernd/month" />
+                        android:text="@string/sum_left_food_bernd_month" />
 
                     <TextView
                         android:id="@+id/textViewSumFoodBerndMonth"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@android:color/darker_gray"
+                        android:background="@android:color/holo_blue_dark"
                         android:layout_column="2"
                         android:textSize="20dp" />
                 </TableRow>
@@ -223,7 +224,7 @@
                     android:layout_column="1"
                     android:gravity="center_horizontal"
                     android:textSize="25dp"
-                    android:text="Input" />
+                    android:text="@string/Input" />
 
                 <TableRow
                     android:layout_width="fill_parent"
@@ -234,7 +235,7 @@
                         android:layout_height="wrap_content"
                         android:layout_column="1"
                         android:textSize="20dp"
-                        android:hint="Income" />
+                        android:hint="@string/hint_income" />
 
                     <EditText
                         android:id="@+id/editTextIncome"
@@ -252,7 +253,7 @@
                         android:layout_height="wrap_content"
                         android:layout_column="1"
                         android:textSize="20dp"
-                        android:hint="Spending" />
+                        android:hint="@string/hint_spending" />
 
                     <EditText
                         android:id="@+id/editTextSpending"
@@ -273,7 +274,7 @@
                         android:layout_height="wrap_content"
                         android:layout_column="1"
                         android:textSize="20dp"
-                        android:hint="Person" />
+                        android:hint="@string/hint_person" />
 
                     <Spinner
                         android:id="@+id/spinner"
@@ -289,7 +290,7 @@
                         android:layout_height="wrap_content"
                         android:layout_column="1"
                         android:textSize="20dp"
-                        android:hint="Position" />
+                        android:hint="@string/hint_position" />
 
                     <Spinner
                         android:id="@+id/spinnerPosition"
@@ -305,7 +306,7 @@
                         android:layout_height="wrap_content"
                         android:layout_column="1"
                         android:textSize="20dp"
-                        android:hint="Location" />
+                        android:hint="@string/hint_location" />
 
                     <Spinner
                         android:id="@+id/spinnerLocation"
@@ -323,14 +324,14 @@
                         android:layout_height="wrap_content"
                         android:layout_column="1"
                         android:textSize="20dp"
-                        android:hint="Date" />
+                        android:hint="@string/hint_date" />
 
                     <EditText
                         android:id="@+id/editTextDate"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_column="2"
-                        android:hint="Date (dd-mm-yyyy)"
+                        android:hint="@string/hint_date_dd_mm_yyyy"
                         android:textSize="20dp"
                         android:inputType="date" />
                 </TableRow>
@@ -358,7 +359,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="right"
                             android:layout_margin="16dp"
-                            android:text="Overview current month"
+                            android:text="@string/button_overview_current_month"
                             app:icon="@drawable/ic_baseline_add_24" />
                     </FrameLayout>
                 </TableRow>

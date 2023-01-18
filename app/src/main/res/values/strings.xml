@@ -30,8 +30,32 @@
 
     <!--button strings-->
     <string name="button_return">Return</string>
+    <string name="button_overview_current_month">Overview current month</string>
 
     <!-- TAG -->
     <string name="log_message">VolleyError = %1$s</string>
     <string name="log_json_message">JSONObject = %1$s</string>
+
+    <!-- mainactivity -->
+    <string name="overview">Overview</string>
+    <string name="Input">Input</string>
+    <string name="sum_income">£ income</string>
+    <string name="sum_spending">£ spending</string>
+    <string name="sum_savings">£ savings</string>
+    <string name="sum_food_spending_month">£ food spend/month</string>
+    <string name="average_food_spending_day_month">Food Ø spend/day month</string>
+    <string name="average_food_reserved_day">Food Ø reserved/day</string>
+    <string name="sum_food_year">£ food year</string>
+    <string name="sum_income_year">£ income year</string>
+    <string name="sum_left_food_julia_month">€ left food Julia/month</string>
+    <string name="sum_left_food_bernd_month">€ left food Bernd/month</string>
+
+    <!-- hint -->
+    <string name="hint_income">Income</string>
+    <string name="hint_spending">Spending</string>
+    <string name="hint_person">Person</string>
+    <string name="hint_position">Position</string>
+    <string name="hint_location">Location</string>
+    <string name="hint_date">Date</string>
+    <string name="hint_date_dd_mm_yyyy">Date (dd-mm-yyyy)</string>
 </resources>
