@@ -280,18 +280,21 @@ public class MainActivity extends BaseActivity {
                 String.valueOf(Spending.Dr_W_W_Donath_Immobilienverwaltung),
                 String.valueOf(Spending.Food),
                 String.valueOf(Spending.GTE_Gebäude_Technik_Energie_Betrieb),
+                String.valueOf(Spending.IKEA),
                 String.valueOf(Spending.Income),
                 String.valueOf(Spending.Internet),
                 String.valueOf(Spending.Loan_Bank99),
                 String.valueOf(Spending.Loan_Unicredit_Bank_Austria),
                 String.valueOf(Spending.Moebel_Ludwig),
+                String.valueOf(Spending.Netflix),
                 String.valueOf(Spending.Obi),
                 String.valueOf(Spending.Pharmacy),
                 String.valueOf(Spending.Squandering),
                 String.valueOf(Spending.Telephone),
                 String.valueOf(Spending.Wiener_Netze),
                 String.valueOf(Spending.Wiener_Staedtische_Versicherung_AG),
-                String.valueOf(Spending.XXX_Lutz)};
+                String.valueOf(Spending.XXXLutz),
+                String.valueOf(Spending.Youtube),};
             ArrayAdapter<String> adaperPosition = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, itemsPosition);
             spinnerPosition.setAdapter(adaperPosition);
         spinnerLocation = findViewById(R.id.spinnerLocation);
