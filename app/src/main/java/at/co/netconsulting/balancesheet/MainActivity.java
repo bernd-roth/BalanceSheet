@@ -289,6 +289,7 @@ public class MainActivity extends BaseActivity {
                 String.valueOf(Spending.Netflix),
                 String.valueOf(Spending.Obi),
                 String.valueOf(Spending.Pharmacy),
+                String.valueOf(Spending.Strom_Wien_Energie),
                 String.valueOf(Spending.Squandering),
                 String.valueOf(Spending.Telephone),
                 String.valueOf(Spending.Wiener_Netze),

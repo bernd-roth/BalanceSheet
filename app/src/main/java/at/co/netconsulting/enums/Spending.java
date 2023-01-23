@@ -17,6 +17,7 @@ public enum Spending {
     Netflix,
     Obi,
     Pharmacy,
+    Strom_Wien_Energie,
     Squandering,
     Telephone,
     Wiener_Staedtische_Versicherung_AG,
