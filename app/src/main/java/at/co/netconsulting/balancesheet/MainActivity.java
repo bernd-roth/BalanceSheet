@@ -57,7 +57,8 @@ public class MainActivity extends BaseActivity {
     private ExtendedFloatingActionButton fabListButton;
     private EditText editTextIncome,
             editTextSpending,
-            editTextDate;
+            editTextDate,
+            editTextComment;
     private Spinner spinnerPerson, spinnerLocation, spinnerPosition;
     private RequestQueue mRequestQueue;
     private StringRequest mStringRequest;
@@ -137,6 +138,8 @@ public class MainActivity extends BaseActivity {
 
         editTextDate = findViewById(R.id.editTextDate);
         editTextDate.setText(setDateCorrectly());
+
+        editTextComment = findViewById(R.id.editTextComment);
 
         totalIncome = findViewById(R.id.textViewTotalIncome);
         totalExpense = findViewById(R.id.textViewTotalExpense);
@@ -477,6 +480,7 @@ public class MainActivity extends BaseActivity {
                 String income = editTextIncome.getText().toString();
                 String expense = editTextSpending.getText().toString();
                 String location = spinnerLocation.getSelectedItem().toString();
+                String comment = editTextComment.getText().toString();
 
                 String[] orderDate = orderdate.split("/");
                 String orderDateAsYYYYMMDD = orderDate[2] + "-" + orderDate[1] + "-" + orderDate[0];
@@ -487,6 +491,7 @@ public class MainActivity extends BaseActivity {
                 params.put("income", income);
                 params.put("expense", expense);
                 params.put("location", location);
+                params.put("comment", comment);
 
                 // at last we are
                 // returning our params.
@@ -665,7 +670,7 @@ public class MainActivity extends BaseActivity {
                                 arrayListOfIncomeAndExpense.add("When: " + ":" + orderdate +
                                         "\nPerson: " + who + "\nLocation: " + location +
                                         "\nIncome: " + income + "\nExpense: " + expense +
-                                        "\nPosition: " + position) ;
+                                        "\nPosition: " + position);
                             }
                         }
                     }
@@ -750,5 +755,5 @@ public class MainActivity extends BaseActivity {
     private void resetEditText() {
         editTextIncome.setText("0");
         editTextSpending.setText("0");
-    }
+     }
 }
