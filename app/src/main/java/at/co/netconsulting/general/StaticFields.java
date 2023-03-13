@@ -13,6 +13,8 @@ public class StaticFields {
     public static final String SP_INTERNET_ADDRESS = "INTERNET_ADDRESS";
     public static final String SP_PERSON = "PERSON";
     public static final String SP_MONEY_FOOD = "MONEY_FOOD";
+    public static final String SP_DEFAULT_POSITION = "DEFAULT_POSITION";
+    public static final String SP_DEFAULT_LOCATION = "DEFAULT_LOCATION";
     //Settings Activity
     public static final String PROTOCOL = "http://";
     public static final String REST_URL_ADD = "/incomeexpense/add";

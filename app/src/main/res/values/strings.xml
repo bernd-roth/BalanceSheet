@@ -58,11 +58,13 @@
     <string name="hint_location">Location</string>
     <string name="hint_date">Date</string>
     <string name="hint_date_dd_mm_yyyy">Date (dd-mm-yyyy)</string>
+    <string name="hint_comment">Comment</string>
 
     <!-- textView -->
     <string name="textViewIpAddress">IP Address</string>
     <string name="textViewPort">Port</string>
     <string name="textViewPerson">Person (Person1, Person2, ...)</string>
     <string name="textViewMoneyLeftForFoodJustForPerson">Money left for food/month (just for me)</string>
-    <string name="hint_comment">Comment</string>
+    <string name="textViewDefaultPosition">Position</string>
+    <string name="textViewDefaultLocation">Location</string>
 </resources>

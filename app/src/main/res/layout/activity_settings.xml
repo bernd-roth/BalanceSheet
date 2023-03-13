@@ -71,6 +71,32 @@
             android:layout_height="wrap_content"
             android:hint="How much money for food/month"
             android:inputType="numberDecimal" />
+
+        <TextView
+            android:id="@+id/textViewDefaultPosition"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/textViewDefaultPosition" />
+
+        <EditText
+            android:id="@+id/editTextDefaultPosition"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Position"
+            android:inputType="text" />
+
+        <TextView
+            android:id="@+id/textViewDefaultLocation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/textViewDefaultLocation" />
+
+        <EditText
+            android:id="@+id/editTextDefaultLocation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Location"
+            android:inputType="text" />
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

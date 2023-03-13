@@ -64,7 +64,7 @@ public class MainActivity extends BaseActivity {
     private StringRequest mStringRequest;
     private static final String TAG = MainActivity.class.getName();
     private SharedPreferences sharedPreferences;
-    private String sharedPref_IP, sharedPref_Port, sharedPref_Person, sharedPref_Food;
+    private String sharedPref_IP, sharedPref_Port, sharedPref_Person, sharedPref_Food, sharedPref_Position, sharedPref_Location;
     private TextView    totalIncome, totalExpense, totalSavings, totalFood, textViewAverageTotalFood, textViewReservedAverageDayFood, textViewTotalYearFood, textViewTotalYearIncome,
                         textViewSumFoodJuliaMonth, textViewSumFoodBerndMonth;
     private String[] splitPerson;
@@ -85,6 +85,8 @@ public class MainActivity extends BaseActivity {
         loadSharedPreferences(StaticFields.SP_INTERNET_ADDRESS);
         loadSharedPreferences(StaticFields.SP_PERSON);
         loadSharedPreferences(StaticFields.SP_MONEY_FOOD);
+        loadSharedPreferences(StaticFields.SP_DEFAULT_POSITION);
+        loadSharedPreferences(StaticFields.SP_DEFAULT_LOCATION);
         getOutputFromDatabase(StaticFields.INCOME);
         getOutputFromDatabase(StaticFields.EXPENSE);
         getOutputFromDatabase(StaticFields.SAVINGS);
@@ -113,9 +115,6 @@ public class MainActivity extends BaseActivity {
                 break;
             case StaticFields.SP_PERSON:
                 sharedPref_Person = s1;
-            case StaticFields.SP_MONEY_FOOD:
-                sharedPref_Food = s1;
-
                 adapterPerson.clear();
                 if(sharedPref_Person != null) {
                     splitPerson = sharedPref_Person.split(" ");
@@ -128,7 +127,27 @@ public class MainActivity extends BaseActivity {
                 adapterPerson = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, itemsPerson);
                 spinnerPerson.setAdapter(adapterPerson);
                 break;
+            case StaticFields.SP_MONEY_FOOD:
+                sharedPref_Food = s1;
+                break;
+            case StaticFields.SP_DEFAULT_POSITION:
+                sharedPref_Position = s1;
+                spinnerPosition.setSelection(getIndex(spinnerPosition, sharedPref_Position));
+                break;
+            case StaticFields.SP_DEFAULT_LOCATION:
+                sharedPref_Location = s1;
+                spinnerLocation.setSelection(getIndex(spinnerLocation, sharedPref_Location));
+                break;
         }
+    }
+
+    private int getIndex(Spinner spinner, String myString){
+        for (int i=0;i<spinner.getCount();i++){
+            if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(myString)){
+                return i;
+            }
+        }
+        return 0;
     }
 
     private void initializeObjects() {
@@ -305,7 +324,8 @@ public class MainActivity extends BaseActivity {
         String[] itemsLocation = new String[]{
                 String.valueOf(Location.Hollgasse_1_1),
                 String.valueOf(Location.Hollgasse_1_54),
-                String.valueOf(Location.Stipcakgasse_8_1_4)};
+                String.valueOf(Location.Stipcakgasse_8_1_4),
+                String.valueOf(Location.Ludwika_Pasteura)};
         ArrayAdapter<String> adapterLocation = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, itemsLocation);
         spinnerLocation.setAdapter(adapterLocation);
         editTextDate = findViewById(R.id.editTextDate);
