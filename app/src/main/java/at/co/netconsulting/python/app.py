@@ -36,8 +36,7 @@ class IncomeExpenseModel(db.Model):
 	location = db.Column(db.String, nullable=True)
 	comment = db.Column(db.String, nullable=True)
 
-	def __init__(self, id, orderdate, who, position, income, expense, location, comment):
-		self.id = id
+	def __init__(self, orderdate, who, position, income, expense, location, comment):
 		self.orderdate = orderdate
 		self.who = who
 		self.position = position
@@ -85,16 +84,6 @@ def handle_incomexpense_put(id):
 		income_expense.location = request.form['location']
 		income_expense.comment = request.form['comment']
 
-		#		ids = request.form.get('id')
-		#		orderdate = request.form.get('orderdate')
-		#		who = request.form.get('who')
-		#		position = request.form.get('position')
-		#		income = request.form.get('income')
-		#		expense = request.form.get('expense')
-		#		location = request.form.get('location')
-		#		comment = request.form.get('comment')
-		#		entry = IncomeExpenseModel(id=ids, orderdate=orderdate, who=who, position=position, income=income, expense=expense, location=location, comment=comment)
-		#		db.session.add(entry)
 		db.session.commit()
 		return jsonify({"message":"Successfully inserted!"})
 
@@ -359,7 +348,7 @@ def handle_incomexpense_sum_spending_food_by_bernd_current_month():
 #	import collections
 #	import psycopg2
 
-#	conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
+#	conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='password'"
 #	conn = psycopg2.connect(conn_string)
 #	cursor = conn.cursor()
 #	cursor.execute("SELECT orderdate, who, position, income, expense FROM incomeexpense order by orderdate DESC")
