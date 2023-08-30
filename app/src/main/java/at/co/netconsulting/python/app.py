@@ -13,13 +13,13 @@ import calendar
 #
 from sqlalchemy import create_engine
 from sqlalchemy.sql import functions
-engine = create_engine('postgresql+psycopg2://postgres:password@ip:5432/incomeexpense')
+engine = create_engine('postgresql+psycopg2://postgres:password@192.168.0.18:5432/incomeexpense')
 from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 #
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:password@ip:5432/incomeexpense"
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:password@192.168.0.18:5432/incomeexpense"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -36,7 +36,8 @@ class IncomeExpenseModel(db.Model):
 	location = db.Column(db.String, nullable=True)
 	comment = db.Column(db.String, nullable=True)
 
-	def __init__(self, orderdate, who, position, income, expense, location, comment):
+	def __init__(self, id, orderdate, who, position, income, expense, location, comment):
+		self.id = id
 		self.orderdate = orderdate
 		self.who = who
 		self.position = position
@@ -54,20 +55,48 @@ def handle_incomexpense_all():
 
 	if request.method == 'GET':
 		response = []
-#		for incomeexpense in IncomeExpenseModel.query.all():
+		#		for incomeexpense in IncomeExpenseModel.query.all():
 		first_day = datetime.date.today().replace(day=1)
 		last_day = datetime.date.today().replace(day=calendar.monthrange(datetime.date.today().year, datetime.date.today().month)[1])
 		for incomeexpense in IncomeExpenseModel.query.filter(IncomeExpenseModel.orderdate.between(first_day, last_day)).order_by(IncomeExpenseModel.orderdate.desc()).all():
-#		for incomeexpense in IncomeExpenseModel.query.order_by(IncomeExpenseModel.orderdate.desc()).all():
+			#		for incomeexpense in IncomeExpenseModel.query.order_by(IncomeExpenseModel.orderdate.desc()).all():
 			response.append({
-			"orderdate": incomeexpense.orderdate,
-			"who": incomeexpense.who,
-			"position": incomeexpense.position,
-			"income": incomeexpense.income,
-			"expense": incomeexpense.expense,
-			"location": incomeexpense.location
-		})
+				"id": incomeexpense.id,
+				"orderdate": incomeexpense.orderdate,
+				"who": incomeexpense.who,
+				"position": incomeexpense.position,
+				"income": incomeexpense.income,
+				"expense": incomeexpense.expense,
+				"location": incomeexpense.location,
+				"comment": incomeexpense.comment
+			})
 		return {"message": "success", "incomeexpense": response}
+
+@app.route('/incomeexpense/put/<id>', methods=['PUT'])
+def handle_incomexpense_put(id):
+	print("id:",id)
+	income_expense = IncomeExpenseModel.query.filter_by(id=id).first()
+	if income_expense:
+		income_expense.orderdate = request.form['orderdate']
+		income_expense.income = request.form['income']
+		income_expense.expense = request.form['expense']
+		income_expense.who = request.form['who']
+		income_expense.position = request.form['position']
+		income_expense.location = request.form['location']
+		income_expense.comment = request.form['comment']
+
+		#		ids = request.form.get('id')
+		#		orderdate = request.form.get('orderdate')
+		#		who = request.form.get('who')
+		#		position = request.form.get('position')
+		#		income = request.form.get('income')
+		#		expense = request.form.get('expense')
+		#		location = request.form.get('location')
+		#		comment = request.form.get('comment')
+		#		entry = IncomeExpenseModel(id=ids, orderdate=orderdate, who=who, position=position, income=income, expense=expense, location=location, comment=comment)
+		#		db.session.add(entry)
+		db.session.commit()
+		return jsonify({"message":"Successfully inserted!"})
 
 @app.route('/incomeexpense/sum_expense', methods=['GET'])
 def handle_expense_sum():
@@ -143,7 +172,7 @@ def handle_incomexpense_sum_food():
 	conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='password'"
 	conn = psycopg2.connect(conn_string)
 	cursor = conn.cursor()
-#	cursor.execute("SELECT ROUND(ABS(SUM(income)-SUM(expense))/EXTRACT(DAY FROM TIMESTAMP 'NOW()')::numeric,2) FROM incomeexpense WHERE position LIKE 'Food%'")
+	#	cursor.execute("SELECT ROUND(ABS(SUM(income)-SUM(expense))/EXTRACT(DAY FROM TIMESTAMP 'NOW()')::numeric,2) FROM incomeexpense WHERE position LIKE 'Food%'")
 	cursor.execute("SELECT ABS(SUM(income)-SUM(expense)) FROM incomeexpense WHERE position LIKE 'Food%' and orderdate BETWEEN date_trunc('month', current_date) AND (date_trunc('month', now()) + interval '1 month - 1 day')::date;")
 	rows = cursor.fetchall()
 	rowarray_list = []
@@ -330,7 +359,7 @@ def handle_incomexpense_sum_spending_food_by_bernd_current_month():
 #	import collections
 #	import psycopg2
 
-#	conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='password'"
+#	conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
 #	conn = psycopg2.connect(conn_string)
 #	cursor = conn.cursor()
 #	cursor.execute("SELECT orderdate, who, position, income, expense FROM incomeexpense order by orderdate DESC")

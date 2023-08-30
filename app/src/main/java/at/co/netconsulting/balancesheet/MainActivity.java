@@ -11,12 +11,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -36,7 +38,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.math.BigInteger;
+import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -58,7 +60,15 @@ public class MainActivity extends BaseActivity {
     private EditText editTextIncome,
             editTextSpending,
             editTextDate,
-            editTextComment;
+            editTextComment,
+            editText_Id,
+            editText_When,
+            editText_Person,
+            editText_Income,
+            editText_Expense,
+            editText_Position,
+            editText_Location,
+            editText_Comment;
     private Spinner spinnerPerson, spinnerLocation, spinnerPosition;
     private RequestQueue mRequestQueue;
     private StringRequest mStringRequest;
@@ -73,6 +83,9 @@ public class MainActivity extends BaseActivity {
     private int totalIncomeInt, totalExpenseInt, totalSavingsInt, totalFoodInt, averageFoodPerDayOfMonthInt, reservedAverageDayFoodInt, totalYearFood;
     public static float totalIncomeStatic, totalSavingsStatic, totalExpenseStatic, totalFoodStatic;
 //    private SwipeRefreshLayout swipeRefreshLayout;
+    private AlertDialog dialogDetails, dialog;
+    private AlertDialog.Builder alertDialog, dialogbuilder;
+    String id, expense, income, location, who, orderdate, position, when, person, comment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -205,13 +218,107 @@ public class MainActivity extends BaseActivity {
                  //the last entry is always missing, therefore initiating an refresh
                  refreshAndRequestOutputFromDatabase(false);
 
-                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                 alertDialog = new AlertDialog.Builder(MainActivity.this);
                  alertDialog.setTitle("" + currentMonth);
                  View rowList = getLayoutInflater().inflate(R.layout.row, null);
                  ListView listView = rowList.findViewById(R.id.listView);
                  adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, arrayListOfIncomeAndExpense);
-                 if(!adapter.isEmpty())
-                    listView.setAdapter(adapter);
+                 if(!adapter.isEmpty()) {
+                     listView.setAdapter(adapter);
+                     listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                         @Override
+                         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                             dialog.dismiss();
+                             editableAlertDialog(arrayListOfIncomeAndExpense.get(i));
+                         }
+
+                         private void editableAlertDialog(String arrayListOfIncomeAndExpense) {
+                             id = split_arrayListOfIncomeAndExpense("id", arrayListOfIncomeAndExpense);
+                             when = split_arrayListOfIncomeAndExpense("when", arrayListOfIncomeAndExpense);
+                             person = split_arrayListOfIncomeAndExpense("person", arrayListOfIncomeAndExpense);
+                             location = split_arrayListOfIncomeAndExpense("location", arrayListOfIncomeAndExpense);
+                             income = split_arrayListOfIncomeAndExpense("income", arrayListOfIncomeAndExpense);
+                             expense = split_arrayListOfIncomeAndExpense("expense", arrayListOfIncomeAndExpense);
+                             position = split_arrayListOfIncomeAndExpense("position", arrayListOfIncomeAndExpense);
+                             comment = split_arrayListOfIncomeAndExpense("comment", arrayListOfIncomeAndExpense);
+
+                             LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
+                             View dialogview = inflater.inflate(R.layout.custom_alert_dialog, null);
+                             dialogbuilder = new AlertDialog.Builder(MainActivity.this);
+                             dialogbuilder.setTitle("Update fields");
+                             dialogbuilder.setView(dialogview);
+                             dialogDetails = dialogbuilder.create();
+                             dialogDetails.show();
+
+                             editText_Id = dialogview.findViewById(R.id.editText_Id);
+                                editText_Id.setText(id);
+                             editText_When = dialogview.findViewById(R.id.editText_When);
+                                editText_When.setText(when);
+                             editText_Person = dialogview.findViewById(R.id.editText_Person);
+                                editText_Person.setText(person);
+                             editText_Location = dialogview.findViewById(R.id.editText_Location);
+                                editText_Location.setText(location);
+                             editText_Income = dialogview.findViewById(R.id.editText_Income);
+                                editText_Income.setText(income);
+                             editText_Expense = dialogview.findViewById(R.id.editText_Expense);
+                                editText_Expense.setText(expense);
+                             editText_Position = dialogview.findViewById(R.id.editText_Position);
+                                editText_Position.setText(position);
+                             editText_Comment = dialogview.findViewById(R.id.editText_Comment);
+                                editText_Comment.setText(comment);
+                         }
+
+                         private String split_arrayListOfIncomeAndExpense(String split_string, String arrayListOfIncomeAndExpense) {
+                             String result_split = null;
+                             String[] splitted_id;
+
+                             switch (split_string) {
+                                 case "id":
+                                     splitted_id = arrayListOfIncomeAndExpense.split("\n");
+                                     String[] id = splitted_id[0].split("\\s");
+                                     result_split = id[1];
+                                     return result_split;
+                                 case "when":
+                                     splitted_id = arrayListOfIncomeAndExpense.split("\n");
+                                     //String[] when = splitted_id[1].split("\\s");
+                                     result_split = splitted_id[1];
+                                     return result_split;
+                                 case "person":
+                                     splitted_id = arrayListOfIncomeAndExpense.split("\n");
+                                     String[] person = splitted_id[2].split("\\s");
+                                     result_split = person[1];
+                                     return result_split;
+                                 case "location":
+                                     splitted_id = arrayListOfIncomeAndExpense.split("\n");
+                                     String[] location = splitted_id[3].split("\\s");
+                                     result_split = location[1];
+                                     return result_split;
+                                 case "income":
+                                     splitted_id = arrayListOfIncomeAndExpense.split("\n");
+                                     String[] income = splitted_id[4].split("\\s");
+                                     result_split = income[1];
+                                     return result_split;
+                                 case "expense":
+                                     splitted_id = arrayListOfIncomeAndExpense.split("\n");
+                                     String[] expense = splitted_id[5].split("\\s");
+                                     result_split = expense[1];
+                                     return result_split;
+                                 case "position":
+                                     splitted_id = arrayListOfIncomeAndExpense.split("\n");
+                                     String[] position = splitted_id[6].split("\\s");
+                                     result_split = position[1];
+                                     return result_split;
+                                 case "comment":
+                                     splitted_id = arrayListOfIncomeAndExpense.split("\n");
+                                     String[] split_comment = splitted_id[7].split("\\s", 1);
+                                     String[] result_splitted = split_comment[0].split("\\s");
+                                     result_split = result_splitted[1];
+                                     return result_split;
+                             }
+                             return result_split;
+                         }
+                     });
+                 }
                  adapter.notifyDataSetChanged();
                  alertDialog.setView(rowList);
                  alertDialog.setPositiveButton(R.string.button_return, new DialogInterface.OnClickListener() {
@@ -220,7 +327,7 @@ public class MainActivity extends BaseActivity {
                          refreshAndRequestOutputFromDatabase(false);
                      }
                  });
-                 AlertDialog dialog = alertDialog.create();
+                 dialog = alertDialog.create();
                  dialog.show();
              }
         });
@@ -443,7 +550,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private boolean showAlertDialog(int alertMessage) {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+        alertDialog = new AlertDialog.Builder(MainActivity.this);
         alertDialog.setTitle("Alert!");
         alertDialog.setMessage(alertMessage);
         alertDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -681,16 +788,19 @@ public class MainActivity extends BaseActivity {
                             arrayListOfIncomeAndExpense.clear();
                             for (int i = 0; i < array.length(); i++) {
                                 JSONObject jsn = array.getJSONObject(i);
-                                String expense = jsn.getString("expense");
-                                String income = jsn.getString("income");
-                                String location = jsn.getString("location");
-                                String who = jsn.getString("who");
-                                String orderdate = jsn.getString("orderdate");
-                                String position = jsn.getString("position");
-                                arrayListOfIncomeAndExpense.add("When: " + ":" + orderdate +
+                                id = jsn.getString("id");
+                                expense = jsn.getString("expense");
+                                income = jsn.getString("income");
+                                location = jsn.getString("location");
+                                who = jsn.getString("who");
+                                orderdate = jsn.getString("orderdate");
+                                position = jsn.getString("position");
+                                comment = jsn.getString("comment");
+                                arrayListOfIncomeAndExpense.add("Id: " + id + "\nWhen: " + orderdate +
                                         "\nPerson: " + who + "\nLocation: " + location +
                                         "\nIncome: " + income + "\nExpense: " + expense +
-                                        "\nPosition: " + position);
+                                        "\nPosition: " + position +
+                                        "\nComment: " + comment);
                             }
                         }
                     }
@@ -776,4 +886,88 @@ public class MainActivity extends BaseActivity {
         editTextIncome.setText("0");
         editTextSpending.setText("0");
      }
+
+    public void cancelButton(View view) {
+        dialogDetails.dismiss();
+    }
+
+    private void updateFields(String id) {
+        // creating a new variable for our request queue
+        RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
+
+        // on below line we are calling a string
+        // request method to post the data to our API
+        // in this we are calling a post method.
+        String url = StaticFields.PROTOCOL +
+                sharedPref_IP +
+                StaticFields.COLON +
+                sharedPref_Port +
+                StaticFields.REST_URL_PUT + id;
+        StringRequest request = new StringRequest(Request.Method.PUT, url, new com.android.volley.Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                //on below line we are parsing the response
+                //to json object to extract data from it.
+                try {
+                    Log.d("Response", response);
+                    dialogDetails.dismiss();
+                    JSONObject respObj = new JSONObject(response);
+                    Toast.makeText(getApplicationContext(), "Entry was updated successfully!", Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    Log.e(TAG, getString(R.string.log_json_message, e.toString()));
+                }
+            }
+        }, new com.android.volley.Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // method to handle errors.
+                if (error == null || error.networkResponse == null) {
+                    return;
+                }
+
+                String body;
+                //get status code here
+                final String statusCode = String.valueOf(error.networkResponse.statusCode);
+                //get response body and parse with appropriate encoding
+                try {
+                    body = new String(error.networkResponse.data,"UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    Log.e("volley error", e.toString());
+                }
+                Toast.makeText(MainActivity.this, getString(R.string.error_fail_response, error), Toast.LENGTH_SHORT).show();
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() {
+                // below line we are creating a map for
+                // storing our values in key and value pair.
+                Map<String, String> params = new HashMap<String, String>();
+
+                String[] orderDate = editText_When.getText().toString().split("/");
+                String[] splits = orderDate[0].split("\\s");
+                String orderDateAsYYYYMMDD = splits[1] + " " + splits[2] + " " + splits[3] + " " + splits[4] + " " + splits[5] + " " + splits[6];
+
+                params.put("id", editText_Id.getText().toString());
+                params.put("orderdate", "2023-08-31");
+                params.put("who", editText_Person.getText().toString());
+                params.put("position", editText_Position.getText().toString());
+                params.put("income", editText_Income.getText().toString());
+                params.put("expense", editText_Expense.getText().toString());
+                params.put("location", editText_Location.getText().toString());
+                params.put("comment", editText_Comment.getText().toString());
+
+                // at last we are
+                // returning our params.
+                return params;
+            }
+        };
+        //below line is to make
+        //a json object request.
+        queue.add(request);
+    }
+
+    public void updateButton(View view) {
+        String id = editText_Id.getText().toString();
+        updateFields(id);
+    }
 }

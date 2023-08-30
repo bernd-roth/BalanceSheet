@@ -29,6 +29,7 @@ public class StaticFields {
     public static final String REST_URL_GET_SUM_INCOME_YEAR = "/incomeexpense/sum_income_year";
     public static final String REST_URL_GET_SUM_FOOD_SPEND_JULIA = "/incomeexpense/sum_spending_food_by_julia_current_month?julia_food=";
     public static final String REST_URL_GET_SUM_FOOD_SPEND_BERND = "/incomeexpense/sum_spending_food_by_bernd_current_month?bernd_food=";
+    public static final String REST_URL_PUT = "/incomeexpense/put/";
     public static final String COLON = ":";
     public static final String INCOME = "income";
     public static final String EXPENSE = "expense";
