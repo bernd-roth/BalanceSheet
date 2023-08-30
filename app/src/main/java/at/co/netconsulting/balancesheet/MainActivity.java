@@ -280,8 +280,7 @@ public class MainActivity extends BaseActivity {
                                      return result_split;
                                  case "when":
                                      splitted_id = arrayListOfIncomeAndExpense.split("\n");
-                                     //String[] when = splitted_id[1].split("\\s");
-                                     result_split = splitted_id[1];
+                                     result_split = splitted_id[1].substring(6);
                                      return result_split;
                                  case "person":
                                      splitted_id = arrayListOfIncomeAndExpense.split("\n");
@@ -948,7 +947,7 @@ public class MainActivity extends BaseActivity {
                 String orderDateAsYYYYMMDD = splits[1] + " " + splits[2] + " " + splits[3] + " " + splits[4] + " " + splits[5] + " " + splits[6];
 
                 params.put("id", editText_Id.getText().toString());
-                params.put("orderdate", "2023-08-31");
+                params.put("orderdate", orderDateAsYYYYMMDD);
                 params.put("who", editText_Person.getText().toString());
                 params.put("position", editText_Position.getText().toString());
                 params.put("income", editText_Income.getText().toString());
