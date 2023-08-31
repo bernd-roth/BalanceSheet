@@ -942,9 +942,9 @@ public class MainActivity extends BaseActivity {
                 // storing our values in key and value pair.
                 Map<String, String> params = new HashMap<String, String>();
 
-                String[] orderDate = editText_When.getText().toString().split("/");
-                String[] splits = orderDate[0].split("\\s");
-                String orderDateAsYYYYMMDD = splits[1] + " " + splits[2] + " " + splits[3] + " " + splits[4] + " " + splits[5] + " " + splits[6];
+                java.util.Date date = new Date(editText_When.getText().toString());
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                String orderDateAsYYYYMMDD = formatter.format(date);
 
                 params.put("id", editText_Id.getText().toString());
                 params.put("orderdate", orderDateAsYYYYMMDD);
