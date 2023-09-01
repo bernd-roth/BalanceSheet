@@ -39,14 +39,14 @@
     <!-- mainactivity -->
     <string name="overview">Overview</string>
     <string name="Input">Input</string>
-    <string name="sum_income">£ income</string>
-    <string name="sum_spending">£ spending</string>
-    <string name="sum_savings">£ savings</string>
-    <string name="sum_food_spending_month">£ food spend/month</string>
+    <string name="sum_income"> income</string>
+    <string name="sum_spending">€ spending</string>
+    <string name="sum_savings">€ savings</string>
+    <string name="sum_food_spending_month">€ food spend/month</string>
     <string name="average_food_spending_day_month">Food Ø spend/day month</string>
     <string name="average_food_reserved_day">Food Ø reserved/day</string>
-    <string name="sum_food_year">£ food year</string>
-    <string name="sum_income_year">£ income year</string>
+    <string name="sum_food_year">€ food year</string>
+    <string name="sum_income_year">€ income year</string>
     <string name="sum_left_food_julia_month">€ left food Julia/month</string>
     <string name="sum_left_food_bernd_month">€ left food Bernd/month</string>
 
