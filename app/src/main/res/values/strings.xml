@@ -39,7 +39,7 @@
     <!-- mainactivity -->
     <string name="overview">Overview</string>
     <string name="Input">Input</string>
-    <string name="sum_income"> income</string>
+    <string name="sum_income">€ income</string>
     <string name="sum_spending">€ spending</string>
     <string name="sum_savings">€ savings</string>
     <string name="sum_food_spending_month">€ food spend/month</string>

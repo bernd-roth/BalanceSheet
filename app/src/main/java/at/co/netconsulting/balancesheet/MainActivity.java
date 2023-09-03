@@ -311,7 +311,12 @@ public class MainActivity extends BaseActivity {
                                      splitted_id = arrayListOfIncomeAndExpense.split("\n");
                                      String[] split_comment = splitted_id[7].split("\\s", 1);
                                      String[] result_splitted = split_comment[0].split("\\s");
-                                     result_split = result_splitted[1];
+                                     if(result_splitted[1]==null) {
+                                         result_splitted[1]=getString(R.string.general_placeholder);
+                                         result_split=result_splitted[1];
+                                     } else {
+                                         result_split = result_splitted[1];
+                                     }
                                      return result_split;
                              }
                              return result_split;
@@ -908,7 +913,7 @@ public class MainActivity extends BaseActivity {
                 //on below line we are parsing the response
                 //to json object to extract data from it.
                 try {
-                    Log.d("Response", response);
+                    Log.d("UpdateFields", response);
                     dialogDetails.dismiss();
                     JSONObject respObj = new JSONObject(response);
                     Toast.makeText(getApplicationContext(), "Entry was updated successfully!", Toast.LENGTH_LONG).show();
