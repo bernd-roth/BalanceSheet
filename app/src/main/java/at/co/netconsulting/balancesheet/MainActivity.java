@@ -208,9 +208,14 @@ public class MainActivity extends BaseActivity {
                     getOutputFromDatabase(StaticFields.AVERAGE_FOOD_UNTIL_END_OF_MONTH);
                     getOutputFromDatabase(StaticFields.SUM_SPENDING_FOOD_BEGINNING_OF_YEAR);
                     getOutputFromDatabase(StaticFields.SUM_INCOME_YEAR);
-                    sendInputAndReceiveOutputFromDatabase(StaticFields.SUM_FOOD_JULIA_MONTH, spinnerPerson.getSelectedItem().toString());
-                    sendInputAndReceiveOutputFromDatabase(StaticFields.SUM_FOOD_BERND_MONTH, spinnerPerson.getSelectedItem().toString());
-                    resetEditText();
+                    //sendInputAndReceiveOutputFromDatabase(StaticFields.SUM_FOOD_JULIA_MONTH, spinnerPerson.getSelectedItem().toString());
+                    //sendInputAndReceiveOutputFromDatabase(StaticFields.SUM_FOOD_BERND_MONTH, spinnerPerson.getSelectedItem().toString());
+                    Adapter adapter = spinnerPerson.getAdapter();
+                    int n = adapter.getCount();
+                    for (int i = 0; i < n; i++) {
+                        sendInputAndReceiveOutputFromDatabase(StaticFields.SUM_FOOD_PERSON_MONTH, adapter.getItem(i).toString());
+                    }
+                    //resetEditText();
                 }
             }
         });
