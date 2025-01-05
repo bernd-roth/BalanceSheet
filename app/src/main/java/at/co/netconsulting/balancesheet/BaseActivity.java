@@ -8,14 +8,13 @@ import android.view.MenuItem;
 
 import java.math.BigInteger;
 
-
 public class BaseActivity extends Activity {
-
     private Intent intent;
     private float totalIncome;
     private float totalExpense;
     private float totalSavings;
     private float totalFood;
+    protected static boolean isAddButtonOperation = false;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -54,5 +53,11 @@ public class BaseActivity extends Activity {
         totalExpense = MainActivity.totalExpenseStatic;
         totalSavings = MainActivity.totalSavingsStatic;
         totalFood = MainActivity.totalFoodStatic;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isAddButtonOperation = false;
     }
 }

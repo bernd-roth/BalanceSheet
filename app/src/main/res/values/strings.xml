@@ -23,6 +23,8 @@
 
     <!--error-->
     <string name="error_fail_response">Fail to get response = %1$s</string>
+    <string name="error_add_operation">Error add operation</string>
+    <string name="error_fetch_operation">Error fetch operation</string>
 
     <!--general strings-->
     <string name="general_placeholder">Placeholder</string>

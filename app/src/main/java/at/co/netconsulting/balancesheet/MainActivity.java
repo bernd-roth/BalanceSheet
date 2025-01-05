@@ -85,7 +85,7 @@ public class MainActivity extends BaseActivity {
 //    private SwipeRefreshLayout swipeRefreshLayout;
     private AlertDialog dialogDetails, dialog;
     private AlertDialog.Builder alertDialog, dialogbuilder;
-    String id, expense, income, location, who, orderdate, position, when, person, comment;
+    private String id, expense, income, location, who, orderdate, position, when, person, comment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -194,9 +194,10 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 if(checkInputFields()) {
-                    sendInputToDatabase();
+                    isAddButtonOperation = true;
                     //deactivate fabAddButton and reset all textfields to 0
                     fabAddButton.setEnabled(false);
+                    sendInputToDatabase();
                     //update all fields from overview
                     getOutputFromDatabase(StaticFields.INCOME);
                     getOutputFromDatabase(StaticFields.EXPENSE);
@@ -341,6 +342,7 @@ public class MainActivity extends BaseActivity {
                  alertDialog.setPositiveButton(R.string.button_return, new DialogInterface.OnClickListener() {
                      @Override
                      public void onClick(DialogInterface dialog, int which) {
+                         isAddButtonOperation = false;
                          refreshAndRequestOutputFromDatabase(false);
                      }
                  });
@@ -479,7 +481,7 @@ public class MainActivity extends BaseActivity {
                     sharedPref_IP +
                     StaticFields.COLON +
                     sharedPref_Port +
-                    StaticFields.REST_URL_GET_SUM_FOOD_SPEND_PER_PERSION + "'" + person + "'" + "&reserve=" +
+                    StaticFields.REST_URL_GET_SUM_FOOD_SPEND_PER_PERSON + "'" + person + "'" + "&reserve=" +
                     sharedPref_Food;
 //        else if(sumFood.equals("sumFoodBerndMonth")) {
 //            url = StaticFields.PROTOCOL +
@@ -523,6 +525,9 @@ public class MainActivity extends BaseActivity {
     }
 
     private void refreshAndRequestOutputFromDatabase(boolean isRefreshing) {
+        // Set flag to false since this is a view/refresh operation
+        isAddButtonOperation = false;
+
         getOutputFromDatabase(StaticFields.INCOME);
         getOutputFromDatabase(StaticFields.EXPENSE);
         getOutputFromDatabase(StaticFields.SAVINGS);
@@ -581,75 +586,77 @@ public class MainActivity extends BaseActivity {
     }
 
     private void sendInputToDatabase() {
-        // creating a new variable for our request queue
-        RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
+        // Cancel any pending requests with this tag
+        Volley.newRequestQueue(MainActivity.this).cancelAll("add_request");
 
-        // on below line we are calling a string
-        // request method to post the data to our API
-        // in this we are calling a post method.
+        // Generate transaction ID
+        final String transactionId = generateTransactionId();
+
+        RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
         String url = StaticFields.PROTOCOL +
                 sharedPref_IP +
                 StaticFields.COLON +
                 sharedPref_Port +
                 StaticFields.REST_URL_ADD;
-        StringRequest request = new StringRequest(Request.Method.POST, url, new com.android.volley.Response.Listener<String>() {
+
+        StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                //on below line we are parsing the response
-                //to json object to extract data from it.
                 try {
                     JSONObject respObj = new JSONObject(response);
+                    if (respObj.optBoolean("duplicate", false)) {
+                        // This was a duplicate transaction
+                        Log.w(TAG, "Duplicate transaction detected");
+                        Toast.makeText(MainActivity.this,
+                                "Transaction was already processed",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                    // Continue with your existing refresh logic
                 } catch (JSONException e) {
                     Log.e(TAG, getString(R.string.log_json_message, e.toString()));
                 }
             }
-        }, new com.android.volley.Response.ErrorListener() {
+        }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                // method to handle errors.
-                Toast.makeText(MainActivity.this, getString(R.string.error_fail_response, error), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this,
+                        getString(R.string.error_fail_response, error),
+                        Toast.LENGTH_SHORT).show();
             }
         }) {
             @Override
             protected Map<String, String> getParams() {
-                // below line we are creating a map for
-                // storing our values in key and value pair.
                 Map<String, String> params = new HashMap<String, String>();
 
-                // on below line we are passing our key
-                // and value pair to our parameters.
-                String orderdate = editTextDate.getText().toString();
-                String who = spinnerPerson.getSelectedItem().toString();
-                String position = spinnerPosition.getSelectedItem().toString();
-                String income = editTextIncome.getText().toString();
-                String expense = editTextSpending.getText().toString();
-                String location = spinnerLocation.getSelectedItem().toString();
-                String comment = editTextComment.getText().toString();
+                // Add transaction ID
+                params.put("transaction_id", transactionId);
 
+                // Add existing parameters
+                String orderdate = editTextDate.getText().toString();
                 String[] orderDate = orderdate.split("/");
                 String orderDateAsYYYYMMDD = orderDate[2] + "-" + orderDate[1] + "-" + orderDate[0];
 
                 params.put("orderdate", orderDateAsYYYYMMDD);
-                params.put("who", who);
-                params.put("position", position);
-                params.put("income", income);
-                params.put("expense", expense);
-                params.put("location", location);
-                params.put("comment", comment);
+                params.put("who", spinnerPerson.getSelectedItem().toString());
+                params.put("position", spinnerPosition.getSelectedItem().toString());
+                params.put("income", editTextIncome.getText().toString());
+                params.put("expense", editTextSpending.getText().toString());
+                params.put("location", spinnerLocation.getSelectedItem().toString());
+                params.put("comment", editTextComment.getText().toString());
 
-                // at last we are
-                // returning our params.
                 return params;
             }
         };
-            //below line is to make
-            //a json object request.
-            queue.add(request);
-        }
+        request.setTag("add_request");
+        queue.add(request);
+    }
 
     private void getOutputFromDatabase(String incomeOrExpenseOrSavingsOrFood) {
         //RequestQueue initialized
         mRequestQueue = Volley.newRequestQueue(this);
+
+        // Only check if this is an "all" operation without modifying the flag
+        boolean isAllOperation = "all".equalsIgnoreCase(incomeOrExpenseOrSavingsOrFood.trim());
 
         // REST URL
         String url = null;
@@ -712,7 +719,7 @@ public class MainActivity extends BaseActivity {
                     sharedPref_IP +
                     StaticFields.COLON +
                     sharedPref_Port +
-                    StaticFields.REST_URL_GET_SUM_FOOD_SPEND_PER_PERSION;
+                    StaticFields.REST_URL_GET_SUM_FOOD_SPEND_PER_PERSON;
         } else if (incomeOrExpenseOrSavingsOrFood.equals("sumFoodBerndMonth")) {
             url = StaticFields.PROTOCOL +
                     sharedPref_IP +
@@ -829,6 +836,13 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, getString(R.string.log_message, error.toString()));
+                Log.d(TAG, "Error occurred. isAddButtonOperation is: " + isAddButtonOperation);
+
+                // Only show error and enable button for non-"all" operations when we're in add mode
+                if (!isAllOperation && isAddButtonOperation) {
+                    fabAddButton.setEnabled(true);
+                    Toast.makeText(MainActivity.this, getString(R.string.error_add_operation), Toast.LENGTH_SHORT).show();
+                }
             }
         });
         mStringRequest.setShouldCache(false);
@@ -986,5 +1000,11 @@ public class MainActivity extends BaseActivity {
     public void updateButton(View view) {
         String id = editText_Id.getText().toString();
         updateFields(id);
+    }
+
+    private String generateTransactionId() {
+        long timestamp = System.currentTimeMillis();
+        int random = (int)(Math.random() * 10000);
+        return timestamp + "-" + random;
     }
 }

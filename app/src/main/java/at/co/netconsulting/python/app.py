@@ -5,30 +5,48 @@ from flask_migrate import Migrate
 import json
 from sqlalchemy import select
 from decimal import *
-#date
 from datetime import date, timedelta
 import datetime
 import calendar
-#date
-#
 from sqlalchemy import create_engine
 from sqlalchemy.sql import functions
-engine = create_engine('postgresql+psycopg2://postgres:3Jkris67zhnnhz76zhn@192.168.0.18:5432/incomeexpense')
 from sqlalchemy.ext.declarative import declarative_base
-Base = declarative_base()
-#
+from sqlalchemy import text
+import os
+from dotenv import load_dotenv
+
+load_dotenv()  # Load environment variables from .env file
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:3Jkris67zhnnhz76zhn@192.168.0.18:5432/incomeexpense"
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Configure database connection for Docker environment
+DB_URI = 'postgresql://postgres:3Jkris67zhnnhz76zhn@db:5432/incomeexpense'
+engine = create_engine(DB_URI)
+Base = declarative_base()
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = DB_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+class TransactionLog(db.Model):
+	__tablename__ = 'transaction_log'
+
+	transaction_id = db.Column(db.String(50), primary_key=True)
+	timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+	processed = db.Column(db.Boolean, default=False)
+
+	def __init__(self, transaction_id):
+		self.transaction_id = transaction_id
 
 class IncomeExpenseModel(db.Model):
 	__tablename__ = 'incomeexpense'
 
 	id = db.Column(db.Integer, primary_key=True)
-	orderdate = db.Column(db.String())
+	orderdate = db.Column(db.Date)  # Changed from db.String()
 	who = db.Column(db.String())
 	position = db.Column(db.String)
 	income = db.Column(db.Numeric(16,2), nullable=True)
@@ -50,30 +68,26 @@ class IncomeExpenseModel(db.Model):
 
 @app.route('/incomeexpense/all', methods=['GET'])
 def handle_incomexpense_all():
-	incomeexpense = IncomeExpenseModel.query.order_by(IncomeExpenseModel.orderdate.desc()).all();
-
 	if request.method == 'GET':
 		response = []
-#		for incomeexpense in IncomeExpenseModel.query.all():
 		first_day = datetime.date.today().replace(day=1)
 		last_day = datetime.date.today().replace(day=calendar.monthrange(datetime.date.today().year, datetime.date.today().month)[1])
 		for incomeexpense in IncomeExpenseModel.query.filter(IncomeExpenseModel.orderdate.between(first_day, last_day)).order_by(IncomeExpenseModel.id.desc()).all():
-#		for incomeexpense in IncomeExpenseModel.query.order_by(IncomeExpenseModel.orderdate.desc()).all():
 			response.append({
-			"id": incomeexpense.id,
-			"orderdate": incomeexpense.orderdate,
-			"who": incomeexpense.who,
-			"position": incomeexpense.position,
-			"income": incomeexpense.income,
-			"expense": incomeexpense.expense,
-			"location": incomeexpense.location,
-			"comment": incomeexpense.comment
-		})
+				"id": incomeexpense.id,
+				"orderdate": incomeexpense.orderdate,
+				"who": incomeexpense.who,
+				"position": incomeexpense.position,
+				"income": incomeexpense.income,
+				"expense": incomeexpense.expense,
+				"location": incomeexpense.location,
+				"comment": incomeexpense.comment
+			})
 		return {"message": "success", "incomeexpense": response}
 
 @app.route('/incomeexpense/put/<id>', methods=['PUT'])
 def handle_incomexpense_put(id):
-	print("id:",id)
+	print("id:", id)
 	income_expense = IncomeExpenseModel.query.filter_by(id=id).first()
 	if income_expense:
 		income_expense.id = request.form['id']
@@ -86,101 +100,64 @@ def handle_incomexpense_put(id):
 		income_expense.comment = request.form['comment']
 
 		db.session.commit()
-		return jsonify({"message":"Successfully inserted!"})
+		return jsonify({"message": "Successfully inserted!"})
+
+def execute_query(query):
+	"""Helper function to execute raw SQL queries"""
+	with db.engine.connect() as connection:
+		result = connection.execute(text(query))
+		return result.fetchall()
 
 @app.route('/incomeexpense/sum_expense', methods=['GET'])
 def handle_expense_sum():
-	import collections
-	import psycopg2
-
-	conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
-	conn = psycopg2.connect(conn_string)
-	cursor = conn.cursor()
-	cursor.execute("SELECT sum(expense) FROM incomeexpense WHERE position <> 'Income' AND orderdate BETWEEN date_trunc('month', current_date) AND (date_trunc('month', now()) + interval '1 month - 1 day')::date;")
-	rows = cursor.fetchall()
-	rowarray_list = []
-	for row in rows:
-		t = (row[0])
-		rowarray_list.append(t)
-	print(rowarray_list[0])
-
-	my_dict = {"Total income":[]};
-	my_dict["Total income"].append(rowarray_list[0])
-	print(my_dict)
-
-	return {"message": "success", "incomeexpense": my_dict}
+	query = """
+    SELECT SUM(expense)
+    FROM incomeexpense
+    WHERE position <> 'Income'
+    AND orderdate BETWEEN date_trunc('month', current_date)
+    AND (date_trunc('month', now()) + interval '1 month - 1 day')::date
+    """
+	result = execute_query(query)
+	return {"message": "success", "incomeexpense": {"Total income": [result[0][0]]}}
 
 @app.route('/incomeexpense/sum_income', methods=['GET'])
 def handle_incomexpense_sum():
-	import collections
-	import psycopg2
-
-	conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
-	conn = psycopg2.connect(conn_string)
-	cursor = conn.cursor()
-	cursor.execute("SELECT SUM(income) FROM incomeexpense WHERE position='Income' AND orderdate BETWEEN date_trunc('month', current_date) AND (date_trunc('month', now()) + interval '1 month - 1 day')::date;")
-	rows = cursor.fetchall()
-	rowarray_list = []
-	for row in rows:
-		t = (row[0])
-		rowarray_list.append(t)
-	print(rowarray_list[0])
-
-	my_dict = {"Total income":[]};
-	my_dict["Total income"].append(rowarray_list[0])
-	print(my_dict)
-
-	return {"message": "success", "incomeexpense": my_dict}
+	query = """
+    SELECT SUM(income)
+    FROM incomeexpense
+    WHERE position='Income'
+    AND orderdate BETWEEN date_trunc('month', now())
+    AND (date_trunc('month', now()) + interval '1 month - 1 day')::date
+    """
+	result = execute_query(query)
+	return {"message": "success", "incomeexpense": {"Total income": [result[0][0]]}}
 
 @app.route('/incomeexpense/sum_savings', methods=['GET'])
 def handle_incomexpense_sum_savings():
-	import collections
-	import psycopg2
-
-	conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
-	conn = psycopg2.connect(conn_string)
-	cursor = conn.cursor()
-	cursor.execute("SELECT SUM(income)-SUM(expense) FROM incomeexpense WHERE orderdate BETWEEN date_trunc('month', current_date) AND (date_trunc('month', now()) + interval '1 month - 1 day')::date;")
-	rows = cursor.fetchall()
-	rowarray_list = []
-	for row in rows:
-		t = (row[0])
-		rowarray_list.append(t)
-	print(rowarray_list[0])
-
-	my_dict = {"Total income":[]};
-	my_dict["Total income"].append(rowarray_list[0])
-	print(my_dict)
-
-	return {"message": "success", "incomeexpense": my_dict}
+	query = """
+    SELECT SUM(income)-SUM(expense)
+    FROM incomeexpense
+    WHERE orderdate BETWEEN date_trunc('month', current_date)
+    AND (date_trunc('month', now()) + interval '1 month - 1 day')::date
+    """
+	result = execute_query(query)
+	return {"message": "success", "incomeexpense": {"Total income": [result[0][0]]}}
 
 @app.route('/incomeexpense/sum_food', methods=['GET'])
 def handle_incomexpense_sum_food():
-	import collections
-	import psycopg2
-
-	conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
-	conn = psycopg2.connect(conn_string)
-	cursor = conn.cursor()
-#	cursor.execute("SELECT ROUND(ABS(SUM(income)-SUM(expense))/EXTRACT(DAY FROM TIMESTAMP 'NOW()')::numeric,2) FROM incomeexpense WHERE position LIKE 'Food%'")
-	cursor.execute("SELECT ABS(SUM(income)-SUM(expense)) FROM incomeexpense WHERE position LIKE 'Food%' and orderdate BETWEEN date_trunc('month', current_date) AND (date_trunc('month', now()) + interval '1 month - 1 day')::date;")
-	rows = cursor.fetchall()
-	rowarray_list = []
-	for row in rows:
-		t = (row[0])
-		rowarray_list.append(t)
-	print(rowarray_list[0])
-
-	my_dict = {"Total income":[]};
-	my_dict["Total income"].append(rowarray_list[0])
-	print(my_dict)
-
-	return {"message": "success", "incomeexpense": my_dict}
+	query = """
+    SELECT ABS(SUM(income)-SUM(expense))
+    FROM incomeexpense
+    WHERE position LIKE 'Food%'
+    AND orderdate BETWEEN date_trunc('month', current_date)
+    AND (date_trunc('month', now()) + interval '1 month - 1 day')::date
+    """
+	result = execute_query(query)
+	return {"message": "success", "incomeexpense": {"Total income": [result[0][0]]}}
 
 @app.route('/incomeexpense/<id>', methods=['GET'])
 def handle_incomexpense(id):
 	incomeexpense = IncomeExpenseModel.query.get_or_404(id)
-
 	if request.method == 'GET':
 		response = {
 			"orderdate": incomeexpense.orderdate,
@@ -194,201 +171,158 @@ def handle_incomexpense(id):
 
 @app.route('/incomeexpense/add', methods=['POST'])
 def handle_incomexpense_add():
-	if request.method == 'POST' and 'orderdate' in request.form and 'who' in request.form and 'position' in request.form and 'income' in request.form and 'expense' in request.form and 'location' in request.form and 'comment' in request.form:
-		orderdate = request.form.get('orderdate')
-		who = request.form.get('who')
-		position = request.form.get('position')
-		income = request.form.get('income')
-		expense = request.form.get('expense')
-		location = request.form.get('location')
-		comment = request.form.get('comment')
-		entry = IncomeExpenseModel(orderdate, who, position, income, expense, location, comment)
-		db.session.add(entry)
-		db.session.commit()
-		return jsonify({"message":"Successfully inserted!"})
+	if request.method == 'POST' and all(field in request.form for field in ['orderdate', 'who', 'position', 'income', 'expense', 'location', 'comment', 'transaction_id']):
+		transaction_id = request.form.get('transaction_id')
+
+		# Check if transaction was already processed
+		existing_transaction = TransactionLog.query.filter_by(
+			transaction_id=transaction_id,
+			processed=True
+		).first()
+
+		if existing_transaction:
+			return jsonify({
+				"message": "Transaction already processed",
+				"duplicate": True
+			}), 409  # HTTP 409 Conflict
+
+		try:
+			# Start database transaction
+			db.session.begin_nested()
+
+			# Log the transaction
+			transaction_log = TransactionLog(transaction_id=transaction_id)
+			db.session.add(transaction_log)
+
+			entry = IncomeExpenseModel(
+				orderdate=request.form.get('orderdate'),
+				who=request.form.get('who'),
+				position=request.form.get('position'),
+				income=request.form.get('income'),
+				expense=request.form.get('expense'),
+				location=request.form.get('location'),
+				comment=request.form.get('comment')
+			)
+
+			db.session.add(entry)
+
+			# Mark transaction as processed
+			transaction_log.processed = True
+
+			# Commit everything
+			db.session.commit()
+			return jsonify({"message": "Successfully inserted!"})
+
+		except Exception as e:
+			db.session.rollback()
+			return jsonify({
+				"message": "Error processing transaction",
+				"error": str(e)
+			}), 500
 
 @app.route('/incomeexpense/sum_average_spending_day_of_month', methods=['GET'])
 def handle_incomexpense_sum_average_spending_day_of_month():
-	import collections
-	import psycopg2
-
-	conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
-	conn = psycopg2.connect(conn_string)
-	cursor = conn.cursor()
-	cursor.execute("SELECT ROUND(CAST(FLOAT8 (SUM(expense)/EXTRACT(days FROM date_trunc('day', current_date))) AS NUMERIC),2) AS averageDayPerMonth FROM incomeexpense WHERE position='Food' AND orderdate BETWEEN date_trunc('year', now()) AND date_trunc('day', current_date);")
-	rows = cursor.fetchall()
-	rowarray_list = []
-	for row in rows:
-		t = (row[0])
-		rowarray_list.append(t)
-		print(rowarray_list[0])
-
-	my_dict = {"Total income":[]};
-	my_dict["Total income"].append(rowarray_list[0])
-	print(my_dict)
-
-	return {"message": "success", "incomeexpense": my_dict}
+	query = """
+    SELECT ROUND(CAST(FLOAT8 (SUM(expense)/EXTRACT(days FROM date_trunc('day', current_date))) AS NUMERIC),2) AS averageDayPerMonth
+    FROM incomeexpense
+    WHERE position='Food'
+    AND orderdate BETWEEN date_trunc('year', now())
+    AND date_trunc('day', current_date)
+    """
+	result = execute_query(query)
+	return {"message": "success", "incomeexpense": {"Total income": [result[0][0]]}}
 
 @app.route('/incomeexpense/sum_reserved_per_day_until_end_of_month', methods=['GET'])
 def handle_incomexpense_sum_reserved_per_day_until_end_of_month():
-	import collections
-	import psycopg2
-
-	conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
-	conn = psycopg2.connect(conn_string)
-	cursor = conn.cursor()
-	cursor.execute("SELECT ROUND(CAST(FLOAT8 (350-SUM(expense)+SUM(income))/(date_part('days',(date_trunc('month', current_date) + interval '1 month - 1 day'))-EXTRACT(DAY FROM current_date-1)) AS NUMERIC),2) FROM incomeexpense WHERE position='Food' AND orderdate BETWEEN date_trunc('year', now()) AND date_trunc('day', current_date);")
-	rows = cursor.fetchall()
-	rowarray_list = []
-	for row in rows:
-		t = (row[0])
-		rowarray_list.append(t)
-		print(rowarray_list[0])
-
-	my_dict = {"Total income":[]};
-	my_dict["Total income"].append(rowarray_list[0])
-	print(my_dict)
-
-	return {"message": "success", "incomeexpense": my_dict}
+	query = """
+    SELECT ROUND(CAST(FLOAT8 (350-SUM(expense)+SUM(income))/(
+        date_part('days', (date_trunc('month', CURRENT_DATE) + interval '1 month - 1 day')::date)
+        - EXTRACT(DAY FROM CURRENT_DATE - 1)) AS NUMERIC), 2)
+    FROM incomeexpense
+    WHERE position='Food'
+    AND orderdate::date BETWEEN date_trunc('year', CURRENT_DATE)::date
+    AND CURRENT_DATE::date
+    """
+	result = execute_query(query)
+	return {"message": "success", "incomeexpense": {"Total income": [result[0][0]]}}
 
 @app.route('/incomeexpense/sum_spending_food_since_beginning_of_year', methods=['GET'])
 def handle_incomexpense_sum_spending_food_since_beginning_of_year():
-	import collections
-	import psycopg2
-
-	conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
-	conn = psycopg2.connect(conn_string)
-	cursor = conn.cursor()
-	cursor.execute("SELECT sum(expense)-SUM(income) FROM incomeexpense WHERE position = 'Food' AND orderdate BETWEEN date_trunc('year', now()) AND date_trunc('year', now() + interval '1 year') - interval '1 day';")
-	rows = cursor.fetchall()
-	rowarray_list = []
-	for row in rows:
-		t = (row[0])
-		rowarray_list.append(t)
-		print(rowarray_list[0])
-
-	my_dict = {"Total income":[]};
-	my_dict["Total income"].append(rowarray_list[0])
-	print(my_dict)
-
-	return {"message": "success", "incomeexpense": my_dict}
+	query = """
+    SELECT SUM(expense)-SUM(income)
+    FROM incomeexpense
+    WHERE position = 'Food'
+    AND orderdate BETWEEN date_trunc('year', now())
+    AND date_trunc('year', now() + interval '1 year') - interval '1 day'
+    """
+	result = execute_query(query)
+	return {"message": "success", "incomeexpense": {"Total income": [result[0][0]]}}
 
 @app.route('/incomeexpense/sum_income_year', methods=['GET'])
 def handle_sum_income_year():
-	import collections
-	import psycopg2
-
-	conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
-	conn = psycopg2.connect(conn_string)
-	cursor = conn.cursor()
-	cursor.execute("SELECT sum(income) FROM incomeexpense WHERE position = 'Income' AND orderdate BETWEEN date_trunc('year', now()) AND date_trunc('year', now() + interval '1 year') - interval '1 day';")
-	rows = cursor.fetchall()
-	rowarray_list = []
-	for row in rows:
-		t = (row[0])
-		rowarray_list.append(t)
-		print(rowarray_list[0])
-
-	my_dict = {"Total income":[]};
-	my_dict["Total income"].append(rowarray_list[0])
-	print(my_dict)
-
-	return {"message": "success", "incomeexpense": my_dict}
+	query = """
+    SELECT SUM(income)
+    FROM incomeexpense
+    WHERE position = 'Income'
+    AND orderdate BETWEEN date_trunc('year', now())
+    AND date_trunc('year', now() + interval '1 year') - interval '1 day'
+    """
+	result = execute_query(query)
+	return {"message": "success", "incomeexpense": {"Total income": [result[0][0]]}}
 
 @app.route('/incomeexpense/sum_spending_food_by_julia_current_month', methods=['GET'])
 def handle_incomexpense_sum_spending_food_by_julia_current_month():
-	import collections
-	import psycopg2
-
 	julia_food = request.args.get('julia_food')
-
-	conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
-	conn = psycopg2.connect(conn_string)
-	cursor = conn.cursor()
-	sql = "SELECT " + julia_food + "-SUM(expense)-SUM(income) FROM incomeexpense WHERE position = 'Food' AND who = 'Julia' AND orderdate BETWEEN date_trunc('year', now()) AND date_trunc('year', now() + interval '1 year') - interval '1 day';"
-	cursor.execute(sql)
-	rows = cursor.fetchall()
-	rowarray_list = []
-	for row in rows:
-		t = (row[0])
-		rowarray_list.append(t)
-		print(rowarray_list[0])
-
-	my_dict = {"Total income":[]};
-	my_dict["Total income"].append(rowarray_list[0])
-	print(my_dict)
-
-	return {"message": "success", "incomeexpense": my_dict}
+	query = f"""
+    SELECT {julia_food}SUM(expense)-SUM(income)
+    FROM incomeexpense
+    WHERE position = 'Food'
+    AND who = 'Julia'
+    AND orderdate BETWEEN date_trunc('year', now())
+    AND date_trunc('year', now() + interval '1 year') - interval '1 day'
+    """
+	result = execute_query(query)
+	return {"message": "success", "incomeexpense": {"Total income": [result[0][0]]}}
 
 @app.route('/incomeexpense/sum_spending_food_by_bernd_current_month', methods=['GET'])
 def handle_incomexpense_sum_spending_food_by_bernd_current_month():
-	import collections
-	import psycopg2
-
 	bernd = request.args.get('bernd_food')
-
-	conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
-	conn = psycopg2.connect(conn_string)
-	cursor = conn.cursor()
-	cursor.execute("SELECT " + bernd + "-sum(expense)-SUM(income) FROM incomeexpense WHERE position = 'Food' AND who = 'Bernd' AND orderdate BETWEEN date_trunc('year', now()) AND date_trunc('year', now() + interval '1 year') - interval '1 day';")
-	rows = cursor.fetchall()
-	rowarray_list = []
-	for row in rows:
-		t = (row[0])
-		rowarray_list.append(t)
-		print(rowarray_list[0])
-
-	my_dict = {"Total income":[]};
-	my_dict["Total income"].append(rowarray_list[0])
-	print(my_dict)
-
-	return {"message": "success", "incomeexpense": my_dict}
+	query = f"""
+    SELECT {bernd}SUM(expense)-SUM(income)
+    FROM incomeexpense
+    WHERE position = 'Food'
+    AND who = 'Bernd'
+    AND orderdate BETWEEN date_trunc('year', now())
+    AND date_trunc('year', now() + interval '1 year') - interval '1 day'
+    """
+	result = execute_query(query)
+	return {"message": "success", "incomeexpense": {"Total income": [result[0][0]]}}
 
 @app.route('/incomeexpense/sum_spending_food_per_person_per_month', methods=['GET'])
 def handle_incomexpense_sum_spending_food_per_person_per_month():
-	import collections
-	import psycopg2
-
 	person = request.args.get('person')
 	reserve = request.args.get('reserve')
 
-	conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
-	conn = psycopg2.connect(conn_string)
-	cursor = conn.cursor()
-	cursor.execute("SELECT " + reserve + "-SUM(expense)-SUM(income) AS total_food_sum_per_person FROM incomeexpense WHERE position = 'Food' AND who = " + person + " AND orderdate BETWEEN date_trunc('month', now()) AND date_trunc('month', now() + interval '1 month') - interval '1 day';")
-	rows = cursor.fetchall()
-	rowarray_list = []
-	for row in rows:
-		t = (row[0])
-		rowarray_list.append(t)
-		print(rowarray_list[0])
+	# Add input validation
+	if not person or not reserve:
+		return jsonify({
+			"message": "error",
+			"error": "Missing required parameters: person and reserve"
+		}), 400
 
-	my_dict = {"Total income":[]};
-	my_dict["Total income"].append(rowarray_list[0])
-	print(my_dict)
-
-	return {"message": "success", "incomeexpense": my_dict}
-
-#@app.route('/incomeexpense/all', methods=['GET'])
-#def handle_incomexpense_all():
-#	import collections
-#	import psycopg2
-
-#	conn_string = "host='localhost' dbname='incomeexpense' user='postgres' password='3Jkris67zhnnhz76zhn'"
-#	conn = psycopg2.connect(conn_string)
-#	cursor = conn.cursor()
-#	cursor.execute("SELECT orderdate, who, position, income, expense FROM incomeexpense order by orderdate DESC")
-#	rows = cursor.fetchall()
-#	rowarray_list = []
-#	for row in rows:
-#		t = (row[0])
-#		rowarray_list.append(t)
-#	print(rowarray_list[0])
-#
-#	my_dict = {"Total income":[]};
-#	my_dict["Total income"].append(rowarray_list[0])
-#	print(my_dict)
-#	return {"message": "success", "incomeexpense": my_dict}
+	query = f"""
+    SELECT {reserve}SUM(expense)-SUM(income) AS total_food_sum_per_person
+    FROM incomeexpense
+    WHERE position = 'Food'
+    AND who = {person}
+    AND orderdate BETWEEN date_trunc('month', now())
+    AND (date_trunc('month', now() + interval '1 month') - interval '1 day')::date
+    """
+	result = execute_query(query)
+	return {"message": "success", "incomeexpense": {"Total income": [result[0][0]]}}
 
 if __name__ == '__main__':
-	app.run(host="0.0.0.0", debug=True)
+	with app.app_context():
+		# Create tables if they don't exist
+		db.create_all()
+	app.run(host="0.0.0.0", port=8080, debug=True)
