@@ -1,0 +1,72 @@
+<resources>
+
+    <!--actions-->
+    <string name="action_main">Main</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_barChart">Chart</string>
+
+    <!-- general -->
+    <string name="app_name">BalanceSheet</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="title_barchart">BarChart</string>
+
+    <!--permission-->
+    <string name="permission_camera_granted">Camera permission granted</string>
+    <string name="permission_camera_denied">Camera permission denied</string>
+    <string name="permission_storage_granted">Storage permission granted</string>
+    <string name="permission_storage_denied">Storage permission denied</string>
+
+    <!--warning-->
+    <string name="warning_all_fields">Warning! All fields must be filled</string>
+    <string name="warning_income_expense_equality">Warning! Income and expense have the same amount</string>
+    <string name="warning_income_expense_greater_than_zero">Warning! Income and expense must not greather than 0 at the same time</string>
+
+    <!--error-->
+    <string name="error_fail_response">Fail to get response = %1$s</string>
+    <string name="error_add_operation">Error add operation</string>
+    <string name="error_fetch_operation">Error fetch operation</string>
+
+    <!--general strings-->
+    <string name="general_placeholder">Placeholder</string>
+    <string name="zero">0</string>
+
+    <!--button strings-->
+    <string name="button_return">Return</string>
+    <string name="button_overview_current_month">Overview current month</string>
+
+    <!-- TAG -->
+    <string name="log_message">VolleyError = %1$s</string>
+    <string name="log_json_message">JSONObject = %1$s</string>
+
+    <!-- mainactivity -->
+    <string name="overview">Overview</string>
+    <string name="Input">Input</string>
+    <string name="sum_income">€ income</string>
+    <string name="sum_spending">€ spending</string>
+    <string name="sum_savings">€ savings</string>
+    <string name="sum_food_spending_month">€ food spend/month</string>
+    <string name="average_food_spending_day_month">Food Ø spend/day month</string>
+    <string name="average_food_reserved_day">Food Ø reserved/day</string>
+    <string name="sum_food_year">€ food year</string>
+    <string name="sum_income_year">€ income year</string>
+    <string name="sum_left_food_julia_month">€ left food Julia/month</string>
+    <string name="sum_left_food_bernd_month">€ left food Bernd/month</string>
+
+    <!-- hint -->
+    <string name="hint_income">Income</string>
+    <string name="hint_spending">Spending</string>
+    <string name="hint_person">Person</string>
+    <string name="hint_position">Position</string>
+    <string name="hint_location">Location</string>
+    <string name="hint_date">Date</string>
+    <string name="hint_date_dd_mm_yyyy">Date (dd-mm-yyyy)</string>
+    <string name="hint_comment">Comment</string>
+
+    <!-- textView -->
+    <string name="textViewIpAddress">IP Address</string>
+    <string name="textViewPort">Port</string>
+    <string name="textViewPerson">Person (Person1, Person2, ...)</string>
+    <string name="textViewMoneyLeftForFoodJustForPerson">Money left for food/month (just for me)</string>
+    <string name="textViewDefaultPosition">Position</string>
+    <string name="textViewDefaultLocation">Location</string>
+</resources>
