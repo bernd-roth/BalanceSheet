@@ -1,20 +1,20 @@
-package at.co.netconsulting.balancesheet.composable
-
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
+import androidx.compose.foundation.lazy.items  // Add this import
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import at.co.netconsulting.balancesheet.IncomeExpense
-import java.time.LocalDate
+import at.co.netconsulting.balancesheet.data.IncomeExpense  // Make sure you use the correct import
 import java.time.format.DateTimeFormatter
-import java.time.format.TextStyle
-import java.util.*
 
 @Composable
 fun EntryListDialog(
@@ -22,37 +22,14 @@ fun EntryListDialog(
     onDismiss: () -> Unit,
     onEntrySelected: (IncomeExpense) -> Unit
 ) {
-    val currentMonth = LocalDate.now().month.getDisplayName(TextStyle.FULL, Locale.getDefault())
-
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("$currentMonth Entries") },
+        title = { Text("May Entries") },
         text = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 400.dp)
-            ) {
-                if (entries.isEmpty()) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("No entries for this month")
-                    }
-                } else {
-                    LazyColumn {
-                        items(entries) { entry ->
-                            EntryListItem(
-                                entry = entry,
-                                onClick = {
-                                    onEntrySelected(entry)
-                                    onDismiss()
-                                }
-                            )
-                            Divider()
-                        }
-                    }
+            LazyColumn {
+                items(entries) { entry ->
+                    EntryItem(entry, onEntrySelected)
+                    Divider(modifier = Modifier.padding(top = 8.dp))
                 }
             }
         },
@@ -65,72 +42,78 @@ fun EntryListDialog(
 }
 
 @Composable
-fun EntryListItem(
-    entry: IncomeExpense,
-    onClick: () -> Unit
+private fun EntryItem(
+    entry: IncomeExpense,  // Correct parameter type
+    onEntrySelected: (IncomeExpense) -> Unit
 ) {
-    val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-    val formattedDate = entry.orderdate.format(dateFormatter)
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(vertical = 8.dp, horizontal = 4.dp)
+            .padding(vertical = 8.dp)
+            .clickable { onEntrySelected(entry) }
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
+        // ID field
+        Text(
+            text = "ID: ${entry.id}",
+            fontWeight = FontWeight.Bold
+        )
+
+        // Name field
+        Text(
+            text = "Name: ${entry.who}",
+            fontWeight = FontWeight.Bold
+        )
+
+        // Order date field
+        val formattedDate = entry.orderdate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+        Text(
+            text = "Order Date: $formattedDate",
+            fontWeight = FontWeight.Normal
+        )
+
+        // Income or expense field
+        if (entry.income > 0) {
             Text(
-                text = "ID: ${entry.id}",
-                style = MaterialTheme.typography.bodySmall
+                text = "Income: ${entry.income}",
+                color = MaterialTheme.colorScheme.primary
             )
+        } else {
             Text(
-                text = formattedDate,
-                style = MaterialTheme.typography.bodySmall
+                text = "Expense: ${entry.expense}",
+                color = MaterialTheme.colorScheme.error
             )
         }
 
-        Spacer(modifier = Modifier.height(4.dp))
+        // Position field
+        Text(
+            text = "Position: ${entry.position}",
+            fontWeight = FontWeight.Normal
+        )
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = entry.who,
-                fontWeight = FontWeight.Bold
-            )
-            Text(text = entry.location.toString())
-        }
+        // Location field
+        Text(
+            text = "Location: ${entry.location}",
+            fontWeight = FontWeight.Normal
+        )
 
-        Spacer(modifier = Modifier.height(4.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            if (entry.income > 0) {
-                Text(
-                    text = "Income: ${entry.income}",
-                    color = MaterialTheme.colorScheme.primary
-                )
-            } else {
-                Text(
-                    text = "Expense: ${entry.expense}",
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
-            Text(text = entry.position.toString())
-        }
-
+        // Comment field (only if not empty)
         if (entry.comment.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "Comment: ${entry.comment}",
-                style = MaterialTheme.typography.bodySmall
+                fontWeight = FontWeight.Normal
             )
         }
+
+        // Created at field
+        val createdAtFormatted = if (entry.createdAt != null) {
+            entry.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        } else {
+            "Not available"
+        }
+
+        Text(
+            text = "Created At: $createdAtFormatted",
+            fontWeight = FontWeight.Normal
+        )
     }
 }

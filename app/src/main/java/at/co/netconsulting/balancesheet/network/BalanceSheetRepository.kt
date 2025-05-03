@@ -2,7 +2,7 @@ package at.co.netconsulting.balancesheet.network
 
 import at.co.netconsulting.balancesheet.enums.Location
 import at.co.netconsulting.balancesheet.enums.Spending
-import at.co.netconsulting.balancesheet.IncomeExpense
+import at.co.netconsulting.balancesheet.data.IncomeExpense
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -16,6 +16,8 @@ import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
+import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 /**
  * Repository for handling all network operations related to the balance sheet data.
@@ -338,6 +340,9 @@ class BalanceSheetRepository(private val baseUrl: String) {
      */
     private fun parseEntryFromJson(item: JSONObject): IncomeExpense {
         try {
+            // Debug: Print all keys in the JSON object
+            println("DEBUG: All JSON keys: ${item.keys().asSequence().toList()}")
+
             // Get the date - handle different formats
             val orderDateStr = item.optString("orderdate", "")
             println("DEBUG: Raw date string: $orderDateStr")
@@ -382,7 +387,66 @@ class BalanceSheetRepository(private val baseUrl: String) {
 
             println("DEBUG: Parsed date: $orderDate")
 
-            // Rest of the parsing logic remains the same
+            // Parse the created_at timestamp with timezone information
+            val createdAtStr = item.optString("created_at", "")
+            println("DEBUG: Raw created_at string: '$createdAtStr'")
+
+            val createdAt = if (createdAtStr.isNotEmpty() && createdAtStr != "null") {
+                try {
+                    // Handle different timestamp formats with better error handling
+                    when {
+                        // ISO format with T separator and timezone: "2025-05-03T10:11:27.740+02:00"
+                        createdAtStr.contains("T") && (createdAtStr.contains("+") || createdAtStr.contains("Z")) -> {
+                            println("DEBUG: Parsing ISO format with timezone")
+                            ZonedDateTime.parse(createdAtStr).toLocalDateTime()
+                        }
+
+                        // ISO format with T separator: "2025-05-03T10:11:27.740"
+                        createdAtStr.contains("T") -> {
+                            println("DEBUG: Parsing ISO format without timezone")
+                            LocalDateTime.parse(createdAtStr)
+                        }
+
+                        // Standard PostgreSQL timestamp with milliseconds: "2025-05-03 10:11:27.740"
+                        createdAtStr.contains(".") -> {
+                            println("DEBUG: Parsing PostgreSQL format with milliseconds")
+                            try {
+                                val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
+                                LocalDateTime.parse(createdAtStr, formatter)
+                            } catch (e: Exception) {
+                                println("DEBUG: Failed with milliseconds format, trying with variable precision")
+                                // Some databases use variable precision milliseconds, try with a more flexible approach
+                                val pattern = "yyyy-MM-dd HH:mm:ss[.SSSSSSSSS]"
+                                val formatter = DateTimeFormatter.ofPattern(pattern)
+                                LocalDateTime.parse(createdAtStr, formatter)
+                            }
+                        }
+
+                        // Standard PostgreSQL timestamp without milliseconds: "2025-05-03 10:11:27"
+                        else -> {
+                            println("DEBUG: Parsing PostgreSQL format without milliseconds")
+                            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                            LocalDateTime.parse(createdAtStr, formatter)
+                        }
+                    }
+                } catch (e: Exception) {
+                    println("DEBUG: Error parsing created_at: ${e.message}")
+                    println("DEBUG: Timestamp format that failed: $createdAtStr")
+                    e.printStackTrace()
+                    null
+                }
+            } else {
+                println("DEBUG: created_at field is empty, null, or not found")
+                null
+            }
+
+            if (createdAt != null) {
+                println("DEBUG: Successfully parsed created_at: $createdAt")
+            } else {
+                println("DEBUG: Could not parse created_at timestamp")
+            }
+
+            // Rest of the parsing logic
             return IncomeExpense(
                 id = item.optString("id", ""),
                 orderdate = orderDate,
@@ -399,7 +463,8 @@ class BalanceSheetRepository(private val baseUrl: String) {
                 } catch (e: Exception) {
                     Location.Hollgasse_1_1
                 },
-                comment = item.optString("comment", "")
+                comment = item.optString("comment", ""),
+                createdAt = createdAt
             )
         } catch (e: Exception) {
             println("DEBUG: Error in parseEntryFromJson: ${e.message}")
@@ -414,7 +479,8 @@ class BalanceSheetRepository(private val baseUrl: String) {
                 income = 0.0,
                 expense = 0.0,
                 location = Location.Hollgasse_1_1,
-                comment = "Error parsing: ${e.message}"
+                comment = "Error parsing: ${e.message}",
+                createdAt = null
             )
         }
     }

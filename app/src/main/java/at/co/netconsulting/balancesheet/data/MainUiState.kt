@@ -1,6 +1,5 @@
 package at.co.netconsulting.balancesheet.data
 
-import at.co.netconsulting.balancesheet.IncomeExpense
 import at.co.netconsulting.balancesheet.PersonalFoodSummary
 import at.co.netconsulting.balancesheet.Summary
 import at.co.netconsulting.balancesheet.enums.Location
@@ -10,7 +9,7 @@ import java.time.format.DateTimeFormatter
 
 data class MainUiState(
     val summary: at.co.netconsulting.balancesheet.Summary = Summary(),
-    val entries: List<at.co.netconsulting.balancesheet.IncomeExpense> = emptyList(),
+    val entries: List<IncomeExpense> = emptyList(),
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val personalFoodSummaries: List<PersonalFoodSummary> = emptyList(),

@@ -1,5 +1,6 @@
 package at.co.netconsulting.balancesheet
 
+import EntryListDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -18,8 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import at.co.netconsulting.balancesheet.composable.EntryListDialog
-import at.co.netconsulting.balancesheet.composable.EntryDetailsDialog
+import at.co.netconsulting.balancesheet.composable.*
 import at.co.netconsulting.balancesheet.enums.Location
 import at.co.netconsulting.balancesheet.enums.Spending
 import at.co.netconsulting.balancesheet.data.MainUiState

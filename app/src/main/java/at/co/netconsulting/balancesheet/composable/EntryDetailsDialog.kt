@@ -7,11 +7,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import at.co.netconsulting.balancesheet.IncomeExpense
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun EntryDetailsDialog(
-    entry: IncomeExpense,
+    entry: at.co.netconsulting.balancesheet.data.IncomeExpense,
     onDismiss: () -> Unit,
     onUpdate: (String, String, String, String, String, String, String, String) -> Unit
 ) {
@@ -23,6 +23,15 @@ fun EntryDetailsDialog(
     var expense by remember { mutableStateOf(entry.expense.toString()) }
     var position by remember { mutableStateOf(entry.position.toString()) }
     var comment by remember { mutableStateOf(entry.comment) }
+
+    // Format created_at for display using the correct property name
+    val createdAtFormatted = remember {
+        if (entry.createdAt != null) {
+            entry.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        } else {
+            "Not available"
+        }
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -112,6 +121,18 @@ fun EntryDetailsDialog(
                     value = comment,
                     onValueChange = { comment = it },
                     label = { Text("Comment") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                )
+
+                // Created At (read-only)
+                OutlinedTextField(
+                    value = createdAtFormatted,
+                    onValueChange = { /* Read-only */ },
+                    label = { Text("Created At") },
+                    readOnly = true,
+                    enabled = false,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp)

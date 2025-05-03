@@ -3,6 +3,7 @@ package at.co.netconsulting.balancesheet
 import at.co.netconsulting.balancesheet.enums.Spending
 import at.co.netconsulting.balancesheet.enums.Location
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 data class IncomeExpense(
     val id: String = "",
@@ -12,7 +13,8 @@ data class IncomeExpense(
     val income: Double = 0.0,
     val expense: Double = 0.0,
     val location: Location = Location.Hollgasse_1_1,
-    val comment: String = ""
+    val comment: String = "",
+    val createdAt: LocalDateTime? = null
 )
 
 data class Summary(

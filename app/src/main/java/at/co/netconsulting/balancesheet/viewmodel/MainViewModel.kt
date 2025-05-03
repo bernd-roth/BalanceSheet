@@ -3,7 +3,7 @@ package at.co.netconsulting.viewmodel
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import at.co.netconsulting.balancesheet.IncomeExpense
+import at.co.netconsulting.balancesheet.data.IncomeExpense
 import at.co.netconsulting.balancesheet.PersonalFoodSummary
 import at.co.netconsulting.balancesheet.Summary
 import at.co.netconsulting.balancesheet.data.MainUiState
