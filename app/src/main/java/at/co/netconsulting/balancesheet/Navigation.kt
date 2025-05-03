@@ -6,10 +6,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import at.co.netconsulting.balancesheet.MainScreen
 import at.co.netconsulting.balancesheet.viewmodel.ChartViewModel
 import at.co.netconsulting.balancesheet.viewmodel.SettingsViewModel
-import at.co.netconsulting.viewmodel.MainViewModel
+import at.co.netconsulting.balancesheet.viewmodel.MainViewModel
 
 object Destinations {
     const val MAIN_ROUTE = "main"

@@ -1,4 +1,4 @@
-package at.co.netconsulting.viewmodel
+package at.co.netconsulting.balancesheet.viewmodel
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -278,6 +278,33 @@ class MainViewModel(
             } catch (e: Exception) {
                 _uiState.update { it.copy(
                     errorMessage = "Failed to update entry: ${e.localizedMessage}"
+                )}
+            }
+        }
+    }
+
+    // In your MainViewModel.kt file:
+    fun showAllEntries() {
+        viewModelScope.launch {
+            try {
+                _uiState.update { it.copy(isLoading = true) }
+
+                // Fetch all entries without date filtering
+                val allEntries = repository.getAllEntriesWithoutDateFilter()
+                println("DEBUG: All entries count (no date filter): ${allEntries.size}")
+
+                _uiState.update { it.copy(
+                    entries = allEntries,
+                    showEntriesListDialog = true,
+                    isLoading = false,
+                    dialogTitle = "All Entries"  // Set a custom title
+                )}
+            } catch (e: Exception) {
+                println("DEBUG: Exception in showAllEntries: ${e.message}")
+                e.printStackTrace()
+                _uiState.update { it.copy(
+                    isLoading = false,
+                    errorMessage = "Failed to load all entries: ${e.localizedMessage}"
                 )}
             }
         }

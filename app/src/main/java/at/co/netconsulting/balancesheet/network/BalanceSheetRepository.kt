@@ -484,4 +484,32 @@ class BalanceSheetRepository(private val baseUrl: String) {
             )
         }
     }
+
+    /**
+     * Get all entries regardless of date.
+     */
+    /**
+     * Get all entries regardless of date.
+     */
+    suspend fun getAllEntriesWithoutDateFilter(): List<IncomeExpense> = withContext(Dispatchers.IO) {
+        try {
+            val url = "$baseUrl${StaticFields.REST_URL_GET_ALL_WITHOUT_DATE_FILTER}"
+            println("DEBUG: Making request to URL: $url")
+
+            val responseJson = makeGetRequest(url)
+            println("DEBUG: Raw API response: $responseJson")
+
+            // Check if response is empty or null
+            if (responseJson.isNullOrBlank()) {
+                println("DEBUG: Response is empty or null")
+                return@withContext emptyList()
+            }
+
+            return@withContext parseEntriesFromResponse(responseJson)
+        } catch (e: Exception) {
+            println("DEBUG: Exception in getAllEntriesWithoutDateFilter: ${e.message}")
+            e.printStackTrace()
+            return@withContext emptyList()
+        }
+    }
 }

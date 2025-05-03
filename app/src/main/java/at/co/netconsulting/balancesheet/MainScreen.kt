@@ -23,7 +23,7 @@ import at.co.netconsulting.balancesheet.composable.*
 import at.co.netconsulting.balancesheet.enums.Location
 import at.co.netconsulting.balancesheet.enums.Spending
 import at.co.netconsulting.balancesheet.data.MainUiState
-import at.co.netconsulting.viewmodel.MainViewModel
+import at.co.netconsulting.balancesheet.viewmodel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,7 +78,8 @@ fun MainScreen(
                 onLocationChanged = viewModel::onLocationChanged,
                 onCommentChanged = viewModel::onCommentChanged,
                 onAddClicked = viewModel::addEntry,
-                onShowEntriesClicked = viewModel::showEntriesList
+                onShowEntriesClicked = viewModel::showEntriesList,
+                onShowAllEntriesClicked = viewModel::showAllEntries
             )
         }
 
@@ -95,6 +96,7 @@ fun MainScreen(
         if (uiState.showEntriesListDialog) {
             EntryListDialog(
                 entries = uiState.entries,
+                title = uiState.dialogTitle,  // Use the title from UI state
                 onDismiss = viewModel::hideEntriesList,
                 onEntrySelected = viewModel::showEntryDetails
             )
@@ -129,8 +131,20 @@ fun MainContent(
     onLocationChanged: (Location) -> Unit,
     onCommentChanged: (String) -> Unit,
     onAddClicked: () -> Unit,
-    onShowEntriesClicked: () -> Unit
+    onShowEntriesClicked: () -> Unit,
+    onShowAllEntriesClicked: () -> Unit
 ) {
+    // Define button colors
+    val addButtonContainerColor = if (uiState.isAddButtonEnabled)
+        MaterialTheme.colorScheme.primaryContainer
+    else
+        MaterialTheme.colorScheme.surfaceVariant
+
+    val addButtonContentColor = if (uiState.isAddButtonEnabled)
+        MaterialTheme.colorScheme.onPrimaryContainer
+    else
+        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -289,24 +303,14 @@ fun MainContent(
             keyboardType = KeyboardType.Text
         )
 
-        // Action buttons
+        // Action buttons - single row with proper layout
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // Fixed FloatingActionButton without 'enabled' parameter
-            val addButtonContainerColor = if (uiState.isAddButtonEnabled)
-                MaterialTheme.colorScheme.primaryContainer
-            else
-                MaterialTheme.colorScheme.surfaceVariant
-
-            val addButtonContentColor = if (uiState.isAddButtonEnabled)
-                MaterialTheme.colorScheme.onPrimaryContainer
-            else
-                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
-
+            // Add button
             FloatingActionButton(
                 onClick = {
                     if (uiState.isAddButtonEnabled) {
@@ -322,11 +326,25 @@ fun MainContent(
                 )
             }
 
-            ExtendedFloatingActionButton(
-                onClick = onShowEntriesClicked,
-                icon = { Icon(Icons.Default.List, contentDescription = null) },
-                text = { Text(stringResource(R.string.button_overview_current_month)) }
-            )
+            // Column for the two list buttons
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Current month entries button
+                ExtendedFloatingActionButton(
+                    onClick = onShowEntriesClicked,
+                    icon = { Icon(Icons.Default.List, contentDescription = null) },
+                    text = { Text(stringResource(R.string.button_overview_current_month)) }
+                )
+
+                // All entries button
+                ExtendedFloatingActionButton(
+                    onClick = onShowAllEntriesClicked,
+                    icon = { Icon(Icons.Default.List, contentDescription = null) },
+                    text = { Text("All Entries") }
+                )
+            }
         }
     }
 }

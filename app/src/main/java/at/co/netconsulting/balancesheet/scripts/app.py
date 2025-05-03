@@ -117,22 +117,6 @@ def handle_incomexpense_all():
         print(f"DEBUG: First entry in final response: {final_response['incomeexpense'][0] if response else 'No entries'}")
         return final_response
 
-#@app.route('/incomeexpense/<id>', methods=['GET'])
-#def handle_incomexpense(id):
-#    incomeexpense = IncomeExpenseModel.query.get_or_404(id)
-#    if request.method == 'GET':
-#        response = {
-#            "orderdate": incomeexpense.orderdate,
-#            "who": incomeexpense.who,
-#            "position": incomeexpense.position,
-#            "income": incomeexpense.income,
-#            "expense": incomeexpense.expense,
-#            "location": incomeexpense.location,
-#            "comment": incomeexpense.comment,
-#            "created_at": incomeexpense.created_at
-#        }
-#        return {"message": "success", "incomeexpense": response}
-
 def execute_query(query):
     """Helper function to execute raw SQL queries"""
     with db.engine.connect() as connection:
@@ -352,6 +336,29 @@ def handle_incomexpense_sum_spending_food_per_person_per_month():
     """
     result = execute_query(query)
     return {"message": "success", "incomeexpense": {"Total income": [result[0][0]]}}
+
+@app.route('/incomeexpense/all_entries', methods=['GET'])
+def handle_incomexpense_all_entries():
+    if request.method == 'GET':
+        response = []
+        # Fetch all entries without date filtering
+        for incomeexpense in IncomeExpenseModel.query.order_by(IncomeExpenseModel.orderdate.desc()).all():
+            created_at_str = None
+            if incomeexpense.created_at:
+                created_at_str = incomeexpense.created_at.isoformat()
+
+            response.append({
+                "id": incomeexpense.id,
+                "orderdate": incomeexpense.orderdate,
+                "who": incomeexpense.who,
+                "position": incomeexpense.position,
+                "income": incomeexpense.income,
+                "expense": incomeexpense.expense,
+                "location": incomeexpense.location,
+                "comment": incomeexpense.comment,
+                "created_at": created_at_str
+            })
+        return {"message": "success", "incomeexpense": response}
 
 if __name__ == '__main__':
     with app.app_context():

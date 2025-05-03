@@ -19,12 +19,13 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun EntryListDialog(
     entries: List<IncomeExpense>,
+    title: String = "Entries",  // Default title
     onDismiss: () -> Unit,
     onEntrySelected: (IncomeExpense) -> Unit
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("May Entries") },
+        title = { Text(title) },
         text = {
             LazyColumn {
                 items(entries) { entry ->

@@ -8,20 +8,21 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 data class MainUiState(
-    val summary: at.co.netconsulting.balancesheet.Summary = Summary(),
+    val summary: Summary = Summary(),
     val entries: List<IncomeExpense> = emptyList(),
-    val isLoading: Boolean = false,
-    val errorMessage: String? = null,
     val personalFoodSummaries: List<PersonalFoodSummary> = emptyList(),
-    val selectedEntry: IncomeExpense? = null,
-    val showDialog: Boolean = false,
-    val showEntriesListDialog: Boolean = false,
-    val inputIncome: String = "0",
-    val inputExpense: String = "0",
-    val inputDate: String = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
     val selectedPerson: String = "",
     val selectedPosition: Spending = Spending.Expense,
     val selectedLocation: Location = Location.Hollgasse_1_1,
+    val inputIncome: String = "0",
+    val inputExpense: String = "0",
+    val inputDate: String = "",
     val inputComment: String = "",
-    val isAddButtonEnabled: Boolean = false
+    val isAddButtonEnabled: Boolean = false,
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val selectedEntry: IncomeExpense? = null,
+    val showDialog: Boolean = false,
+    val showEntriesListDialog: Boolean = false,
+    val dialogTitle: String = "All Entries"
 )

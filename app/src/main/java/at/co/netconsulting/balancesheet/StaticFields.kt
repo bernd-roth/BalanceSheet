@@ -19,6 +19,7 @@ object StaticFields {
     const val PROTOCOL = "http://"
     const val REST_URL_ADD = "/incomeexpense/add"
     const val REST_URL_GET_ALL = "/incomeexpense/all"
+    const val REST_URL_GET_ALL_WITHOUT_DATE_FILTER = "/incomeexpense/all_entries"
     const val REST_URL_GET_SUM_INCOME = "/incomeexpense/sum_income"
     const val REST_URL_GET_SUM_EXPENSE = "/incomeexpense/sum_expense"
     const val REST_URL_GET_SUM_SAVINGS = "/incomeexpense/sum_savings"

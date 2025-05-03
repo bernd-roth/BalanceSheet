@@ -19,7 +19,7 @@ import at.co.netconsulting.balancesheet.ui.theme.BalanceSheetTheme
 import at.co.netconsulting.balancesheet.viewmodel.ChartViewModel
 import at.co.netconsulting.balancesheet.viewmodel.SettingsViewModel
 import at.co.netconsulting.general.StaticFields
-import at.co.netconsulting.viewmodel.MainViewModel
+import at.co.netconsulting.balancesheet.viewmodel.MainViewModel
 
 class MainActivity : ComponentActivity() {
 

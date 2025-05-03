@@ -3,7 +3,7 @@ package at.co.netconsulting.balancesheet
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import at.co.netconsulting.balancesheet.network.BalanceSheetRepository
-import at.co.netconsulting.viewmodel.MainViewModel
+import at.co.netconsulting.balancesheet.viewmodel.MainViewModel
 
 class MainViewModelFactory(
     private val repository: BalanceSheetRepository,
