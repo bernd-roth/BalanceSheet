@@ -2,12 +2,15 @@ package at.co.netconsulting.balancesheet
 
 import EntryListDialog
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
@@ -19,11 +22,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import at.co.netconsulting.balancesheet.composable.*
 import at.co.netconsulting.balancesheet.enums.Location
 import at.co.netconsulting.balancesheet.enums.Spending
 import at.co.netconsulting.balancesheet.data.MainUiState
 import at.co.netconsulting.balancesheet.viewmodel.MainViewModel
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -105,11 +114,11 @@ fun MainScreen(
         // Show error message if needed
         uiState.errorMessage?.let { error ->
             AlertDialog(
-                onDismissRequest = { viewModel.refreshData() },
+                onDismissRequest = { viewModel.clearErrorMessage() },  // Just clear the error, don't refresh
                 title = { Text("Error") },
                 text = { Text(error) },
                 confirmButton = {
-                    TextButton(onClick = { viewModel.refreshData() }) {
+                    TextButton(onClick = { viewModel.clearErrorMessage() }) {  // Just clear the error, don't refresh
                         Text("OK")
                     }
                 }
@@ -292,7 +301,7 @@ fun MainContent(
             value = uiState.inputDate,
             onValueChange = onDateChanged,
             placeholder = stringResource(R.string.hint_date_dd_mm_yyyy),
-            keyboardType = KeyboardType.Text
+            isDateField = true
         )
 
         // Comment input
@@ -383,7 +392,8 @@ fun InputRow(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String = "",
-    keyboardType: KeyboardType = KeyboardType.Text
+    keyboardType: KeyboardType = KeyboardType.Text,
+    isDateField: Boolean = false
 ) {
     Row(
         modifier = Modifier
@@ -396,18 +406,177 @@ fun InputRow(
             modifier = Modifier.weight(1f),
             fontSize = 16.sp
         )
+
+        if (isDateField) {
+            DatePickerField(
+                value = value,
+                onValueChange = onValueChange,
+                placeholder = placeholder,
+                modifier = Modifier.weight(1f)
+            )
+        } else {
+            OutlinedTextField(
+                value = value,
+                onValueChange = onValueChange,
+                modifier = Modifier.weight(1f),
+                placeholder = {
+                    if (placeholder.isNotEmpty()) {
+                        Text(placeholder)
+                    }
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+                singleLine = true
+            )
+        }
+    }
+}
+
+@Composable
+fun DatePickerField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    modifier: Modifier = Modifier
+) {
+    var showDatePicker by remember { mutableStateOf(false) }
+
+    // Parse the date or use current date as fallback
+    val date = if (value.isNotEmpty()) {
+        try {
+            val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+            LocalDate.parse(value, formatter)
+        } catch (e: Exception) {
+            LocalDate.now()
+        }
+    } else {
+        LocalDate.now()
+    }
+
+    Box(modifier = modifier) {
         OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = Modifier.weight(1f),
+            value = value.ifEmpty {
+                // Show current date by default
+                date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+            },
+            onValueChange = { /* Read-only */ },
+            readOnly = true,
+            modifier = Modifier.fillMaxWidth(),
             placeholder = {
                 if (placeholder.isNotEmpty()) {
                     Text(placeholder)
                 }
             },
-            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-            singleLine = true
+            trailingIcon = {
+                IconButton(onClick = { showDatePicker = true }) {
+                    Icon(
+                        imageVector = Icons.Default.DateRange,
+                        contentDescription = "Select Date"
+                    )
+                }
+            }
         )
+
+        // Make the entire field clickable
+        Spacer(
+            modifier = Modifier
+                .matchParentSize()
+                .clickable { showDatePicker = true }
+        )
+    }
+
+    // Date picker dialog
+    if (showDatePicker) {
+        DatePickerDialog(
+            initialDate = date,
+            onDateSelected = { selectedDate ->
+                val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                onValueChange(selectedDate.format(formatter))
+            },
+            onDismiss = { showDatePicker = false }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DatePickerDialog(
+    initialDate: LocalDate,
+    onDateSelected: (LocalDate) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = initialDate.atStartOfDay(ZoneId.systemDefault())
+            .toInstant().toEpochMilli()
+    )
+
+    // Use a custom Dialog instead of AlertDialog for better control
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            dismissOnBackPress = true,
+            dismissOnClickOutside = true,
+            usePlatformDefaultWidth = false // This allows full width control
+        )
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()  // Fill the available width
+                .padding(horizontal = 8.dp), // Add some padding from screen edges
+            shape = RoundedCornerShape(16.dp),
+            tonalElevation = 6.dp
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                // Title
+                Text(
+                    text = "Select Date",
+                    fontSize = 20.sp,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
+                // Date picker with explicit width control
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp) // Add a small horizontal padding
+                ) {
+                    DatePicker(
+                        state = datePickerState,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                    )
+                }
+
+                // Buttons
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text("Cancel")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    TextButton(
+                        onClick = {
+                            datePickerState.selectedDateMillis?.let { millis ->
+                                val selectedDate = Instant.ofEpochMilli(millis)
+                                    .atZone(ZoneId.systemDefault())
+                                    .toLocalDate()
+                                onDateSelected(selectedDate)
+                            }
+                            onDismiss()
+                        }
+                    ) {
+                        Text("OK")
+                    }
+                }
+            }
+        }
     }
 }
 

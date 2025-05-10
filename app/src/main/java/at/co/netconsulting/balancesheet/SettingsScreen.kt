@@ -21,7 +21,7 @@ import at.co.netconsulting.balancesheet.viewmodel.SettingsViewModel
 fun SettingsScreen(
     viewModel: SettingsViewModel,
     onNavigateBack: () -> Unit,
-    onSaveSettings: (String, String, String, String, String, String) -> Unit
+    onSaveSettings: (String, String, String, String, String, String, String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -60,7 +60,8 @@ fun SettingsScreen(
                             uiState.persons,
                             uiState.foodBudget,
                             uiState.defaultPosition,
-                            uiState.defaultLocation
+                            uiState.defaultLocation,
+                            uiState.defaultCurrency
                         )
                         viewModel.resetChangedFlag()
                     }
@@ -97,7 +98,7 @@ fun SettingsScreen(
                 label = stringResource(R.string.textViewPort),
                 value = uiState.port,
                 onValueChange = viewModel::onPortChanged,
-                hint = "5000",
+                hint = "8080",
                 keyboardType = KeyboardType.Number
             )
 
@@ -134,6 +135,15 @@ fun SettingsScreen(
                 value = uiState.defaultLocation,
                 onValueChange = viewModel::onDefaultLocationChanged,
                 hint = "Location",
+                keyboardType = KeyboardType.Text
+            )
+
+            // Default Currency
+            SettingsField(
+                label = "Default Currency",
+                value = uiState.defaultCurrency,
+                onValueChange = viewModel::onDefaultCurrencyChanged,
+                hint = "EUR",
                 keyboardType = KeyboardType.Text
             )
         }

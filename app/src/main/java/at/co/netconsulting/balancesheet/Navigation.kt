@@ -21,7 +21,7 @@ fun AppNavigation(
     mainViewModel: MainViewModel,
     settingsViewModel: SettingsViewModel,
     chartViewModel: ChartViewModel,
-    onSaveSettings: (String, String, String, String, String, String) -> Unit
+    onSaveSettings: (String, String, String, String, String, String, String) -> Unit
 ) {
     val navController = rememberNavController()
     val navigationActions = remember(navController) {

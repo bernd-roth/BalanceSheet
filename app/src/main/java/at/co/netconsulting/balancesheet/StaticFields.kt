@@ -14,6 +14,7 @@ object StaticFields {
     const val SP_MONEY_FOOD = "MONEY_FOOD"
     const val SP_DEFAULT_POSITION = "DEFAULT_POSITION"
     const val SP_DEFAULT_LOCATION = "DEFAULT_LOCATION"
+    const val SP_DEFAULT_CURRENCY = "DEFAULT_CURRENCY"
 
     // Network
     const val PROTOCOL = "http://"

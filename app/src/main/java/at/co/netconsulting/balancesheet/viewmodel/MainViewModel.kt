@@ -1,5 +1,7 @@
 package at.co.netconsulting.balancesheet.viewmodel
 
+import android.content.Context
+import android.content.SharedPreferences
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,28 +12,48 @@ import at.co.netconsulting.balancesheet.data.MainUiState
 import at.co.netconsulting.balancesheet.enums.Location
 import at.co.netconsulting.balancesheet.enums.Spending
 import at.co.netconsulting.balancesheet.network.BalanceSheetRepository
+import at.co.netconsulting.balancesheet.location.LocationService
+import at.co.netconsulting.balancesheet.currency.CurrencyConversionService
+import at.co.netconsulting.general.StaticFields
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 
 class MainViewModel(
     private val repository: BalanceSheetRepository,
-    private val defaultReserve: String
+    private val defaultReserve: String,
+    private val context: Context,
+    private val sharedPrefs: SharedPreferences,
+    private val openCageApiKey: String,
+    private val exchangeRateApiKey: String
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
 
+    private val locationService = LocationService(context, openCageApiKey)
+    private val currencyService = CurrencyConversionService(exchangeRateApiKey)
+
     // Using getter/setter pattern to avoid JVM signature clash with updatePersons
     private val _personsList = mutableStateOf(listOf<String>())
     val personsList: List<String> get() = _personsList.value
 
+    private val defaultCurrency get() = sharedPrefs.getString(StaticFields.SP_DEFAULT_CURRENCY, "EUR") ?: "EUR"
+
     init {
+        // Set current date in the input field
+        val currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+        _uiState.update { it.copy(inputDate = currentDate) }
+
         refreshData()
     }
 
@@ -143,8 +165,39 @@ class MainViewModel(
                 _uiState.update { it.copy(isLoading = true) }
 
                 val state = _uiState.value
-                val income = state.inputIncome.toDoubleOrNull() ?: 0.0
-                val expense = state.inputExpense.toDoubleOrNull() ?: 0.0
+                var income = state.inputIncome.toDoubleOrNull() ?: 0.0
+                var expense = state.inputExpense.toDoubleOrNull() ?: 0.0
+
+                // Get current location
+                val location = locationService.getCurrentLocation()
+
+                if (location != null) {
+                    val (latitude, longitude) = location
+
+                    // Get country and currency based on location
+                    val countryCurrency = locationService.getCountryCurrencyFromLocation(latitude, longitude)
+
+                    if (countryCurrency != null) {
+                        val (country, localCurrency) = countryCurrency
+
+                        // Convert income/expense if currencies are different
+                        if (localCurrency.isNotEmpty() && localCurrency != defaultCurrency) {
+                            if (income > 0) {
+                                val convertedIncome = currencyService.convertCurrency(income, localCurrency, defaultCurrency)
+                                if (convertedIncome != null) {
+                                    income = convertedIncome
+                                }
+                            }
+
+                            if (expense > 0) {
+                                val convertedExpense = currencyService.convertCurrency(expense, localCurrency, defaultCurrency)
+                                if (convertedExpense != null) {
+                                    expense = convertedExpense
+                                }
+                            }
+                        }
+                    }
+                }
 
                 // Format the date from DD/MM/YYYY to LocalDate
                 val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
@@ -219,6 +272,7 @@ class MainViewModel(
                 _uiState.update { it.copy(
                     entries = allEntries,  // Use all entries without filtering
                     showEntriesListDialog = true,
+                    dialogTitle = "Current Month Entries",
                     isLoading = false
                 ) }
             } catch (e: Exception) {
@@ -283,7 +337,6 @@ class MainViewModel(
         }
     }
 
-    // In your MainViewModel.kt file:
     fun showAllEntries() {
         viewModelScope.launch {
             try {
@@ -308,5 +361,40 @@ class MainViewModel(
                 )}
             }
         }
+    }
+    fun debugConnection() {
+        viewModelScope.launch(Dispatchers.IO) {  // Use Dispatchers.IO
+            try {
+                val sharedPrefs = context.getSharedPreferences("BalanceSheetPrefs", Context.MODE_PRIVATE)
+                val serverIp = sharedPrefs.getString(StaticFields.SP_INTERNET_ADDRESS, "balancesheet.duckdns.org") ?: "balancesheet.duckdns.org"
+                val serverPort = sharedPrefs.getString(StaticFields.SP_PORT, "8080") ?: "8080"
+
+                val baseUrl = "${StaticFields.PROTOCOL}$serverIp${StaticFields.COLON}$serverPort"
+                println("DEBUG: Attempting to connect to $baseUrl")
+
+                // Try a simple connection test
+                val client = OkHttpClient.Builder()
+                    .connectTimeout(10, TimeUnit.SECONDS)
+                    .build()
+
+                val request = Request.Builder()
+                    .url(baseUrl)
+                    .build()
+
+                try {
+                    val response = client.newCall(request).execute()
+                    println("DEBUG: Connection test result: ${response.code} ${response.message}")
+                } catch (e: Exception) {
+                    println("DEBUG: Connection test failed: ${e.message}")
+                    e.printStackTrace()
+                }
+            } catch (e: Exception) {
+                println("DEBUG: Debug connection failed: ${e.message}")
+                e.printStackTrace()
+            }
+        }
+    }
+    fun clearErrorMessage() {
+        _uiState.update { it.copy(errorMessage = null) }
     }
 }

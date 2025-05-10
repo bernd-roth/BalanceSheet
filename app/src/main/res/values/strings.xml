@@ -69,4 +69,5 @@
     <string name="textViewMoneyLeftForFoodJustForPerson">Money left for food/month (just for me)</string>
     <string name="textViewDefaultPosition">Position</string>
     <string name="textViewDefaultLocation">Location</string>
+    <string name="textViewDefaultCurrency">Default Currency</string>
 </resources>

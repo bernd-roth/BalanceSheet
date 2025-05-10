@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import at.co.netconsulting.balancesheet.viewmodel.ChartViewModel
+import at.co.netconsulting.balancesheet.viewmodel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,12 +70,12 @@ fun ChartScreen(
                     modifier = Modifier.padding(bottom = 24.dp)
                 )
 
-                // Chart
+                // Use ChartViewModel's data directly
                 BarChart(
-                    income = uiState.totalIncome,
-                    expense = uiState.totalExpense,
-                    savings = uiState.totalSavings,
-                    food = uiState.totalFood,
+                    income = viewModel.totalIncome,
+                    expense = viewModel.totalExpense,
+                    savings = viewModel.totalSavings,
+                    food = viewModel.totalFood,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(400.dp)

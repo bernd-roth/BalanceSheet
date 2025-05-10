@@ -117,6 +117,22 @@ def handle_incomexpense_all():
         print(f"DEBUG: First entry in final response: {final_response['incomeexpense'][0] if response else 'No entries'}")
         return final_response
 
+#@app.route('/incomeexpense/<id>', methods=['GET'])
+#def handle_incomexpense(id):
+#    incomeexpense = IncomeExpenseModel.query.get_or_404(id)
+#    if request.method == 'GET':
+#        response = {
+#            "orderdate": incomeexpense.orderdate,
+#            "who": incomeexpense.who,
+#            "position": incomeexpense.position,
+#            "income": incomeexpense.income,
+#            "expense": incomeexpense.expense,
+#            "location": incomeexpense.location,
+#            "comment": incomeexpense.comment,
+#            "created_at": incomeexpense.created_at
+#        }
+#        return {"message": "success", "incomeexpense": response}
+
 def execute_query(query):
     """Helper function to execute raw SQL queries"""
     with db.engine.connect() as connection:
@@ -359,6 +375,35 @@ def handle_incomexpense_all_entries():
                 "created_at": created_at_str
             })
         return {"message": "success", "incomeexpense": response}
+
+@app.route('/incomeexpense/put/<id>', methods=['PUT'])
+def handle_incomeexpense_update(id):
+    try:
+        incomeexpense = IncomeExpenseModel.query.get_or_404(id)
+
+        # Update the entry with the new values
+        if 'orderdate' in request.form:
+            incomeexpense.orderdate = request.form.get('orderdate')
+        if 'who' in request.form:
+            incomeexpense.who = request.form.get('who')
+        if 'position' in request.form:
+            incomeexpense.position = request.form.get('position')
+        if 'income' in request.form:
+            incomeexpense.income = request.form.get('income')
+        if 'expense' in request.form:
+            incomeexpense.expense = request.form.get('expense')
+        if 'location' in request.form:
+            incomeexpense.location = request.form.get('location')
+        if 'comment' in request.form:
+            incomeexpense.comment = request.form.get('comment')
+
+        # Save the changes
+        db.session.commit()
+
+        return jsonify({"message": "Entry updated successfully"})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": "Error updating entry", "error": str(e)}), 500
 
 if __name__ == '__main__':
     with app.app_context():

@@ -184,6 +184,10 @@ class BalanceSheetRepository(private val baseUrl: String) {
 
             val url = "$baseUrl${StaticFields.REST_URL_PUT}${entry.id}"
 
+            println("DEBUG: Updating entry with ID: ${entry.id}")
+            println("DEBUG: Update URL: $url")
+            println("DEBUG: Entry data: income=${entry.income}, expense=${entry.expense}, date=${formattedDate}")
+
             val formBody = FormBody.Builder()
                 .add("id", entry.id)
                 .add("orderdate", formattedDate)
@@ -196,10 +200,12 @@ class BalanceSheetRepository(private val baseUrl: String) {
                 .build()
 
             val response = makePutRequest(url, formBody)
-            true
+            println("DEBUG: Update response: $response")
+            return@withContext true
         } catch (e: Exception) {
+            println("DEBUG: Error updating entry: ${e.message}")
             e.printStackTrace()
-            false
+            return@withContext false
         }
     }
 
@@ -485,9 +491,6 @@ class BalanceSheetRepository(private val baseUrl: String) {
         }
     }
 
-    /**
-     * Get all entries regardless of date.
-     */
     /**
      * Get all entries regardless of date.
      */

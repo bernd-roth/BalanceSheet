@@ -1,12 +1,10 @@
-package at.co.netconsulting.balancesheet
+package at.co.netconsulting.balancesheet.viewmodel
 
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import at.co.netconsulting.balancesheet.network.BalanceSheetRepository
-import at.co.netconsulting.balancesheet.viewmodel.MainViewModel
-import at.co.netconsulting.balancesheet.viewmodel.SettingsViewModel
 import at.co.netconsulting.general.StaticFields
 
 class MainViewModelFactory(
@@ -18,7 +16,7 @@ class MainViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
             val sharedPrefs = application.getSharedPreferences("BalanceSheetPrefs", Context.MODE_PRIVATE)
-            val serverIp = sharedPrefs.getString(StaticFields.SP_INTERNET_ADDRESS, "balancesheet.duckdns.org") ?: "balancesheet.duckdns.org"
+            val serverIp = sharedPrefs.getString(StaticFields.SP_INTERNET_ADDRESS, "localhost") ?: "localhost"
             val serverPort = sharedPrefs.getString(StaticFields.SP_PORT, "8080") ?: "8080"
             val defaultReserve = sharedPrefs.getString(StaticFields.SP_MONEY_FOOD, "0") ?: "0"
 
@@ -49,6 +47,17 @@ class SettingsViewModelFactory(
 
             @Suppress("UNCHECKED_CAST")
             return SettingsViewModel(sharedPrefs) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
+
+// Add the ChartViewModelFactory
+class ChartViewModelFactory : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(ChartViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return ChartViewModel() as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
