@@ -79,6 +79,7 @@ fun MainScreen(
                 modifier = Modifier.padding(paddingValues),
                 uiState = uiState,
                 persons = persons,
+                viewModel = viewModel,
                 onIncomeChanged = viewModel::onIncomeChanged,
                 onExpenseChanged = viewModel::onExpenseChanged,
                 onDateChanged = viewModel::onDateChanged,
@@ -132,6 +133,7 @@ fun MainContent(
     modifier: Modifier = Modifier,
     uiState: MainUiState,
     persons: List<String>,
+    viewModel: MainViewModel,
     onIncomeChanged: (String) -> Unit,
     onExpenseChanged: (String) -> Unit,
     onDateChanged: (String) -> Unit,
@@ -282,17 +284,17 @@ fun MainContent(
         // Position dropdown
         DropdownRow(
             label = stringResource(R.string.hint_position),
-            selectedValue = uiState.selectedPosition.toString(),
-            options = Spending.values().map { it.toString() },
-            onValueChange = { onPositionChanged(Spending.valueOf(it)) }
+            selectedValue = viewModel.getCurrentPositionValue(),
+            options = viewModel.getAllPositions(),
+            onValueChange = viewModel::onPositionChangedString
         )
 
         // Location dropdown
         DropdownRow(
             label = stringResource(R.string.hint_location),
-            selectedValue = uiState.selectedLocation.toString(),
-            options = Location.values().map { it.toString() },
-            onValueChange = { onLocationChanged(Location.valueOf(it)) }
+            selectedValue = viewModel.getCurrentLocationValue(),
+            options = viewModel.getAllLocations(),
+            onValueChange = viewModel::onLocationChangedString
         )
 
         // Date input

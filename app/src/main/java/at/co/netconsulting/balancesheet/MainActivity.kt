@@ -164,7 +164,8 @@ class MainActivity : ComponentActivity() {
             mainViewModel.updatePersons(personsList)
         }
 
-        // Refresh data to apply new settings
+        // Reload default settings and refresh data to apply new settings
+        mainViewModel.reloadDefaultSettings()
         mainViewModel.refreshData()
     }
 

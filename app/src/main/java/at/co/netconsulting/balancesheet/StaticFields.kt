@@ -15,6 +15,8 @@ object StaticFields {
     const val SP_DEFAULT_POSITION = "DEFAULT_POSITION"
     const val SP_DEFAULT_LOCATION = "DEFAULT_LOCATION"
     const val SP_DEFAULT_CURRENCY = "DEFAULT_CURRENCY"
+    const val SP_CUSTOM_POSITIONS = "CUSTOM_POSITIONS"
+    const val SP_CUSTOM_LOCATIONS = "CUSTOM_LOCATIONS"
 
     // Network
     const val PROTOCOL = "http://"

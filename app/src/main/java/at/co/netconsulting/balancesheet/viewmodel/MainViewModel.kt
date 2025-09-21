@@ -54,7 +54,59 @@ class MainViewModel(
         val currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
         _uiState.update { it.copy(inputDate = currentDate) }
 
+        // Load default settings for position and location
+        loadDefaultSettings()
+
         refreshData()
+    }
+
+    private fun loadDefaultSettings() {
+        val defaultPosition = sharedPrefs.getString(StaticFields.SP_DEFAULT_POSITION, "") ?: ""
+        val defaultLocation = sharedPrefs.getString(StaticFields.SP_DEFAULT_LOCATION, "") ?: ""
+
+        // Apply default position if it exists and is valid
+        if (defaultPosition.isNotEmpty()) {
+            try {
+                val positionEnum = Spending.valueOf(defaultPosition)
+                _uiState.update { it.copy(
+                    selectedPosition = positionEnum,
+                    selectedPositionString = defaultPosition
+                )}
+            } catch (e: IllegalArgumentException) {
+                // Handle custom position
+                _uiState.update { it.copy(
+                    selectedPosition = Spending.Expense,
+                    selectedPositionString = defaultPosition
+                )}
+            }
+        } else {
+            // Set initial string value to match enum
+            _uiState.update { it.copy(selectedPositionString = it.selectedPosition.toString()) }
+        }
+
+        // Apply default location if it exists and is valid
+        if (defaultLocation.isNotEmpty()) {
+            try {
+                val locationEnum = Location.valueOf(defaultLocation)
+                _uiState.update { it.copy(
+                    selectedLocation = locationEnum,
+                    selectedLocationString = defaultLocation
+                )}
+            } catch (e: IllegalArgumentException) {
+                // Handle custom location
+                _uiState.update { it.copy(
+                    selectedLocation = Location.Hollgasse_1_1,
+                    selectedLocationString = defaultLocation
+                )}
+            }
+        } else {
+            // Set initial string value to match enum
+            _uiState.update { it.copy(selectedLocationString = it.selectedLocation.toString()) }
+        }
+    }
+
+    fun reloadDefaultSettings() {
+        loadDefaultSettings()
     }
 
     fun updatePersons(newPersons: List<String>) {
@@ -396,5 +448,83 @@ class MainViewModel(
     }
     fun clearErrorMessage() {
         _uiState.update { it.copy(errorMessage = null) }
+    }
+
+    // Get all available positions (enum + custom)
+    fun getAllPositions(): List<String> {
+        val enumPositions = Spending.values().map { it.toString() }
+        val customPositionsString = sharedPrefs.getString(StaticFields.SP_CUSTOM_POSITIONS, "") ?: ""
+        val customPositions = if (customPositionsString.isNotEmpty()) {
+            customPositionsString.split(",").map { it.trim() }
+        } else {
+            emptyList()
+        }
+        return enumPositions + customPositions
+    }
+
+    // Get all available locations (enum + custom)
+    fun getAllLocations(): List<String> {
+        val enumLocations = Location.values().map { it.toString() }
+        val customLocationsString = sharedPrefs.getString(StaticFields.SP_CUSTOM_LOCATIONS, "") ?: ""
+        val customLocations = if (customLocationsString.isNotEmpty()) {
+            customLocationsString.split(",").map { it.trim() }
+        } else {
+            emptyList()
+        }
+        return enumLocations + customLocations
+    }
+
+    // Updated position change handler to support custom values
+    fun onPositionChangedString(value: String) {
+        try {
+            val spendingEnum = Spending.valueOf(value)
+            _uiState.update { it.copy(
+                selectedPosition = spendingEnum,
+                selectedPositionString = value
+            )}
+        } catch (e: IllegalArgumentException) {
+            // Handle custom position
+            _uiState.update { it.copy(
+                selectedPosition = Spending.Expense, // Default enum value
+                selectedPositionString = value // Store the custom value
+            )}
+        }
+    }
+
+    // Updated location change handler to support custom values
+    fun onLocationChangedString(value: String) {
+        try {
+            val locationEnum = Location.valueOf(value)
+            _uiState.update { it.copy(
+                selectedLocation = locationEnum,
+                selectedLocationString = value
+            )}
+        } catch (e: IllegalArgumentException) {
+            // Handle custom location
+            _uiState.update { it.copy(
+                selectedLocation = Location.Hollgasse_1_1, // Default enum value
+                selectedLocationString = value // Store the custom value
+            )}
+        }
+    }
+
+    // Helper method to get the current position display value
+    fun getCurrentPositionValue(): String {
+        val state = _uiState.value
+        return if (state.selectedPositionString.isNotEmpty()) {
+            state.selectedPositionString
+        } else {
+            state.selectedPosition.toString()
+        }
+    }
+
+    // Helper method to get the current location display value
+    fun getCurrentLocationValue(): String {
+        val state = _uiState.value
+        return if (state.selectedLocationString.isNotEmpty()) {
+            state.selectedLocationString
+        } else {
+            state.selectedLocation.toString()
+        }
     }
 }
