@@ -4,12 +4,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items  // Add this import
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -23,14 +31,57 @@ fun EntryListDialog(
     onDismiss: () -> Unit,
     onEntrySelected: (IncomeExpense) -> Unit
 ) {
+    var searchQuery by remember { mutableStateOf("") }
+
+    // Filter entries based on search query
+    val filteredEntries = remember(entries, searchQuery) {
+        if (searchQuery.isBlank()) {
+            entries
+        } else {
+            entries.filter { entry ->
+                val query = searchQuery.lowercase()
+
+                // Search through all relevant fields
+                entry.who.lowercase().contains(query) ||
+                entry.orderdate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")).lowercase().contains(query) ||
+                entry.expense.toString().contains(query) ||
+                entry.income.toString().contains(query) ||
+                entry.position.toString().lowercase().contains(query) ||
+                entry.location.toString().lowercase().contains(query) ||
+                entry.comment.lowercase().contains(query) ||
+                (entry.createdAt?.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))?.lowercase()?.contains(query) == true)
+            }
+        }
+    }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {
-            LazyColumn {
-                items(entries) { entry ->
-                    EntryItem(entry, onEntrySelected)
-                    Divider(modifier = Modifier.padding(top = 8.dp))
+            Column {
+                // Search field
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
+                    placeholder = { Text("Search entries...") },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Search"
+                        )
+                    },
+                    singleLine = true
+                )
+
+                // Results list
+                LazyColumn {
+                    items(filteredEntries) { entry ->
+                        EntryItem(entry, onEntrySelected)
+                        Divider(modifier = Modifier.padding(top = 8.dp))
+                    }
                 }
             }
         },
