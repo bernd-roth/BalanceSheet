@@ -9,7 +9,7 @@ data class IncomeExpense(
     val id: String = "",
     val orderdate: LocalDate = LocalDate.now(),
     val who: String = "",
-    val position: Spending = Spending.Expense,
+    val position: Spending = Spending.Food,
     val income: Double = 0.0,
     val expense: Double = 0.0,
     val location: Location = Location.Hollgasse_1_1,

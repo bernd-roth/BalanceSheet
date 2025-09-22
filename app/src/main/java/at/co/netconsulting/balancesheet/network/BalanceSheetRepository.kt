@@ -539,9 +539,9 @@ class BalanceSheetRepository(private val baseUrl: String) {
                 orderdate = orderDate,
                 who = item.optString("who", ""),
                 position = try {
-                    Spending.valueOf(item.optString("position", "Expense"))
+                    Spending.valueOf(item.optString("position", "Food"))
                 } catch (e: Exception) {
-                    Spending.Expense
+                    Spending.Food
                 },
                 income = item.optString("income", "0").toDoubleOrNull() ?: 0.0,
                 expense = item.optString("expense", "0").toDoubleOrNull() ?: 0.0,
@@ -562,7 +562,7 @@ class BalanceSheetRepository(private val baseUrl: String) {
                 id = "error",
                 orderdate = LocalDate.now(),
                 who = "Error",
-                position = Spending.Expense,
+                position = Spending.Food,
                 income = 0.0,
                 expense = 0.0,
                 location = Location.Hollgasse_1_1,

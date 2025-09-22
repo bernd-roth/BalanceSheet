@@ -75,7 +75,7 @@ class MainViewModel(
             } catch (e: IllegalArgumentException) {
                 // Handle custom position
                 _uiState.update { it.copy(
-                    selectedPosition = Spending.Expense,
+                    selectedPosition = Spending.Food,
                     selectedPositionString = defaultPosition
                 )}
             }
@@ -462,7 +462,9 @@ class MainViewModel(
 
     // Get all available positions (enum + custom)
     fun getAllPositions(): List<String> {
-        val enumPositions = Spending.values().map { it.toString() }
+        val enumPositions = Spending.values()
+            .filter { it != Spending.Expense }  // Remove Expense from dropdown
+            .map { it.toString() }
         val customPositionsString = sharedPrefs.getString(StaticFields.SP_CUSTOM_POSITIONS, "") ?: ""
         val customPositions = if (customPositionsString.isNotEmpty()) {
             customPositionsString.split(",").map { it.trim() }
@@ -495,7 +497,7 @@ class MainViewModel(
         } catch (e: IllegalArgumentException) {
             // Handle custom position
             _uiState.update { it.copy(
-                selectedPosition = Spending.Expense, // Default enum value
+                selectedPosition = Spending.Food, // Default enum value
                 selectedPositionString = value // Store the custom value
             )}
         }

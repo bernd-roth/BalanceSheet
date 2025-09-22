@@ -12,7 +12,7 @@ data class MainUiState(
     val entries: List<IncomeExpense> = emptyList(),
     val personalFoodSummaries: List<PersonalFoodSummary> = emptyList(),
     val selectedPerson: String = "",
-    val selectedPosition: Spending = Spending.Expense,
+    val selectedPosition: Spending = Spending.Food,
     val selectedLocation: Location = Location.Hollgasse_1_1,
     val selectedPositionString: String = "", // For custom positions
     val selectedLocationString: String = "", // For custom locations
