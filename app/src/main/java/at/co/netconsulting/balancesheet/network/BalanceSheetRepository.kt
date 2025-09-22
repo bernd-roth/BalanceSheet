@@ -4,6 +4,7 @@ import at.co.netconsulting.balancesheet.enums.Location
 import at.co.netconsulting.balancesheet.enums.Spending
 import at.co.netconsulting.balancesheet.data.IncomeExpense
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
@@ -18,6 +19,8 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
+import java.net.UnknownHostException
+import java.io.IOException
 
 /**
  * Repository for handling all network operations related to the balance sheet data.
@@ -26,45 +29,109 @@ import java.time.ZonedDateTime
 class BalanceSheetRepository(private val baseUrl: String) {
 
     private val client = OkHttpClient.Builder()
-        .connectTimeout(30, TimeUnit.SECONDS)
+        .connectTimeout(15, TimeUnit.SECONDS)  // Reduced timeout for faster retries
         .readTimeout(30, TimeUnit.SECONDS)
         .writeTimeout(30, TimeUnit.SECONDS)
         .build()
+
+    // Retry configuration
+    private val maxRetries = 3
+    private val baseDelayMs = 1000L // 1 second
+
+    /**
+     * Execute a network request with automatic retry for DNS and connection failures.
+     */
+    private suspend fun <T> executeWithRetry(
+        operation: suspend () -> T,
+        operationName: String = "Network operation"
+    ): T {
+        var lastException: Exception? = null
+
+        repeat(maxRetries) { attempt ->
+            try {
+                println("DEBUG: $operationName - Attempt ${attempt + 1}/$maxRetries")
+                return operation()
+            } catch (e: UnknownHostException) {
+                lastException = e
+                println("DEBUG: DNS resolution failed on attempt ${attempt + 1}: ${e.message}")
+                if (attempt < maxRetries - 1) {
+                    val delayTime = baseDelayMs * (1L shl attempt) // Exponential backoff: 1s, 2s, 4s
+                    println("DEBUG: Retrying in ${delayTime}ms...")
+                    delay(delayTime)
+                }
+            } catch (e: IOException) {
+                lastException = e
+                println("DEBUG: Network error on attempt ${attempt + 1}: ${e.message}")
+                if (attempt < maxRetries - 1) {
+                    val delayTime = baseDelayMs * (1L shl attempt)
+                    println("DEBUG: Retrying in ${delayTime}ms...")
+                    delay(delayTime)
+                }
+            } catch (e: Exception) {
+                // For non-network exceptions, don't retry
+                println("DEBUG: Non-retryable error: ${e.message}")
+                throw e
+            }
+        }
+
+        // All retries failed
+        throw lastException ?: Exception("All retry attempts failed for $operationName")
+    }
 
     /**
      * Get the total income for the current month.
      */
     suspend fun getTotalIncome(): Double = withContext(Dispatchers.IO) {
-        val url = "$baseUrl${StaticFields.REST_URL_GET_SUM_INCOME}"
-        val responseJson = makeGetRequest(url)
-        parseValueFromResponse(responseJson)
+        executeWithRetry(
+            operation = {
+                val url = "$baseUrl${StaticFields.REST_URL_GET_SUM_INCOME}"
+                val responseJson = makeGetRequest(url)
+                parseValueFromResponse(responseJson)
+            },
+            operationName = "Get total income"
+        )
     }
 
     /**
      * Get the total expenses for the current month.
      */
     suspend fun getTotalExpense(): Double = withContext(Dispatchers.IO) {
-        val url = "$baseUrl${StaticFields.REST_URL_GET_SUM_EXPENSE}"
-        val responseJson = makeGetRequest(url)
-        parseValueFromResponse(responseJson)
+        executeWithRetry(
+            operation = {
+                val url = "$baseUrl${StaticFields.REST_URL_GET_SUM_EXPENSE}"
+                val responseJson = makeGetRequest(url)
+                parseValueFromResponse(responseJson)
+            },
+            operationName = "Get total expense"
+        )
     }
 
     /**
      * Get the total savings for the current month.
      */
     suspend fun getTotalSavings(): Double = withContext(Dispatchers.IO) {
-        val url = "$baseUrl${StaticFields.REST_URL_GET_SUM_SAVINGS}"
-        val responseJson = makeGetRequest(url)
-        parseValueFromResponse(responseJson)
+        executeWithRetry(
+            operation = {
+                val url = "$baseUrl${StaticFields.REST_URL_GET_SUM_SAVINGS}"
+                val responseJson = makeGetRequest(url)
+                parseValueFromResponse(responseJson)
+            },
+            operationName = "Get total savings"
+        )
     }
 
     /**
      * Get the total food expenses for the current month.
      */
     suspend fun getTotalFood(): Double = withContext(Dispatchers.IO) {
-        val url = "$baseUrl${StaticFields.REST_URL_GET_SUM_FOOD}"
-        val responseJson = makeGetRequest(url)
-        parseValueFromResponse(responseJson)
+        executeWithRetry(
+            operation = {
+                val url = "$baseUrl${StaticFields.REST_URL_GET_SUM_FOOD}"
+                val responseJson = makeGetRequest(url)
+                parseValueFromResponse(responseJson)
+            },
+            operationName = "Get total food"
+        )
     }
 
     /**
@@ -117,31 +184,45 @@ class BalanceSheetRepository(private val baseUrl: String) {
      */
     suspend fun getAllEntries(): List<IncomeExpense> = withContext(Dispatchers.IO) {
         try {
-            val url = "$baseUrl${StaticFields.REST_URL_GET_ALL}"
-            println("DEBUG: Making request to URL: $url")
+            executeWithRetry(
+                operation = {
+                    val url = "$baseUrl${StaticFields.REST_URL_GET_ALL}"
+                    println("DEBUG: Making request to URL: $url")
 
-            val responseJson = makeGetRequest(url)
-            println("DEBUG: Raw API response: $responseJson")
+                    val responseJson = makeGetRequest(url)
+                    println("DEBUG: Raw API response: $responseJson")
 
-            // Check if response is empty or null
-            if (responseJson.isNullOrBlank()) {
-                println("DEBUG: Response is empty or null")
-                return@withContext emptyList()
-            }
+                    // Check if response is empty or null
+                    if (responseJson.isNullOrBlank()) {
+                        println("DEBUG: Response is empty or null")
+                        return@executeWithRetry emptyList()
+                    }
 
-            // Try to parse as JSON to see if it's valid
-            try {
-                val testJson = JSONObject(responseJson)
-                println("DEBUG: Valid JSON object received")
-            } catch (e: Exception) {
-                println("DEBUG: Invalid JSON: ${e.message}")
-            }
+                    // Try to parse as JSON to see if it's valid
+                    try {
+                        val testJson = JSONObject(responseJson)
+                        println("DEBUG: Valid JSON object received")
+                    } catch (e: Exception) {
+                        println("DEBUG: Invalid JSON: ${e.message}")
+                    }
 
-            return@withContext parseEntriesFromResponse(responseJson)
+                    parseEntriesFromResponse(responseJson)
+                },
+                operationName = "Get all entries"
+            )
         } catch (e: Exception) {
-            println("DEBUG: Exception in getAllEntries: ${e.message}")
-            e.printStackTrace()
-            return@withContext emptyList()
+            println("DEBUG: All retry attempts failed for getAllEntries: ${e.message}")
+            when (e) {
+                is UnknownHostException -> {
+                    throw Exception("Unable to connect to server. Please check your internet connection and try again.")
+                }
+                is IOException -> {
+                    throw Exception("Network error occurred. Please try again later.")
+                }
+                else -> {
+                    throw Exception("Failed to load data: ${e.message}")
+                }
+            }
         }
     }
 

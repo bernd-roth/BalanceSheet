@@ -23,6 +23,7 @@ data class MainUiState(
     val isAddButtonEnabled: Boolean = false,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
+    val showRetryButton: Boolean = false,
     val selectedEntry: IncomeExpense? = null,
     val showDialog: Boolean = false,
     val showEntriesListDialog: Boolean = false,

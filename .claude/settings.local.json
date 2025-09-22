@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(./gradlew:*)"
+      "Bash(./gradlew:*)",
+      "Bash(dir \"C:\\projects\\android\\BalanceSheet2\\app\\src\\main\\res\\drawable*\")"
     ],
     "deny": [],
     "ask": []

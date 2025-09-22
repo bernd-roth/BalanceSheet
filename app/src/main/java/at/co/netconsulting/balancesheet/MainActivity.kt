@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -46,6 +48,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Switch to regular theme after splash duration
+        Handler(Looper.getMainLooper()).postDelayed({
+            setTheme(R.style.Theme_BalanceSheet)
+        }, 2000)
 
         val sharedPrefs = getSharedPreferences("BalanceSheetPrefs", Context.MODE_PRIVATE)
         val editor = sharedPrefs.edit()

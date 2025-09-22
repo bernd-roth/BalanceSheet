@@ -153,12 +153,18 @@ class MainViewModel(
                     entries = entries,
                     personalFoodSummaries = personalSummaries,
                     isLoading = false,
-                    errorMessage = null
+                    errorMessage = null,
+                    showRetryButton = false
                 )}
             } catch (e: Exception) {
+                val isNetworkError = e.message?.contains("Unable to connect") == true ||
+                                   e.message?.contains("Network error") == true ||
+                                   e.message?.contains("Unable to resolve host") == true
+
                 _uiState.update { it.copy(
                     isLoading = false,
-                    errorMessage = "Failed to load data: ${e.localizedMessage}"
+                    errorMessage = e.message ?: "Failed to load data: ${e.localizedMessage}",
+                    showRetryButton = isNetworkError
                 )}
             }
         }
@@ -447,7 +453,11 @@ class MainViewModel(
         }
     }
     fun clearErrorMessage() {
-        _uiState.update { it.copy(errorMessage = null) }
+        _uiState.update { it.copy(errorMessage = null, showRetryButton = false) }
+    }
+
+    fun loadData() {
+        refreshData()
     }
 
     // Get all available positions (enum + custom)

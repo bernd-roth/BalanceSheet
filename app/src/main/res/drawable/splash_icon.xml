@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+
+    <!-- Professional Balance Sheet Splash Icon -->
+
+    <!-- Scale vertical post -->
+    <path
+        android:pathData="M60,30L60,85"
+        android:strokeColor="#FFD700"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"/>
+
+    <!-- Scale horizontal beam -->
+    <path
+        android:pathData="M25,45L95,45"
+        android:strokeColor="#FFD700"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"/>
+
+    <!-- Left scale pan -->
+    <path
+        android:pathData="M15,55C15,51 22,51 37,51C47,51 50,51 50,55C50,59 47,59 37,59C22,59 15,59 15,55Z"
+        android:fillColor="#40FFD700"
+        android:strokeColor="#FFD700"
+        android:strokeWidth="2"/>
+
+    <!-- Right scale pan -->
+    <path
+        android:pathData="M70,55C70,51 77,51 92,51C102,51 105,51 105,55C105,59 102,59 92,59C77,59 70,59 70,55Z"
+        android:fillColor="#40FFD700"
+        android:strokeColor="#FFD700"
+        android:strokeWidth="2"/>
+
+    <!-- Left chain -->
+    <path
+        android:pathData="M37,45L37,51"
+        android:strokeColor="#FFD700"
+        android:strokeWidth="1.5"/>
+
+    <!-- Right chain -->
+    <path
+        android:pathData="M87,45L87,51"
+        android:strokeColor="#FFD700"
+        android:strokeWidth="1.5"/>
+
+    <!-- Central pivot point -->
+    <path
+        android:pathData="M57,45C57,42.8 58.3,41 60,41C61.7,41 63,42.8 63,45C63,47.2 61.7,49 60,49C58.3,49 57,47.2 57,45Z"
+        android:fillColor="#FFD700"/>
+
+    <!-- Base platform -->
+    <path
+        android:pathData="M52,85L68,85L68,90L52,90Z"
+        android:fillColor="#FFD700"/>
+
+    <!-- Dollar symbol on left -->
+    <path
+        android:pathData="M34,52L34,58M30,54L38,54M30,56L38,56"
+        android:strokeColor="#FFD700"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"/>
+
+    <!-- Euro symbol on right -->
+    <path
+        android:pathData="M92,52C89,52 87,53 87,55C87,57 89,58 92,58M84,54L89,54M84,56L89,56"
+        android:strokeColor="#FFD700"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"/>
+
+    <!-- App name text background -->
+    <path
+        android:pathData="M20,95L100,95L100,105L20,105Z"
+        android:fillColor="#40000000"/>
+
+</vector>

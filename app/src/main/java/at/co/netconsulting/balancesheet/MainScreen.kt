@@ -115,14 +115,30 @@ fun MainScreen(
         // Show error message if needed
         uiState.errorMessage?.let { error ->
             AlertDialog(
-                onDismissRequest = { viewModel.clearErrorMessage() },  // Just clear the error, don't refresh
-                title = { Text("Error") },
+                onDismissRequest = { viewModel.clearErrorMessage() },
+                title = { Text("Connection Error") },
                 text = { Text(error) },
                 confirmButton = {
-                    TextButton(onClick = { viewModel.clearErrorMessage() }) {  // Just clear the error, don't refresh
-                        Text("OK")
+                    if (uiState.showRetryButton) {
+                        TextButton(onClick = {
+                            viewModel.clearErrorMessage()
+                            viewModel.loadData() // Retry loading data
+                        }) {
+                            Text("Retry")
+                        }
+                    } else {
+                        TextButton(onClick = { viewModel.clearErrorMessage() }) {
+                            Text("OK")
+                        }
                     }
-                }
+                },
+                dismissButton = if (uiState.showRetryButton) {
+                    {
+                        TextButton(onClick = { viewModel.clearErrorMessage() }) {
+                            Text("Cancel")
+                        }
+                    }
+                } else null
             )
         }
     }
