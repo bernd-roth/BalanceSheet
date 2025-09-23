@@ -353,17 +353,19 @@ fun MainContent(
                 )
             }
 
-            // Column for the two list buttons
+            // Column for the list button
             Column(
                 horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Current month entries button
+                // Current month entries button - COMMENTED OUT
+                /*
                 ExtendedFloatingActionButton(
                     onClick = onShowEntriesClicked,
                     icon = { Icon(Icons.Default.List, contentDescription = null) },
                     text = { Text(stringResource(R.string.button_overview_current_month)) }
                 )
+                */
 
                 // All entries button
                 ExtendedFloatingActionButton(
