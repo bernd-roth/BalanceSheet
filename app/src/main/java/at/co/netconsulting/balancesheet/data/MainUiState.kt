@@ -27,5 +27,8 @@ data class MainUiState(
     val selectedEntry: IncomeExpense? = null,
     val showDialog: Boolean = false,
     val showEntriesListDialog: Boolean = false,
-    val dialogTitle: String = "All Entries"
+    val dialogTitle: String = "All Entries",
+    val customDataRefreshTrigger: Long = 0L, // Trigger to refresh custom positions/locations
+    val availablePositions: List<String> = emptyList(), // Cached positions list
+    val availableLocations: List<String> = emptyList() // Cached locations list
 )

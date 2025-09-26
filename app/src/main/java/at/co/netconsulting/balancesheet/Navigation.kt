@@ -52,7 +52,12 @@ fun AppNavigation(
         composable(Destinations.SETTINGS_ROUTE) {
             SettingsScreen(
                 viewModel = settingsViewModel,
-                onNavigateBack = { navigationActions.navigateBack() },
+                onNavigateBack = {
+                    // Refresh MainViewModel to update custom positions/locations when returning from settings
+                    println("DEBUG Navigation: onNavigateBack from Settings called")
+                    mainViewModel.reloadDefaultSettings()
+                    navigationActions.navigateBack()
+                },
                 onSaveSettings = onSaveSettings
             )
         }

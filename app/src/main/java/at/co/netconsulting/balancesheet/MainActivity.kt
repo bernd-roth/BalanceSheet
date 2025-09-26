@@ -60,6 +60,12 @@ class MainActivity : ComponentActivity() {
         editor.putString(StaticFields.SP_PORT, "8080")
         editor.commit()
 
+        // Set up callback for when custom positions/locations change
+        settingsViewModel.setOnCustomDataChangedCallback {
+            println("DEBUG MainActivity: Custom data changed, calling mainViewModel.reloadDefaultSettings()")
+            mainViewModel.reloadDefaultSettings()
+        }
+
         // Request necessary permissions
         requestPermissions()
 

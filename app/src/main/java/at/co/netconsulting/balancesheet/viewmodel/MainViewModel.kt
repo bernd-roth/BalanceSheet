@@ -52,10 +52,19 @@ class MainViewModel(
     init {
         // Set current date in the input field
         val currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-        _uiState.update { it.copy(inputDate = currentDate) }
 
         // Load default settings for position and location
         loadDefaultSettings()
+
+        // Initialize available positions and locations
+        val initialPositions = getAllPositions()
+        val initialLocations = getAllLocations()
+
+        _uiState.update { it.copy(
+            inputDate = currentDate,
+            availablePositions = initialPositions,
+            availableLocations = initialLocations
+        ) }
 
         refreshData()
     }
@@ -106,7 +115,56 @@ class MainViewModel(
     }
 
     fun reloadDefaultSettings() {
+        println("DEBUG MainVM.reloadDefaultSettings(): Called")
         loadDefaultSettings()
+
+        // Add a small delay to ensure SharedPreferences are fully persisted
+        Thread.sleep(50)
+
+        // Force UI refresh to update dropdowns with new custom values
+        val newPositions = getAllPositions()
+        val newLocations = getAllLocations()
+        val newTrigger = System.currentTimeMillis()
+
+        println("DEBUG MainVM.reloadDefaultSettings(): About to update UI state")
+        println("DEBUG MainVM.reloadDefaultSettings(): New positions: $newPositions")
+        println("DEBUG MainVM.reloadDefaultSettings(): New trigger: $newTrigger")
+
+        // Get current selected values to check if they are still valid
+        val currentSelectedPosition = getCurrentPositionValue()
+        val currentSelectedLocation = getCurrentLocationValue()
+
+        println("DEBUG MainVM.reloadDefaultSettings(): Current selected position: '$currentSelectedPosition'")
+        println("DEBUG MainVM.reloadDefaultSettings(): Current selected location: '$currentSelectedLocation'")
+
+        // Check if current selections are still valid, if not, reset to defaults
+        val validPosition = if (newPositions.contains(currentSelectedPosition)) {
+            currentSelectedPosition
+        } else if (newPositions.isNotEmpty()) {
+            newPositions.first()
+        } else {
+            "Food"
+        }
+
+        val validLocation = if (newLocations.contains(currentSelectedLocation)) {
+            currentSelectedLocation
+        } else if (newLocations.isNotEmpty()) {
+            newLocations.first()
+        } else {
+            "Hollgasse_1_1"
+        }
+
+        println("DEBUG MainVM.reloadDefaultSettings(): Using valid position: '$validPosition'")
+        println("DEBUG MainVM.reloadDefaultSettings(): Using valid location: '$validLocation'")
+
+        _uiState.update { it.copy(
+            customDataRefreshTrigger = newTrigger,
+            availablePositions = newPositions,
+            availableLocations = newLocations,
+            selectedPositionString = validPosition,
+            selectedLocationString = validLocation
+        )}
+        println("DEBUG MainVM.reloadDefaultSettings(): UI state updated")
     }
 
     fun updatePersons(newPersons: List<String>) {
@@ -463,15 +521,17 @@ class MainViewModel(
     // Get all available positions (enum + custom)
     fun getAllPositions(): List<String> {
         val enumPositions = Spending.values()
-            .filter { it != Spending.Expense }  // Remove Expense from dropdown
             .map { it.toString() }
         val customPositionsString = sharedPrefs.getString(StaticFields.SP_CUSTOM_POSITIONS, "") ?: ""
+        println("DEBUG MainVM.getAllPositions(): Reading from SharedPrefs: '$customPositionsString'")
         val customPositions = if (customPositionsString.isNotEmpty()) {
             customPositionsString.split(",").map { it.trim() }
         } else {
             emptyList()
         }
-        return enumPositions + customPositions
+        val result = enumPositions + customPositions
+        println("DEBUG MainVM.getAllPositions(): Final result: $result")
+        return result
     }
 
     // Get all available locations (enum + custom)

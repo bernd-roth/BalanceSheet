@@ -297,19 +297,30 @@ fun MainContent(
             onValueChange = onPersonChanged
         )
 
-        // Position dropdown
-        DropdownRow(
-            label = stringResource(R.string.hint_position),
-            selectedValue = viewModel.getCurrentPositionValue(),
-            options = viewModel.getAllPositions(),
-            onValueChange = viewModel::onPositionChangedString
-        )
+        // Position dropdown - use positions from UI state
+        println("DEBUG MainScreen: ======== POSITION DROPDOWN RENDERING ========")
+        println("DEBUG MainScreen: availablePositions.size = ${uiState.availablePositions.size}")
+        println("DEBUG MainScreen: availablePositions = ${uiState.availablePositions}")
+        println("DEBUG MainScreen: Current selected position: ${viewModel.getCurrentPositionValue()}")
+        println("DEBUG MainScreen: customDataRefreshTrigger: ${uiState.customDataRefreshTrigger}")
+        println("DEBUG MainScreen: uiState hashCode: ${uiState.hashCode()}")
 
-        // Location dropdown
+        // Force recomposition by using key with trigger
+        key("position-dropdown-${uiState.customDataRefreshTrigger}-${uiState.availablePositions.size}") {
+            DropdownRow(
+                label = stringResource(R.string.hint_position),
+                selectedValue = viewModel.getCurrentPositionValue(),
+                options = uiState.availablePositions,
+                onValueChange = viewModel::onPositionChangedString
+            )
+        }
+        println("DEBUG MainScreen: ======== POSITION DROPDOWN RENDERED ========")
+
+        // Location dropdown - use locations from UI state
         DropdownRow(
             label = stringResource(R.string.hint_location),
             selectedValue = viewModel.getCurrentLocationValue(),
-            options = viewModel.getAllLocations(),
+            options = uiState.availableLocations,
             onValueChange = viewModel::onLocationChangedString
         )
 
@@ -641,15 +652,26 @@ fun DropdownRow(
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
-                modifier = Modifier.fillMaxWidth(0.9f) // Slightly narrower than the parent to avoid overflow
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .heightIn(max = 300.dp) // Limit height to enable proper scrolling
             ) {
                 options.forEach { option ->
                     DropdownMenuItem(
-                        text = { Text(option) },
+                        text = {
+                            Text(
+                                text = option,
+                                modifier = Modifier.fillMaxWidth(),
+                                maxLines = 1
+                            )
+                        },
                         onClick = {
                             onValueChange(option)
                             expanded = false
-                        }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
                     )
                 }
             }
