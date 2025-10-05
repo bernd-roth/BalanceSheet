@@ -3,7 +3,8 @@ package at.co.netconsulting.balancesheet.data
 import at.co.netconsulting.balancesheet.PersonalFoodSummary
 import at.co.netconsulting.balancesheet.Summary
 import at.co.netconsulting.balancesheet.enums.Location
-import at.co.netconsulting.balancesheet.enums.Spending
+import at.co.netconsulting.balancesheet.enums.Position
+import at.co.netconsulting.balancesheet.enums.TaxCategory
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -12,8 +13,9 @@ data class MainUiState(
     val entries: List<IncomeExpense> = emptyList(),
     val personalFoodSummaries: List<PersonalFoodSummary> = emptyList(),
     val selectedPerson: String = "",
-    val selectedPosition: Spending = Spending.Food,
+    val selectedPosition: Position = Position.essen,
     val selectedLocation: Location = Location.Hollgasse_1_1,
+    val selectedTaxCategory: TaxCategory = TaxCategory.gemeinsam,
     val selectedPositionString: String = "", // For custom positions
     val selectedLocationString: String = "", // For custom locations
     val inputIncome: String = "0",
@@ -29,6 +31,13 @@ data class MainUiState(
     val showEntriesListDialog: Boolean = false,
     val dialogTitle: String = "All Entries",
     val customDataRefreshTrigger: Long = 0L, // Trigger to refresh custom positions/locations
-    val availablePositions: List<String> = emptyList(), // Cached positions list
-    val availableLocations: List<String> = emptyList() // Cached locations list
+    val availablePositions: List<Position> = emptyList(), // Filtered positions based on location
+    val availableLocations: List<String> = emptyList(), // Cached locations list
+    val showCurrencyConversionDialog: Boolean = false,
+    val detectedCurrency: String = "",
+    val detectedCountry: String = "",
+    val originalAmount: Double = 0.0,
+    val convertedAmount: Double = 0.0,
+    val exchangeRate: Double = 0.0,
+    val isIncome: Boolean = false // Track if it's income or expense
 )

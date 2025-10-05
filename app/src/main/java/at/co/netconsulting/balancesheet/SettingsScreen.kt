@@ -192,7 +192,7 @@ fun SettingsScreen(
                 label = stringResource(R.string.textViewDefaultLocation),
                 value = uiState.defaultLocation,
                 onValueChange = viewModel::onDefaultLocationChanged,
-                hint = "Hollgasse_1_54",
+                hint = "Hollgasse 1/54",
                 keyboardType = KeyboardType.Text,
                 supportingText = "Default location for new entries",
                 leadingIcon = {

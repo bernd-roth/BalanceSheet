@@ -22,14 +22,9 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Configure database connection for Docker environment
-DB_URI = 'postgresql://postgres:password@db:port/incomeexpense'
-engine = create_engine(DB_URI)
+# Create engine from environment variable
+engine = create_engine(os.getenv('DATABASE_URL'))
 Base = declarative_base()
-
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = DB_URI
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
@@ -53,21 +48,23 @@ class IncomeExpenseModel(db.Model):
     income = db.Column(db.Numeric(16,2), nullable=True)
     expense = db.Column(db.Numeric(16,2), nullable=True)
     location = db.Column(db.String, nullable=True)
+    tax_category = db.Column(db.String, nullable=True)
     comment = db.Column(db.String, nullable=True)
     # Use func.now() to get the server's timezone
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
 
-    def __init__(self, orderdate, who, position, income, expense, location, comment):
+    def __init__(self, orderdate, who, position, income, expense, location, tax_category, comment):
         self.orderdate = orderdate
         self.who = who
         self.position = position
         self.income = income
         self.expense = expense
         self.location = location
+        self.tax_category = tax_category
         self.comment = comment
 
     def __repr__(self):
-        return f"IncomeExpenseModel('{self.id}', '{self.orderdate}', '{self.who}', '{self.position}', '{self.income}', '{self.expense}', '{self.location}', '{self.comment}')"
+        return f"IncomeExpenseModel('{self.id}', '{self.orderdate}', '{self.who}', '{self.position}', '{self.income}', '{self.expense}', '{self.location}', '{self.tax_category}', '{self.comment}')"
 
 @app.route('/incomeexpense/all', methods=['GET'])
 def handle_incomexpense_all():
@@ -105,6 +102,7 @@ def handle_incomexpense_all():
                 "income": incomeexpense.income,
                 "expense": incomeexpense.expense,
                 "location": incomeexpense.location,
+                "tax_category": incomeexpense.tax_category,
                 "comment": incomeexpense.comment,
                 "created_at": created_at_str
             }
@@ -203,7 +201,7 @@ def handle_incomexpense(id):
 
 @app.route('/incomeexpense/add', methods=['POST'])
 def handle_incomexpense_add():
-    if request.method == 'POST' and all(field in request.form for field in ['orderdate', 'who', 'position', 'income', 'expense', 'location', 'comment', 'transaction_id']):
+    if request.method == 'POST' and all(field in request.form for field in ['orderdate', 'who', 'position', 'income', 'expense', 'location', 'tax_category', 'comment', 'transaction_id']):
         transaction_id = request.form.get('transaction_id')
 
         # Check if transaction was already processed
@@ -233,6 +231,7 @@ def handle_incomexpense_add():
                 income=request.form.get('income'),
                 expense=request.form.get('expense'),
                 location=request.form.get('location'),
+                tax_category=request.form.get('tax_category'),
                 comment=request.form.get('comment')
             )
 
@@ -371,6 +370,7 @@ def handle_incomexpense_all_entries():
                 "income": incomeexpense.income,
                 "expense": incomeexpense.expense,
                 "location": incomeexpense.location,
+                "tax_category": incomeexpense.tax_category,
                 "comment": incomeexpense.comment,
                 "created_at": created_at_str
             })
@@ -394,6 +394,8 @@ def handle_incomeexpense_update(id):
             incomeexpense.expense = request.form.get('expense')
         if 'location' in request.form:
             incomeexpense.location = request.form.get('location')
+        if 'tax_category' in request.form:
+            incomeexpense.tax_category = request.form.get('tax_category')
         if 'comment' in request.form:
             incomeexpense.comment = request.form.get('comment')
 

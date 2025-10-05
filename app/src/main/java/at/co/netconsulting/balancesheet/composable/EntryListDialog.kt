@@ -47,7 +47,7 @@ fun EntryListDialog(
                 entry.expense.toString().contains(query) ||
                 entry.income.toString().contains(query) ||
                 entry.position.toString().lowercase().contains(query) ||
-                entry.location.toString().lowercase().contains(query) ||
+                entry.location.displayName.lowercase().contains(query) ||
                 entry.comment.lowercase().contains(query) ||
                 (entry.createdAt?.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))?.lowercase()?.contains(query) == true)
             }
@@ -144,7 +144,7 @@ private fun EntryItem(
 
         // Location field
         Text(
-            text = "Location: ${entry.location}",
+            text = "Location: ${entry.location.displayName}",
             fontWeight = FontWeight.Normal
         )
 

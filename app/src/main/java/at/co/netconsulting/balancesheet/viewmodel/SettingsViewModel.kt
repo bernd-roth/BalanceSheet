@@ -205,7 +205,7 @@ class SettingsViewModel(
     }
 
     fun getAllLocations(): List<String> {
-        val enumLocations = Location.values().map { it.toString() }
+        val enumLocations = Location.values().map { it.displayName }
         return enumLocations + _uiState.value.customLocations
     }
 }

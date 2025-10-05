@@ -10,7 +10,8 @@ import at.co.netconsulting.balancesheet.PersonalFoodSummary
 import at.co.netconsulting.balancesheet.Summary
 import at.co.netconsulting.balancesheet.data.MainUiState
 import at.co.netconsulting.balancesheet.enums.Location
-import at.co.netconsulting.balancesheet.enums.Spending
+import at.co.netconsulting.balancesheet.enums.Position
+import at.co.netconsulting.balancesheet.enums.TaxCategory
 import at.co.netconsulting.balancesheet.network.BalanceSheetRepository
 import at.co.netconsulting.balancesheet.location.LocationService
 import at.co.netconsulting.balancesheet.currency.CurrencyConversionService
@@ -57,13 +58,14 @@ class MainViewModel(
         loadDefaultSettings()
 
         // Initialize available positions and locations
-        val initialPositions = getAllPositions()
         val initialLocations = getAllLocations()
+        val initialPositions = Position.getForLocation(Location.Hollgasse_1_1)
 
         _uiState.update { it.copy(
             inputDate = currentDate,
             availablePositions = initialPositions,
-            availableLocations = initialLocations
+            availableLocations = initialLocations,
+            selectedTaxCategory = TaxCategory.gemeinsam
         ) }
 
         refreshData()
@@ -76,7 +78,7 @@ class MainViewModel(
         // Apply default position if it exists and is valid
         if (defaultPosition.isNotEmpty()) {
             try {
-                val positionEnum = Spending.valueOf(defaultPosition)
+                val positionEnum = Position.valueOf(defaultPosition)
                 _uiState.update { it.copy(
                     selectedPosition = positionEnum,
                     selectedPositionString = defaultPosition
@@ -84,13 +86,13 @@ class MainViewModel(
             } catch (e: IllegalArgumentException) {
                 // Handle custom position
                 _uiState.update { it.copy(
-                    selectedPosition = Spending.Food,
+                    selectedPosition = Position.essen,
                     selectedPositionString = defaultPosition
                 )}
             }
         } else {
             // Set initial string value to match enum
-            _uiState.update { it.copy(selectedPositionString = it.selectedPosition.toString()) }
+            _uiState.update { it.copy(selectedPositionString = it.selectedPosition.displayName) }
         }
 
         // Apply default location if it exists and is valid
@@ -110,7 +112,7 @@ class MainViewModel(
             }
         } else {
             // Set initial string value to match enum
-            _uiState.update { it.copy(selectedLocationString = it.selectedLocation.toString()) }
+            _uiState.update { it.copy(selectedLocationString = it.selectedLocation.displayName) }
         }
     }
 
@@ -138,12 +140,13 @@ class MainViewModel(
         println("DEBUG MainVM.reloadDefaultSettings(): Current selected location: '$currentSelectedLocation'")
 
         // Check if current selections are still valid, if not, reset to defaults
-        val validPosition = if (newPositions.contains(currentSelectedPosition)) {
-            currentSelectedPosition
+        val currentPosition = _uiState.value.selectedPosition
+        val validPosition = if (newPositions.contains(currentPosition)) {
+            currentPosition
         } else if (newPositions.isNotEmpty()) {
             newPositions.first()
         } else {
-            "Food"
+            Position.essen
         }
 
         val validLocation = if (newLocations.contains(currentSelectedLocation)) {
@@ -151,7 +154,7 @@ class MainViewModel(
         } else if (newLocations.isNotEmpty()) {
             newLocations.first()
         } else {
-            "Hollgasse_1_1"
+            Location.Hollgasse_1_1.displayName
         }
 
         println("DEBUG MainVM.reloadDefaultSettings(): Using valid position: '$validPosition'")
@@ -161,7 +164,7 @@ class MainViewModel(
             customDataRefreshTrigger = newTrigger,
             availablePositions = newPositions,
             availableLocations = newLocations,
-            selectedPositionString = validPosition,
+            selectedPosition = validPosition,
             selectedLocationString = validLocation
         )}
         println("DEBUG MainVM.reloadDefaultSettings(): UI state updated")
@@ -243,19 +246,55 @@ class MainViewModel(
     }
 
     fun onPersonChanged(value: String) {
-        _uiState.update { it.copy(selectedPerson = value) }
+        // Update tax category based on person and location
+        val taxCategory = calculateTaxCategory(_uiState.value.selectedLocation, value)
+        _uiState.update { it.copy(
+            selectedPerson = value,
+            selectedTaxCategory = taxCategory
+        ) }
     }
 
-    fun onPositionChanged(value: Spending) {
+    fun onPositionChanged(value: Position) {
         _uiState.update { it.copy(selectedPosition = value) }
     }
 
     fun onLocationChanged(value: Location) {
-        _uiState.update { it.copy(selectedLocation = value) }
+        // Update available positions based on location
+        val filteredPositions = Position.getForLocation(value)
+
+        // Auto-fill tax category based on location and person
+        val taxCategory = calculateTaxCategory(value, _uiState.value.selectedPerson)
+
+        _uiState.update { it.copy(
+            selectedLocation = value,
+            availablePositions = filteredPositions,
+            selectedTaxCategory = taxCategory,
+            selectedPosition = filteredPositions.firstOrNull() ?: Position.essen
+        ) }
+    }
+
+    fun onTaxCategoryChanged(value: TaxCategory) {
+        _uiState.update { it.copy(selectedTaxCategory = value) }
     }
 
     fun onCommentChanged(value: String) {
         _uiState.update { it.copy(inputComment = value) }
+    }
+
+    // Calculate tax category based on location and person
+    private fun calculateTaxCategory(location: Location, person: String): TaxCategory {
+        return when (location) {
+            Location.Hollgasse_1_1 -> TaxCategory.gemeinsam
+            Location.Hollgasse_1_54 -> TaxCategory.bernd_private
+            Location.Stipcakgasse_8_1 -> TaxCategory.bernd_private
+            Location.Personal -> {
+                when (person.lowercase()) {
+                    "bernd" -> TaxCategory.bernd_private
+                    "julia" -> TaxCategory.julia_private
+                    else -> TaxCategory.gemeinsam
+                }
+            }
+        }
     }
 
     private fun validateInputs() {
@@ -276,6 +315,84 @@ class MainViewModel(
     }
 
     fun addEntry() {
+        viewModelScope.launch {
+            try {
+                _uiState.update { it.copy(isLoading = true) }
+
+                val state = _uiState.value
+                val income = state.inputIncome.toDoubleOrNull() ?: 0.0
+                val expense = state.inputExpense.toDoubleOrNull() ?: 0.0
+
+                // Get current location
+                val location = locationService.getCurrentLocation()
+
+                if (location != null) {
+                    val (latitude, longitude) = location
+
+                    // Get country and currency based on location
+                    val countryCurrency = locationService.getCountryCurrencyFromLocation(latitude, longitude)
+
+                    if (countryCurrency != null) {
+                        val (country, localCurrency) = countryCurrency
+
+                        // Check if currencies are different and show confirmation dialog
+                        if (localCurrency.isNotEmpty() && localCurrency != defaultCurrency) {
+                            val originalAmount = if (income > 0) income else expense
+                            val isIncome = income > 0
+
+                            val convertedAmount = currencyService.convertCurrency(
+                                originalAmount,
+                                localCurrency,
+                                defaultCurrency
+                            )
+
+                            if (convertedAmount != null) {
+                                val rate = convertedAmount / originalAmount
+
+                                _uiState.update { it.copy(
+                                    isLoading = false,
+                                    showCurrencyConversionDialog = true,
+                                    detectedCurrency = localCurrency,
+                                    detectedCountry = country,
+                                    originalAmount = originalAmount,
+                                    convertedAmount = convertedAmount,
+                                    exchangeRate = rate,
+                                    isIncome = isIncome
+                                )}
+                                return@launch
+                            }
+                        }
+                    }
+                }
+
+                // If no conversion needed, proceed directly
+                proceedWithAddEntry()
+            } catch (e: Exception) {
+                _uiState.update { it.copy(
+                    isLoading = false,
+                    errorMessage = "Failed to add entry: ${e.localizedMessage}"
+                )}
+            }
+        }
+    }
+
+    fun confirmCurrencyConversion() {
+        proceedWithAddEntry()
+        hideCurrencyConversionDialog()
+    }
+
+    fun hideCurrencyConversionDialog() {
+        _uiState.update { it.copy(
+            showCurrencyConversionDialog = false,
+            detectedCurrency = "",
+            detectedCountry = "",
+            originalAmount = 0.0,
+            convertedAmount = 0.0,
+            exchangeRate = 0.0
+        )}
+    }
+
+    private fun proceedWithAddEntry() {
         viewModelScope.launch {
             try {
                 _uiState.update { it.copy(isLoading = true) }
@@ -326,6 +443,7 @@ class MainViewModel(
                     income = income,
                     expense = expense,
                     location = state.selectedLocation,
+                    taxCategory = state.selectedTaxCategory,
                     comment = state.inputComment
                 )
 
@@ -414,6 +532,7 @@ class MainViewModel(
         income: String,
         expense: String,
         position: String,
+        taxCategory: String,
         comment: String
     ) {
         viewModelScope.launch {
@@ -425,10 +544,11 @@ class MainViewModel(
                     id = id,
                     orderdate = orderDate,
                     who = person,
-                    position = Spending.valueOf(position),
+                    position = Position.valueOf(position),
                     income = income.toDoubleOrNull() ?: 0.0,
                     expense = expense.toDoubleOrNull() ?: 0.0,
                     location = Location.valueOf(location),
+                    taxCategory = TaxCategory.valueOf(taxCategory),
                     comment = comment
                 )
 
@@ -518,25 +638,14 @@ class MainViewModel(
         refreshData()
     }
 
-    // Get all available positions (enum + custom)
-    fun getAllPositions(): List<String> {
-        val enumPositions = Spending.values()
-            .map { it.toString() }
-        val customPositionsString = sharedPrefs.getString(StaticFields.SP_CUSTOM_POSITIONS, "") ?: ""
-        println("DEBUG MainVM.getAllPositions(): Reading from SharedPrefs: '$customPositionsString'")
-        val customPositions = if (customPositionsString.isNotEmpty()) {
-            customPositionsString.split(",").map { it.trim() }
-        } else {
-            emptyList()
-        }
-        val result = enumPositions + customPositions
-        println("DEBUG MainVM.getAllPositions(): Final result: $result")
-        return result
+    // Get all available positions for the selected location
+    fun getAllPositions(): List<Position> {
+        return Position.getForLocation(_uiState.value.selectedLocation)
     }
 
     // Get all available locations (enum + custom)
     fun getAllLocations(): List<String> {
-        val enumLocations = Location.values().map { it.toString() }
+        val enumLocations = Location.values().map { it.displayName }
         val customLocationsString = sharedPrefs.getString(StaticFields.SP_CUSTOM_LOCATIONS, "") ?: ""
         val customLocations = if (customLocationsString.isNotEmpty()) {
             customLocationsString.split(",").map { it.trim() }
@@ -546,20 +655,23 @@ class MainViewModel(
         return enumLocations + customLocations
     }
 
-    // Updated position change handler to support custom values
+    // Updated position change handler
     fun onPositionChangedString(value: String) {
         try {
-            val spendingEnum = Spending.valueOf(value)
+            val positionEnum = Position.valueOf(value)
             _uiState.update { it.copy(
-                selectedPosition = spendingEnum,
+                selectedPosition = positionEnum,
                 selectedPositionString = value
             )}
         } catch (e: IllegalArgumentException) {
-            // Handle custom position
-            _uiState.update { it.copy(
-                selectedPosition = Spending.Food, // Default enum value
-                selectedPositionString = value // Store the custom value
-            )}
+            // If not a valid enum, try matching by display name
+            val matchingPosition = Position.values().find { it.displayName == value }
+            if (matchingPosition != null) {
+                _uiState.update { it.copy(
+                    selectedPosition = matchingPosition,
+                    selectedPositionString = matchingPosition.name
+                )}
+            }
         }
     }
 
@@ -586,7 +698,7 @@ class MainViewModel(
         return if (state.selectedPositionString.isNotEmpty()) {
             state.selectedPositionString
         } else {
-            state.selectedPosition.toString()
+            state.selectedPosition.displayName
         }
     }
 
@@ -596,7 +708,7 @@ class MainViewModel(
         return if (state.selectedLocationString.isNotEmpty()) {
             state.selectedLocationString
         } else {
-            state.selectedLocation.toString()
+            state.selectedLocation.displayName
         }
     }
 }

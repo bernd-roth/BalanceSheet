@@ -26,7 +26,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import at.co.netconsulting.balancesheet.composable.*
 import at.co.netconsulting.balancesheet.enums.Location
-import at.co.netconsulting.balancesheet.enums.Spending
+import at.co.netconsulting.balancesheet.enums.Position
+import at.co.netconsulting.balancesheet.enums.TaxCategory
 import at.co.netconsulting.balancesheet.data.MainUiState
 import at.co.netconsulting.balancesheet.viewmodel.MainViewModel
 import java.time.Instant
@@ -85,6 +86,7 @@ fun MainScreen(
                 onDateChanged = viewModel::onDateChanged,
                 onPersonChanged = viewModel::onPersonChanged,
                 onPositionChanged = viewModel::onPositionChanged,
+                onTaxCategoryChanged = viewModel::onTaxCategoryChanged,
                 onLocationChanged = viewModel::onLocationChanged,
                 onCommentChanged = viewModel::onCommentChanged,
                 onAddClicked = viewModel::addEntry,
@@ -109,6 +111,21 @@ fun MainScreen(
                 title = uiState.dialogTitle,  // Use the title from UI state
                 onDismiss = viewModel::hideEntriesList,
                 onEntrySelected = viewModel::showEntryDetails
+            )
+        }
+
+        // Show currency conversion dialog if needed
+        if (uiState.showCurrencyConversionDialog) {
+            CurrencyConversionDialog(
+                country = uiState.detectedCountry,
+                localCurrency = uiState.detectedCurrency,
+                defaultCurrency = "EUR", // You could also get this from shared prefs
+                originalAmount = uiState.originalAmount,
+                convertedAmount = uiState.convertedAmount,
+                exchangeRate = uiState.exchangeRate,
+                isIncome = uiState.isIncome,
+                onConfirm = viewModel::confirmCurrencyConversion,
+                onDismiss = viewModel::hideCurrencyConversionDialog
             )
         }
 
@@ -154,7 +171,8 @@ fun MainContent(
     onExpenseChanged: (String) -> Unit,
     onDateChanged: (String) -> Unit,
     onPersonChanged: (String) -> Unit,
-    onPositionChanged: (Spending) -> Unit,
+    onPositionChanged: (Position) -> Unit,
+    onTaxCategoryChanged: (TaxCategory) -> Unit,
     onLocationChanged: (Location) -> Unit,
     onCommentChanged: (String) -> Unit,
     onAddClicked: () -> Unit,
@@ -309,9 +327,13 @@ fun MainContent(
         key("position-dropdown-${uiState.customDataRefreshTrigger}-${uiState.availablePositions.size}") {
             DropdownRow(
                 label = stringResource(R.string.hint_position),
-                selectedValue = viewModel.getCurrentPositionValue(),
-                options = uiState.availablePositions,
-                onValueChange = viewModel::onPositionChangedString
+                selectedValue = uiState.selectedPosition.displayName,
+                options = uiState.availablePositions.map { it.displayName },
+                onValueChange = { displayName ->
+                    // Find the position enum by display name and call onPositionChanged
+                    val position = uiState.availablePositions.find { it.displayName == displayName }
+                    position?.let { onPositionChanged(it) }
+                }
             )
         }
         println("DEBUG MainScreen: ======== POSITION DROPDOWN RENDERED ========")
@@ -319,9 +341,24 @@ fun MainContent(
         // Location dropdown - use locations from UI state
         DropdownRow(
             label = stringResource(R.string.hint_location),
-            selectedValue = viewModel.getCurrentLocationValue(),
-            options = uiState.availableLocations,
-            onValueChange = viewModel::onLocationChangedString
+            selectedValue = uiState.selectedLocation.displayName,
+            options = Location.values().map { it.displayName },
+            onValueChange = { displayName ->
+                // Find the location enum by display name and call onLocationChanged
+                val location = Location.values().find { it.displayName == displayName }
+                location?.let { onLocationChanged(it) }
+            }
+        )
+
+        // Tax Category dropdown
+        DropdownRow(
+            label = "Tax Category",
+            selectedValue = uiState.selectedTaxCategory.displayName,
+            options = TaxCategory.values().map { it.displayName },
+            onValueChange = { displayName ->
+                val taxCategory = TaxCategory.values().find { it.displayName == displayName }
+                taxCategory?.let { onTaxCategoryChanged(it) }
+            }
         )
 
         // Date input

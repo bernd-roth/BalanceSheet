@@ -45,7 +45,7 @@ import java.time.format.DateTimeFormatter
 fun EntryDetailsDialog(
     entry: at.co.netconsulting.balancesheet.data.IncomeExpense,
     onDismiss: () -> Unit,
-    onUpdate: (String, String, String, String, String, String, String, String) -> Unit
+    onUpdate: (String, String, String, String, String, String, String, String, String) -> Unit
 ) {
     var id by remember { mutableStateOf(entry.id) }
 
@@ -55,10 +55,11 @@ fun EntryDetailsDialog(
     }
 
     var person by remember { mutableStateOf(entry.who) }
-    var location by remember { mutableStateOf(entry.location.toString()) }
+    var location by remember { mutableStateOf(entry.location.name) }
     var income by remember { mutableStateOf(entry.income.toString()) }
     var expense by remember { mutableStateOf(entry.expense.toString()) }
-    var position by remember { mutableStateOf(entry.position.toString()) }
+    var position by remember { mutableStateOf(entry.position.name) }
+    var taxCategory by remember { mutableStateOf(entry.taxCategory.name) }
     var comment by remember { mutableStateOf(entry.comment) }
 
     // Format created_at for display using the correct property name
@@ -185,6 +186,16 @@ fun EntryDetailsDialog(
                         .padding(vertical = 4.dp)
                 )
 
+                // Tax Category
+                OutlinedTextField(
+                    value = taxCategory,
+                    onValueChange = { taxCategory = it },
+                    label = { Text("Tax Category") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                )
+
                 // Comment
                 OutlinedTextField(
                     value = comment,
@@ -211,7 +222,7 @@ fun EntryDetailsDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    onUpdate(id, date, person, location, income, expense, position, comment)
+                    onUpdate(id, date, person, location, income, expense, position, taxCategory, comment)
                 }
             ) {
                 Text("Update")

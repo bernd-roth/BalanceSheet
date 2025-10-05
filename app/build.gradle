@@ -12,7 +12,7 @@ android {
         minSdk 34
         targetSdk 35
         versionCode 1
-        versionName "1.3 (remove of unnecessary Expense entry)"
+        versionName "2.0 (Excel files on backend side generated automatically; info if being in a non-eu country and currency conversion is done automatically)"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

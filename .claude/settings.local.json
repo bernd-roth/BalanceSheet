@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(./gradlew:*)"
+      "Bash(./gradlew:*)",
+      "Bash(curl:*)",
+      "Bash(python:*)",
+      "Bash(dir \"C:\\projects\\android\\BalanceSheet2\\app\\src\\main\\java\\at\\co\\netconsulting\\balancesheet\\scripts\")"
     ],
     "deny": [],
     "ask": []

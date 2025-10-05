@@ -1,7 +1,8 @@
 package at.co.netconsulting.balancesheet.network
 
 import at.co.netconsulting.balancesheet.enums.Location
-import at.co.netconsulting.balancesheet.enums.Spending
+import at.co.netconsulting.balancesheet.enums.Position
+import at.co.netconsulting.balancesheet.enums.TaxCategory
 import at.co.netconsulting.balancesheet.data.IncomeExpense
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -240,10 +241,11 @@ class BalanceSheetRepository(private val baseUrl: String) {
                 .add("transaction_id", transactionId)
                 .add("orderdate", formattedDate)
                 .add("who", entry.who)
-                .add("position", entry.position.toString())
+                .add("position", entry.position.name)
                 .add("income", entry.income.toString())
                 .add("expense", entry.expense.toString())
-                .add("location", entry.location.toString())
+                .add("location", entry.location.name)
+                .add("tax_category", entry.taxCategory.name)
                 .add("comment", entry.comment)
                 .build()
 
@@ -273,10 +275,11 @@ class BalanceSheetRepository(private val baseUrl: String) {
                 .add("id", entry.id)
                 .add("orderdate", formattedDate)
                 .add("who", entry.who)
-                .add("position", entry.position.toString())
+                .add("position", entry.position.name)
                 .add("income", entry.income.toString())
                 .add("expense", entry.expense.toString())
-                .add("location", entry.location.toString())
+                .add("location", entry.location.name)
+                .add("tax_category", entry.taxCategory.name)
                 .add("comment", entry.comment)
                 .build()
 
@@ -539,9 +542,9 @@ class BalanceSheetRepository(private val baseUrl: String) {
                 orderdate = orderDate,
                 who = item.optString("who", ""),
                 position = try {
-                    Spending.valueOf(item.optString("position", "Food"))
+                    Position.valueOf(item.optString("position", "essen"))
                 } catch (e: Exception) {
-                    Spending.Food
+                    Position.essen
                 },
                 income = item.optString("income", "0").toDoubleOrNull() ?: 0.0,
                 expense = item.optString("expense", "0").toDoubleOrNull() ?: 0.0,
@@ -549,6 +552,11 @@ class BalanceSheetRepository(private val baseUrl: String) {
                     Location.valueOf(item.optString("location", "Hollgasse_1_1"))
                 } catch (e: Exception) {
                     Location.Hollgasse_1_1
+                },
+                taxCategory = try {
+                    TaxCategory.valueOf(item.optString("tax_category", "gemeinsam"))
+                } catch (e: Exception) {
+                    TaxCategory.gemeinsam
                 },
                 comment = item.optString("comment", ""),
                 createdAt = createdAt
@@ -562,10 +570,11 @@ class BalanceSheetRepository(private val baseUrl: String) {
                 id = "error",
                 orderdate = LocalDate.now(),
                 who = "Error",
-                position = Spending.Food,
+                position = Position.essen,
                 income = 0.0,
                 expense = 0.0,
                 location = Location.Hollgasse_1_1,
+                taxCategory = TaxCategory.gemeinsam,
                 comment = "Error parsing: ${e.message}",
                 createdAt = null
             )
