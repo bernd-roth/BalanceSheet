@@ -1,6 +1,7 @@
 import psycopg2
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+from openpyxl.utils import get_column_letter
 from datetime import datetime
 from collections import defaultdict
 import sys
@@ -99,10 +100,14 @@ def get_database_data(person='Bernd', year=2025):
         AND EXTRACT(YEAR FROM orderdate) = %s
         AND position NOT IN (
             'mieteinkommen', 'garage a3/17', 'garage a1/12',
+            'garage_a3_17', 'garage_a1_12',
             'reparaturrücklage garage a3/17', 'reparaturrücklage garage a1/12',
+            'reparaturruecklage_garage_a3_17', 'reparaturruecklage_garage_a1_12',
             'betriebskosten garage a3/17', 'betriebskosten garage a1/12',
-            'wasser/heizung', 'haushaltsversicherung', 'hausverwaltung',
-            'strom', 'internet', 'klimaanlage', 'obs haushaltsabgabe',
+            'betriebskosten_garage_a3_17', 'betriebskosten_garage_a1_12',
+            'wasser/heizung', 'wasser_heizung', 'haushaltsversicherung', 'hausverwaltung',
+            'strom', 'internet', 'klimaanlage',
+            'obs haushaltsabgabe', 'obs_haushaltsabgabe',
             'rechtsschutzversicherung'
         )
         ORDER BY orderdate, id
@@ -337,23 +342,23 @@ def generate_excel(monthly_data, person='Bernd', year=2025, output_file=None):
                 # %prozent - leave empty for manual entry
                 ws.cell(row=current_row, column=5).value = ''
 
-                # ansetzbar - same as ja/nein%
+                # ansetzbar - formula: =(D{row}/100)*E{row}
                 ansetzbar_cell = ws.cell(row=current_row, column=6)
-                ansetzbar_cell.value = entry['amount']
+                ansetzbar_cell.value = f'=(D{current_row}/100)*E{current_row}'
                 ansetzbar_cell.number_format = '#,##0.00 [$€-1]'
-                totals['ansetzbar'] += entry['amount']
+                # Note: totals will be calculated by Excel formulas
 
                 # Map to specific column based on position name (1:1 mapping)
+                # Use formula that references ansetzbar column (F) instead of ja/nein
                 if position_name in position_to_column:
                     col_idx = position_to_column[position_name]
                     amount_cell = ws.cell(row=current_row, column=col_idx)
-                    amount_cell.value = entry['amount']
+                    amount_cell.value = f'=F{current_row}'  # Reference ansetzbar column
                     amount_cell.number_format = '#,##0.00 [$€-1]'
 
-                    # Update totals using the position name as key
+                    # Track which positions are used for totals
                     if position_name not in totals:
-                        totals[position_name] = 0.0
-                    totals[position_name] += entry['amount']
+                        totals[position_name] = True  # Mark as used
 
                 # Comment (column U = 21)
                 ws.cell(row=current_row, column=21).value = entry.get('comment', '')
@@ -364,17 +369,20 @@ def generate_excel(monthly_data, person='Bernd', year=2025, output_file=None):
     ws.cell(row=current_row, column=2).value = "SUMME"
     ws.cell(row=current_row, column=2).font = Font(bold=True)
 
-    # Total ansetzbar
+    # Total ansetzbar - use SUM formula for all ansetzbar cells
     total_cell = ws.cell(row=current_row, column=6)
-    total_cell.value = totals['ansetzbar']
+    total_cell.value = f'=SUM(F3:F{current_row-1})'
     total_cell.number_format = '#,##0.00 [$€-1]'
     total_cell.font = Font(bold=True)
     
-    # Position totals (1:1 mapping)
+    # Position totals (1:1 mapping) - use SUM formulas
     for position_name, col_idx in position_to_column.items():
-        if position_name in totals and totals[position_name] != 0:
+        if position_name in totals:
+            # Get column letter from column index
+            col_letter = get_column_letter(col_idx)
+
             total_cat_cell = ws.cell(row=current_row, column=col_idx)
-            total_cat_cell.value = totals[position_name]
+            total_cat_cell.value = f'=SUM({col_letter}3:{col_letter}{current_row-1})'
             total_cat_cell.number_format = '#,##0.00 [$€-1]'
             total_cat_cell.font = Font(bold=True)
     

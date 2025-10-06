@@ -140,10 +140,9 @@ def execute_query(query):
 @app.route('/incomeexpense/sum_expense', methods=['GET'])
 def handle_expense_sum():
     query = """
-    SELECT sum(expense)
+    SELECT COALESCE(SUM(expense), 0)
     FROM incomeexpense
-    WHERE position <> 'Income'
-    AND orderdate BETWEEN date_trunc('month', current_date)
+    WHERE orderdate BETWEEN date_trunc('month', current_date)
     AND (date_trunc('month', now()) + interval '1 month - 1 day')::date
     """
     result = execute_query(query)
@@ -152,10 +151,9 @@ def handle_expense_sum():
 @app.route('/incomeexpense/sum_income', methods=['GET'])
 def handle_incomexpense_sum():
     query = """
-    SELECT SUM(income)
+    SELECT COALESCE(SUM(income), 0)
     FROM incomeexpense
-    WHERE position='Income'
-    AND orderdate BETWEEN date_trunc('month', now())
+    WHERE orderdate BETWEEN date_trunc('month', now())
     AND (date_trunc('month', now()) + interval '1 month - 1 day')::date
     """
     result = execute_query(query)
