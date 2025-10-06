@@ -25,7 +25,6 @@ enum class Position(val displayName: String, val category: PositionCategory) {
     arbeitssuche("Arbeitssuche", PositionCategory.PERSONAL),
     bank("Bank", PositionCategory.PERSONAL),
     betriebsratsumlage("Betriebsratsumlage", PositionCategory.PERSONAL),
-    computer("Computer", PositionCategory.PERSONAL),
     digitale_arbeitsmittel("Digitale Arbeitsmittel", PositionCategory.PERSONAL),
     essen("Essen", PositionCategory.PERSONAL),
     gehalt("Gehalt", PositionCategory.PERSONAL),
@@ -34,14 +33,13 @@ enum class Position(val displayName: String, val category: PositionCategory) {
     kammer("Kammer", PositionCategory.PERSONAL),
     kleinmaterial("Kleinmaterial", PositionCategory.PERSONAL),
     kurse("Kurse", PositionCategory.PERSONAL),
-    laptop("Laptop", PositionCategory.PERSONAL),
-    literatur("Literatur", PositionCategory.PERSONAL),
+    fachliteratur("Fachliteratur", PositionCategory.PERSONAL),
     medizin("Medizin", PositionCategory.PERSONAL),
     sonderausgaben("Sonderausgaben", PositionCategory.PERSONAL),
     steuerberater("Steuerberater", PositionCategory.PERSONAL),
     telefon("Telefon", PositionCategory.PERSONAL),
     verkehrsmittel("Verkehrsmittel", PositionCategory.PERSONAL),
-    wohnraumschaffung("Wohnraumschaffung", PositionCategory.PERSONAL),
+    versicherung("Versicherung", PositionCategory.PERSONAL),
     zusatzpension("Zusatzpension", PositionCategory.PERSONAL);
 
     companion object {
