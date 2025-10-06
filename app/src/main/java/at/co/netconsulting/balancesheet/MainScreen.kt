@@ -231,27 +231,6 @@ fun MainContent(
             backgroundColor = Color(0xFFFFA500).copy(alpha = 0.2f) // Orange
         )
 
-        // Average Food Per Day
-        SummaryRow(
-            label = stringResource(R.string.average_food_spending_day_month),
-            value = uiState.summary.averageFoodPerDay.toString(),
-            backgroundColor = Color.Cyan.copy(alpha = 0.2f)
-        )
-
-        // Reserved Food Per Day
-        SummaryRow(
-            label = stringResource(R.string.average_food_reserved_day),
-            value = uiState.summary.reservedFoodPerDay.toString(),
-            backgroundColor = Color.Magenta.copy(alpha = 0.2f)
-        )
-
-        // Total Year Food
-        SummaryRow(
-            label = stringResource(R.string.sum_food_year),
-            value = uiState.summary.totalYearFood.toString(),
-            backgroundColor = Color.Red.copy(alpha = 0.2f)
-        )
-
         // Total Year Income
         SummaryRow(
             label = stringResource(R.string.sum_income_year),
