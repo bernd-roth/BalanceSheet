@@ -26,14 +26,15 @@ enum class Position(val displayName: String, val category: PositionCategory) {
     bank("Bank", PositionCategory.PERSONAL),
     betriebsratsumlage("Betriebsratsumlage", PositionCategory.PERSONAL),
     digitale_arbeitsmittel("Digitale Arbeitsmittel", PositionCategory.PERSONAL),
+    einkommen("Einkommen", PositionCategory.PERSONAL),
     essen("Essen", PositionCategory.PERSONAL),
+    fachliteratur("Fachliteratur", PositionCategory.PERSONAL),
     gehalt("Gehalt", PositionCategory.PERSONAL),
     gesundheit("Gesundheit", PositionCategory.PERSONAL),
     homeoffice("Homeoffice", PositionCategory.PERSONAL),
     kammer("Kammer", PositionCategory.PERSONAL),
     kleinmaterial("Kleinmaterial", PositionCategory.PERSONAL),
     kurse("Kurse", PositionCategory.PERSONAL),
-    fachliteratur("Fachliteratur", PositionCategory.PERSONAL),
     medizin("Medizin", PositionCategory.PERSONAL),
     sonderausgaben("Sonderausgaben", PositionCategory.PERSONAL),
     steuerberater("Steuerberater", PositionCategory.PERSONAL),
@@ -67,7 +68,12 @@ enum class Position(val displayName: String, val category: PositionCategory) {
                 }
                 Location.Hollgasse_1_54 -> getByCategory(PositionCategory.RENTAL)
                 Location.Stipcakgasse_8 -> getByCategory(PositionCategory.GARAGE) + listOf(mieteinkommen)
-                Location.Personal -> getByCategory(PositionCategory.PERSONAL)
+                Location.Personal -> {
+                    when (taxCategory) {
+                        TaxCategory.gemeinsam -> getByCategory(PositionCategory.PERSONAL) + listOf(einkommen)
+                        else -> getByCategory(PositionCategory.PERSONAL)
+                    }
+                }
             }
         }
     }

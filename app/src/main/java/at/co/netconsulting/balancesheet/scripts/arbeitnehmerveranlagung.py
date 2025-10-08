@@ -182,14 +182,14 @@ def generate_excel(monthly_data, person='Bernd', year=2025, output_file=None):
     )
     
     # Row 1: Title with yellow background
-    ws.merge_cells('A1:U1')
+    ws.merge_cells('A1:T1')
     title_cell = ws['A1']
     title_cell.value = f"Arbeitnehmerveranlagung {person}\nfür das Jahr {year}"
     title_cell.fill = yellow_fill
     title_cell.alignment = centered_alignment
     title_cell.font = Font(bold=True, size=12)
     ws.row_dimensions[1].height = 45
-    
+
     # Row 2: Column headers
     headers = [
         'rechnungsnummer',
@@ -207,7 +207,6 @@ def generate_excel(monthly_data, person='Bernd', year=2025, output_file=None):
         'sonder-\nausgaben',
         'strom',
         'betriebs-\nrats-\numlage',
-        'wohnraum-\nschaffung',
         'homeOffice\nPauschale',
         'steuer-\nberater',
         'digitale\narbe its-\nmittel',
@@ -244,12 +243,11 @@ def generate_excel(monthly_data, person='Bernd', year=2025, output_file=None):
         'M': 10,  # sonderausgaben
         'N': 10,  # strom
         'O': 10,  # betriebsratsumlage
-        'P': 10,  # wohnraumschaffung
-        'Q': 10,  # homeOffice
-        'R': 10,  # steuerberater
-        'S': 10,  # digitale arbeitsmittel
-        'T': 10,  # zusatzpension
-        'U': 30,  # comment
+        'P': 10,  # homeOffice
+        'Q': 10,  # steuerberater
+        'R': 10,  # digitale arbeitsmittel
+        'S': 10,  # zusatzpension
+        'T': 30,  # comment
     }
     
     for col, width in column_widths.items():
@@ -289,12 +287,11 @@ def generate_excel(monthly_data, person='Bernd', year=2025, output_file=None):
         'sonderausgaben': 13,              # M
         'strom': 14,                       # N
         'betriebsratsumlage': 15,          # O
-        'versicherung': 16,                # P (wohnraumschaffung)
-        'homeoffice': 17,                  # Q
-        'steuerberater': 18,               # R
-        'digitale_arbeitsmittel': 19,      # S
-        'telefon': 19,                     # S
-        'zusatzpension': 20,               # T
+        'homeoffice': 16,                  # P
+        'steuerberater': 17,               # Q
+        'digitale_arbeitsmittel': 18,      # R
+        'telefon': 18,                     # R
+        'zusatzpension': 19,               # S
         'medizin': 10,                     # J (gesundheit)
     }
 
@@ -360,8 +357,8 @@ def generate_excel(monthly_data, person='Bernd', year=2025, output_file=None):
                     if position_name not in totals:
                         totals[position_name] = True  # Mark as used
 
-                # Comment (column U = 21)
-                ws.cell(row=current_row, column=21).value = entry.get('comment', '')
+                # Comment (column T = 20)
+                ws.cell(row=current_row, column=20).value = entry.get('comment', '')
 
                 current_row += 1
     
