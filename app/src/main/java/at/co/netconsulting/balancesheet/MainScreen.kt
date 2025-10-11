@@ -99,6 +99,7 @@ fun MainScreen(
         if (uiState.showDialog && uiState.selectedEntry != null) {
             EntryDetailsDialog(
                 entry = uiState.selectedEntry!!,
+                persons = persons,
                 onDismiss = viewModel::hideEntryDetails,
                 onUpdate = viewModel::updateEntry
             )

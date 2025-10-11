@@ -7,15 +7,20 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,6 +41,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import at.co.netconsulting.balancesheet.DatePickerDialog
+import at.co.netconsulting.balancesheet.enums.Location
+import at.co.netconsulting.balancesheet.enums.Position
+import at.co.netconsulting.balancesheet.enums.TaxCategory
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -44,6 +52,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun EntryDetailsDialog(
     entry: at.co.netconsulting.balancesheet.data.IncomeExpense,
+    persons: List<String>,
     onDismiss: () -> Unit,
     onUpdate: (String, String, String, String, String, String, String, String, String) -> Unit
 ) {
@@ -134,21 +143,23 @@ fun EntryDetailsDialog(
                     )
                 }
 
-                // Person
-                OutlinedTextField(
-                    value = person,
+                // Person dropdown
+                DropdownField(
+                    label = "Person",
+                    selectedValue = person,
+                    options = persons,
                     onValueChange = { person = it },
-                    label = { Text("Person") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp)
                 )
 
-                // Location
-                OutlinedTextField(
-                    value = location,
+                // Location dropdown
+                DropdownField(
+                    label = "Location",
+                    selectedValue = location,
+                    options = Location.values().map { it.name },
                     onValueChange = { location = it },
-                    label = { Text("Location") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp)
@@ -176,21 +187,23 @@ fun EntryDetailsDialog(
                         .padding(vertical = 4.dp)
                 )
 
-                // Position
-                OutlinedTextField(
-                    value = position,
+                // Position dropdown
+                DropdownField(
+                    label = "Position",
+                    selectedValue = position,
+                    options = Position.values().map { it.name },
                     onValueChange = { position = it },
-                    label = { Text("Position") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp)
                 )
 
-                // Tax Category
-                OutlinedTextField(
-                    value = taxCategory,
+                // Tax Category dropdown
+                DropdownField(
+                    label = "Tax Category",
+                    selectedValue = taxCategory,
+                    options = TaxCategory.values().map { it.name },
                     onValueChange = { taxCategory = it },
-                    label = { Text("Tax Category") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp)
@@ -245,5 +258,61 @@ fun EntryDetailsDialog(
             },
             onDismiss = { showDatePicker = false }
         )
+    }
+}
+
+@Composable
+fun DropdownField(
+    label: String,
+    selectedValue: String,
+    options: List<String>,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(modifier = modifier) {
+        OutlinedTextField(
+            value = selectedValue,
+            onValueChange = { /* Read only */ },
+            readOnly = true,
+            label = { Text(label) },
+            modifier = Modifier.fillMaxWidth(),
+            trailingIcon = {
+                IconButton(onClick = { expanded = true }) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Dropdown"
+                    )
+                }
+            }
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .heightIn(max = 300.dp)
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = option,
+                            modifier = Modifier.fillMaxWidth(),
+                            maxLines = 1
+                        )
+                    },
+                    onClick = {
+                        onValueChange(option)
+                        expanded = false
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                )
+            }
+        }
     }
 }

@@ -21,8 +21,9 @@ enum class Position(val displayName: String, val category: PositionCategory) {
     betriebskosten_garage_a3_17("Betriebskosten A3/17", PositionCategory.GARAGE),
 
     // Personal tax positions
-    auto("Auto", PositionCategory.PERSONAL),
+    amazon("Amazon", PositionCategory.PERSONAL),
     arbeitssuche("Arbeitssuche", PositionCategory.PERSONAL),
+    auto("Auto", PositionCategory.PERSONAL),
     bank("Bank", PositionCategory.PERSONAL),
     betriebsratsumlage("Betriebsratsumlage", PositionCategory.PERSONAL),
     digitale_arbeitsmittel("Digitale Arbeitsmittel", PositionCategory.PERSONAL),
@@ -71,6 +72,7 @@ enum class Position(val displayName: String, val category: PositionCategory) {
                 Location.Personal -> {
                     when (taxCategory) {
                         TaxCategory.gemeinsam -> getByCategory(PositionCategory.PERSONAL) + listOf(einkommen)
+                        TaxCategory.julia_private, TaxCategory.bernd_private -> getByCategory(PositionCategory.PERSONAL) + listOf(amazon)
                         else -> getByCategory(PositionCategory.PERSONAL)
                     }
                 }

@@ -12,7 +12,7 @@ android {
         minSdk 34
         targetSdk 35
         versionCode 1
-        versionName "2.3 (Einkommen added as a new position; Wohnraumschaffung removed)"
+        versionName "2.4 (amazon added to personal location; dropdowns are used in update entry)"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
