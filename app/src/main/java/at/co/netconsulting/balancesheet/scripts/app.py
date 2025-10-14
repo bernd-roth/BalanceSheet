@@ -173,29 +173,17 @@ def handle_incomexpense_sum_savings():
 @app.route('/incomeexpense/sum_food', methods=['GET'])
 def handle_incomexpense_sum_food():
     query = """
-    SELECT ABS(SUM(income)-SUM(expense))
+    SELECT COALESCE(SUM(expense), 0) - COALESCE(SUM(income), 0)
     FROM incomeexpense
-    WHERE position LIKE 'Food%'
+    WHERE LOWER(position) = 'essen'
     AND orderdate BETWEEN date_trunc('month', current_date)
     AND (date_trunc('month', now()) + interval '1 month - 1 day')::date
     """
+    print(f"DEBUG sum_food query: {query}")
     result = execute_query(query)
+    print(f"DEBUG sum_food result: {result}")
     return {"message": "success", "incomeexpense": {"Total income": [result[0][0]]}}
 
-@app.route('/incomeexpense/<id>', methods=['GET'])
-def handle_incomexpense(id):
-    incomeexpense = IncomeExpenseModel.query.get_or_404(id)
-    if request.method == 'GET':
-        response = {
-            "orderdate": incomeexpense.orderdate,
-            "who": incomeexpense.who,
-            "position": incomeexpense.position,
-            "income": incomeexpense.income,
-            "expense": incomeexpense.expense,
-            "location": incomeexpense.location,
-            "created_at": incomeexpense.created_at
-        }
-        return {"message": "success", "incomeexpense": response}
 
 @app.route('/incomeexpense/add', methods=['POST'])
 def handle_incomexpense_add():
@@ -254,7 +242,7 @@ def handle_incomexpense_sum_average_spending_day_of_month():
     query = """
     SELECT ROUND(CAST(FLOAT8 (SUM(expense)/EXTRACT(days FROM date_trunc('day', current_date))) AS NUMERIC),2) AS averageDayPerMonth
     FROM incomeexpense
-    WHERE position='Food'
+    WHERE LOWER(position) = 'essen'
     AND orderdate BETWEEN date_trunc('year', now())
     AND date_trunc('day', current_date)
     """
@@ -268,7 +256,7 @@ def handle_incomexpense_sum_reserved_per_day_until_end_of_month():
         date_part('days', (date_trunc('month', CURRENT_DATE) + interval '1 month - 1 day')::date)
         - EXTRACT(DAY FROM CURRENT_DATE - 1)) AS NUMERIC), 2)
     FROM incomeexpense
-    WHERE position='Food'
+    WHERE LOWER(position) = 'essen'
     AND orderdate::date BETWEEN date_trunc('year', CURRENT_DATE)::date
     AND CURRENT_DATE::date
     """
@@ -280,7 +268,7 @@ def handle_incomexpense_sum_spending_food_since_beginning_of_year():
     query = """
     SELECT sum(expense)-SUM(income)
     FROM incomeexpense
-    WHERE position = 'Food'
+    WHERE LOWER(position) = 'essen'
     AND orderdate BETWEEN date_trunc('year', now())
     AND date_trunc('year', now() + interval '1 year') - interval '1 day'
     """
@@ -292,35 +280,7 @@ def handle_sum_income_year():
     query = """
     SELECT sum(income)
     FROM incomeexpense
-    WHERE position = 'Income'
-    AND orderdate BETWEEN date_trunc('year', now())
-    AND date_trunc('year', now() + interval '1 year') - interval '1 day'
-    """
-    result = execute_query(query)
-    return {"message": "success", "incomeexpense": {"Total income": [result[0][0]]}}
-
-@app.route('/incomeexpense/sum_spending_food_by_julia_current_month', methods=['GET'])
-def handle_incomexpense_sum_spending_food_by_julia_current_month():
-    julia_food = request.args.get('julia_food')
-    query = f"""
-    SELECT {julia_food}-SUM(expense)-SUM(income)
-    FROM incomeexpense
-    WHERE position = 'Food'
-    AND who = 'Julia'
-    AND orderdate BETWEEN date_trunc('year', now())
-    AND date_trunc('year', now() + interval '1 year') - interval '1 day'
-    """
-    result = execute_query(query)
-    return {"message": "success", "incomeexpense": {"Total income": [result[0][0]]}}
-
-@app.route('/incomeexpense/sum_spending_food_by_bernd_current_month', methods=['GET'])
-def handle_incomexpense_sum_spending_food_by_bernd_current_month():
-    bernd = request.args.get('bernd_food')
-    query = f"""
-    SELECT {bernd}-sum(expense)-SUM(income)
-    FROM incomeexpense
-    WHERE position = 'Food'
-    AND who = 'Bernd'
+    WHERE LOWER(position) = 'einkommen'
     AND orderdate BETWEEN date_trunc('year', now())
     AND date_trunc('year', now() + interval '1 year') - interval '1 day'
     """
@@ -342,7 +302,7 @@ def handle_incomexpense_sum_spending_food_per_person_per_month():
     query = f"""
     SELECT {reserve}-SUM(expense)-SUM(income) AS total_food_sum_per_person
     FROM incomeexpense
-    WHERE position = 'Food'
+    WHERE LOWER(position) = 'essen'
     AND who = {person}
     AND orderdate BETWEEN date_trunc('month', now())
     AND (date_trunc('month', now() + interval '1 month') - interval '1 day')::date

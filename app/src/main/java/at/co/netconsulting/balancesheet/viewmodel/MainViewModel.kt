@@ -62,11 +62,19 @@ class MainViewModel(
         val initialTaxCategory = TaxCategory.gemeinsam
         val initialPositions = Position.getForLocationAndTaxCategory(Location.Hollgasse_1_1, initialTaxCategory)
 
+        // Validate that the selected position is valid for the current location
+        val validPosition = if (initialPositions.contains(_uiState.value.selectedPosition)) {
+            _uiState.value.selectedPosition
+        } else {
+            initialPositions.firstOrNull() ?: Position.essen
+        }
+
         _uiState.update { it.copy(
             inputDate = currentDate,
             availablePositions = initialPositions,
             availableLocations = initialLocations,
-            selectedTaxCategory = initialTaxCategory
+            selectedTaxCategory = initialTaxCategory,
+            selectedPosition = validPosition
         ) }
 
         refreshData()
