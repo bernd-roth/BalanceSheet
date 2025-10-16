@@ -6,7 +6,9 @@
       "Bash(python:*)",
       "Bash(dir \"C:\\projects\\android\\BalanceSheet2\\app\\src\\main\\java\\at\\co\\netconsulting\\balancesheet\\scripts\")",
       "Bash(docker-compose exec web ls:*)",
-      "Bash(docker compose exec web ls:*)"
+      "Bash(docker compose exec web ls:*)",
+      "Bash(python3:*)",
+      "Bash(docker-compose exec:*)"
     ],
     "deny": [],
     "ask": []
