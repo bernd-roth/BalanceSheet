@@ -37,88 +37,64 @@ def get_tax_category_column(position, comment):
     """
     position_lower = position.lower().strip() if position else ''
     comment_lower = comment.lower().strip() if comment else ''
-    
+
     # Exclude rental-related positions
     rental_positions = [
         'mieteinkommen', 'garage a3/17', 'garage a1/12',
         'reparaturrücklage garage a3/17', 'reparaturrücklage garage a1/12',
         'betriebskosten garage a3/17', 'betriebskosten garage a1/12',
+        'reparaturrücklage garagenplatz a3/17', 'reparaturrücklage garagenplatz a1/12',
+        'betriebskosten garagenplatz a3/17', 'betriebskosten garagenplatz a1/12',
         'wasser/heizung', 'haushaltsversicherung', 'hausverwaltung',
-        'strom', 'internet', 'klimaanlage', 'obs haushaltsabgabe',
-        'rechtsschutzversicherung'
+        'internet', 'klimaanlage', 'obs haushaltsabgabe',
+        'rechtsschutzversicherung', 'vermietung garage', 'bank',
+        'auto', 'essen', 'einkommen', 'shop', 'telefon'
     ]
-    
+
     if position_lower in rental_positions:
         return None
-    
-    # Map positions to tax columns
-    tax_mapping = {
-        'arbeitssuche': 'arbeitssuche',
-        'arbeitsmittel': 'anla_kleinmat',
-        'auto': 'anla_kleinmat',
-        'betriebsratsumlage': 'betriebsratsumlage',
-        'bewerbung': 'arbeitssuche',
-        'digitale arbeitsmittel': 'digitale arbeitsmittel',
+
+    # Map positions to tax columns - exact match mapping
+    # The key is what's in the database, value is the column category
+    position_mapping = {
+        'fortbildung': 'fortbildung',
         'fachliteratur': 'fachliteratur',
-        'fortbildung': 'kurse',
-        'gesundheit': 'gesundheit',
-        'homeofficepauschale': 'homeofficepauschale',
         'kammer': 'kammer',
-        'kleinmaterial': 'anla_kleinmat',
-        'medizin': 'gesundheit',
-        'sonderausgaben': 'sonderausgaben',
+        'medizin': 'medizin',
+        'arbeitssuche': 'arbeitssuche',
+        'strom': 'strom',
+        'betriebsratsumlage': 'betriebsratsumlage',
+        'homeoffice-pauschale': 'homeoffice_pauschale',
+        'homeoffice_pauschale': 'homeoffice_pauschale',
         'steuerberater': 'steuerberater',
-        'verkehrsmittel': 'anla_kleinmat',
-        'zustzpension': 'zusatzpension'
+        'digitale arbeitsmittel': 'digitale_arbeitsmittel',
+        'digitale_arbeitsmittel': 'digitale_arbeitsmittel',
+        'versicherung': 'versicherung'
     }
-    
-    # Check if position matches any tax category
-    for key, value in tax_mapping.items():
-        if key in position_lower:
-            return value
-    
-    # Check comment if position doesn't match
-    for key, value in tax_mapping.items():
-        if key in comment_lower:
-            return value
-    
-    # Default category for non-rental, uncategorized items
-    return 'sonderausgaben'
+
+    # Return the mapped category if position matches
+    return position_mapping.get(position_lower, None)
 
 
 def get_database_data(person='Bernd', year=2025):
     """Fetch personal tax data from Postgres database"""
     conn = psycopg2.connect(**DB_CONFIG)
     cursor = conn.cursor()
-    
-    tax_category = f'{person.lower()}_private'
-    
+
     query = """
         SELECT id, orderdate, position, income, expense, comment
         FROM incomeexpense
-        WHERE tax_category = %s
+        WHERE who = %s
         AND EXTRACT(YEAR FROM orderdate) = %s
-        AND position NOT IN (
-            'mieteinkommen', 'garage a3/17', 'garage a1/12',
-            'garage_a3_17', 'garage_a1_12',
-            'reparaturrücklage garage a3/17', 'reparaturrücklage garage a1/12',
-            'reparaturruecklage_garage_a3_17', 'reparaturruecklage_garage_a1_12',
-            'betriebskosten garage a3/17', 'betriebskosten garage a1/12',
-            'betriebskosten_garage_a3_17', 'betriebskosten_garage_a1_12',
-            'wasser/heizung', 'wasser_heizung', 'haushaltsversicherung', 'hausverwaltung',
-            'strom', 'internet', 'klimaanlage',
-            'obs haushaltsabgabe', 'obs_haushaltsabgabe',
-            'rechtsschutzversicherung'
-        )
         ORDER BY orderdate, id
     """
-    
-    cursor.execute(query, (tax_category, year))
+
+    cursor.execute(query, (person, year))
     rows = cursor.fetchall()
-    
+
     cursor.close()
     conn.close()
-    
+
     return rows
 
 
@@ -160,29 +136,29 @@ def aggregate_data_by_month(db_rows):
 
 def generate_excel(monthly_data, person='Bernd', year=2025, output_file=None):
     """Generate Excel file for Arbeitnehmerveranlagung"""
-    
+
     if output_file is None:
         output_file = f'{person.lower()}_arbeitnehmerveranlagung_{year}.xlsx'
-    
+
     wb = Workbook()
     ws = wb.active
     ws.title = f"{person}_ANV_{year}"
-    
+
     # Define styles
     yellow_fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
     centered_alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
     header_alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
     normal_alignment = Alignment(horizontal="left", vertical="center")
-    
+
     thin_border = Border(
         left=Side(style='thin'),
         right=Side(style='thin'),
         top=Side(style='thin'),
         bottom=Side(style='thin')
     )
-    
+
     # Row 1: Title with yellow background
-    ws.merge_cells('A1:T1')
+    ws.merge_cells('A1:P1')
     title_cell = ws['A1']
     title_cell.value = f"Arbeitnehmerveranlagung {person}\nfür das Jahr {year}"
     title_cell.fill = yellow_fill
@@ -190,122 +166,105 @@ def generate_excel(monthly_data, person='Bernd', year=2025, output_file=None):
     title_cell.font = Font(bold=True, size=12)
     ws.row_dimensions[1].height = 45
 
-    # Row 2: Column headers
+    # Row 2: Column headers - 11 specified columns
     headers = [
         'rechnungsnummer',
         'datum',
         'artikelbeschreibung',
-        'ja/nein',
-        '%prozent',
-        'ansetzbar',
-        'kurse',
-        'literatur',
+        'betrag',
+        'fortbildung',
+        'fachliteratur',
         'kammer',
-        'gesundheit',
+        'medizin',
         'arbeitssuche',
-        'anla/\nkleinmat',
-        'sonder-\nausgaben',
         'strom',
-        'betriebs-\nrats-\numlage',
-        'homeOffice\nPauschale',
-        'steuer-\nberater',
-        'digitale\narbe its-\nmittel',
-        'zustz-\npension',
+        'betriebsrats-\numlage',
+        'homeoffice-\npauschale',
+        'steuerberater',
+        'digitale\narbeitsmittel',
+        'versicherung',
         'comment'
     ]
-    
+
     for col_idx, header in enumerate(headers, start=1):
         cell = ws.cell(row=2, column=col_idx)
         cell.value = header
         cell.alignment = header_alignment
         cell.font = Font(bold=True, size=9)
         cell.border = thin_border
-    
+
     ws.row_dimensions[2].height = 45
-    
+
     # Freeze first 2 rows
     ws.freeze_panes = 'A3'
-    
+
     # Set column widths
     column_widths = {
         'A': 18,  # rechnungsnummer
         'B': 12,  # datum
         'C': 25,  # artikelbeschreibung
-        'D': 8,   # ja/nein
-        'E': 10,  # %prozent
-        'F': 12,  # ansetzbar
-        'G': 10,  # kurse
-        'H': 10,  # literatur
-        'I': 10,  # kammer
-        'J': 10,  # gesundheit
-        'K': 10,  # arbeitssuche
-        'L': 10,  # anla/kleinmat
-        'M': 10,  # sonderausgaben
-        'N': 10,  # strom
-        'O': 10,  # betriebsratsumlage
-        'P': 10,  # homeOffice
-        'Q': 10,  # steuerberater
-        'R': 10,  # digitale arbeitsmittel
-        'S': 10,  # zusatzpension
-        'T': 30,  # comment
+        'D': 12,  # betrag
+        'E': 10,  # fortbildung
+        'F': 12,  # fachliteratur
+        'G': 10,  # kammer
+        'H': 10,  # medizin
+        'I': 12,  # arbeitssuche
+        'J': 10,  # strom
+        'K': 12,  # betriebsratsumlage
+        'L': 12,  # homeoffice-pauschale
+        'M': 12,  # steuerberater
+        'N': 12,  # digitale arbeitsmittel
+        'O': 12,  # versicherung
+        'P': 30,  # comment
     }
-    
+
     for col, width in column_widths.items():
         ws.column_dimensions[col].width = width
-    
+
     # Initialize totals
     totals = {
-        'ansetzbar': 0.0,
-        'kurse': 0.0,
-        'literatur': 0.0,
+        'betrag': 0.0,
+        'fortbildung': 0.0,
+        'fachliteratur': 0.0,
         'kammer': 0.0,
-        'gesundheit': 0.0,
+        'medizin': 0.0,
         'arbeitssuche': 0.0,
-        'anla_kleinmat': 0.0,
-        'sonderausgaben': 0.0,
         'strom': 0.0,
         'betriebsratsumlage': 0.0,
         'homeoffice_pauschale': 0.0,
         'steuerberater': 0.0,
         'digitale_arbeitsmittel': 0.0,
-        'zusatzpension': 0.0,
+        'versicherung': 0.0,
     }
-    
+
     current_row = 3
-    
-    # Column mapping - 1:1 mapping between position name and column
-    # Position name (lowercase, with underscores) maps directly to column
+
+    # Column mapping - maps category to Excel column number
     position_to_column = {
-        'kurse': 7,                        # G
-        'fachliteratur': 8,                # H
-        'kammer': 9,                       # I
-        'gesundheit': 10,                  # J
-        'arbeitssuche': 11,                # K
-        'kleinmaterial': 12,               # L (anla/kleinmat)
-        'auto': 12,                        # L
-        'verkehrsmittel': 12,              # L
-        'sonderausgaben': 13,              # M
-        'strom': 14,                       # N
-        'betriebsratsumlage': 15,          # O
-        'homeoffice': 16,                  # P
-        'steuerberater': 17,               # Q
-        'digitale_arbeitsmittel': 18,      # R
-        'telefon': 18,                     # R
-        'zusatzpension': 19,               # S
-        'medizin': 10,                     # J (gesundheit)
+        'fortbildung': 5,                  # E
+        'fachliteratur': 6,                # F
+        'kammer': 7,                       # G
+        'medizin': 8,                      # H
+        'arbeitssuche': 9,                 # I
+        'strom': 10,                       # J
+        'betriebsratsumlage': 11,          # K
+        'homeoffice_pauschale': 12,        # L
+        'steuerberater': 13,               # M
+        'digitale_arbeitsmittel': 14,      # N
+        'versicherung': 15,                # O
     }
 
     invoice_number = 1
-    
+
     # Write data for each month
     for month in range(1, 13):
         month_name = MONTH_NAMES[month]
-        
+
         categories_in_month = monthly_data.get(month, {})
-        
+
         if not categories_in_month:
             continue
-        
+
         # Month header row
         ws.cell(row=current_row, column=2).value = month_name
         ws.cell(row=current_row, column=2).font = Font(bold=True)
@@ -314,9 +273,6 @@ def generate_excel(monthly_data, person='Bernd', year=2025, output_file=None):
         # Write entries
         for category, data in categories_in_month.items():
             for entry in data['entries']:
-                # Get position name for 1:1 mapping
-                position_name = entry['description'].lower().replace(' ', '_')
-
                 # Rechnungsnummer
                 invoice_cell = ws.cell(row=current_row, column=1)
                 invoice_cell.value = invoice_number
@@ -331,58 +287,43 @@ def generate_excel(monthly_data, person='Bernd', year=2025, output_file=None):
                 # Artikelbeschreibung (position from DB)
                 ws.cell(row=current_row, column=3).value = entry['description']
 
-                # ja/nein% - income or expense value (or 0 if both are 0)
-                ja_nein_cell = ws.cell(row=current_row, column=4)
-                ja_nein_cell.value = entry['amount']
-                ja_nein_cell.number_format = '#,##0.00 [$€-1]'
+                # Betrag (column D = 4) - the amount (negative for expenses)
+                betrag_cell = ws.cell(row=current_row, column=4)
+                betrag_cell.value = entry['amount']
+                betrag_cell.number_format = '#,##0.00 [$€-1]'
+                totals['betrag'] += entry['amount']
 
-                # %prozent - leave empty for manual entry
-                ws.cell(row=current_row, column=5).value = ''
-
-                # ansetzbar - formula: =(D{row}/100)*E{row}
-                ansetzbar_cell = ws.cell(row=current_row, column=6)
-                ansetzbar_cell.value = f'=(D{current_row}/100)*E{current_row}'
-                ansetzbar_cell.number_format = '#,##0.00 [$€-1]'
-                # Note: totals will be calculated by Excel formulas
-
-                # Map to specific column based on position name (1:1 mapping)
-                # Use formula that references ansetzbar column (F) instead of ja/nein
-                if position_name in position_to_column:
-                    col_idx = position_to_column[position_name]
+                # Map to specific column based on category
+                if category in position_to_column:
+                    col_idx = position_to_column[category]
                     amount_cell = ws.cell(row=current_row, column=col_idx)
-                    amount_cell.value = f'=F{current_row}'  # Reference ansetzbar column
+                    amount_cell.value = entry['amount']
                     amount_cell.number_format = '#,##0.00 [$€-1]'
+                    totals[category] += entry['amount']
 
-                    # Track which positions are used for totals
-                    if position_name not in totals:
-                        totals[position_name] = True  # Mark as used
-
-                # Comment (column T = 20)
-                ws.cell(row=current_row, column=20).value = entry.get('comment', '')
+                # Comment (column P = 16)
+                ws.cell(row=current_row, column=16).value = entry.get('comment', '')
 
                 current_row += 1
-    
+
     # Add totals row
     ws.cell(row=current_row, column=2).value = "SUMME"
     ws.cell(row=current_row, column=2).font = Font(bold=True)
 
-    # Total ansetzbar - use SUM formula for all ansetzbar cells
-    total_cell = ws.cell(row=current_row, column=6)
-    total_cell.value = f'=SUM(F3:F{current_row-1})'
+    # Total Betrag (column D = 4)
+    total_cell = ws.cell(row=current_row, column=4)
+    total_cell.value = totals['betrag']
     total_cell.number_format = '#,##0.00 [$€-1]'
     total_cell.font = Font(bold=True)
-    
-    # Position totals (1:1 mapping) - use SUM formulas
-    for position_name, col_idx in position_to_column.items():
-        if position_name in totals:
-            # Get column letter from column index
-            col_letter = get_column_letter(col_idx)
 
+    # Category totals - use values from totals dict
+    for category, col_idx in position_to_column.items():
+        if totals[category] != 0:
             total_cat_cell = ws.cell(row=current_row, column=col_idx)
-            total_cat_cell.value = f'=SUM({col_letter}3:{col_letter}{current_row-1})'
+            total_cat_cell.value = totals[category]
             total_cat_cell.number_format = '#,##0.00 [$€-1]'
             total_cat_cell.font = Font(bold=True)
-    
+
     wb.save(output_file)
     return output_file
 
@@ -395,13 +336,13 @@ def main():
             print("Example: python3 arbeitnehmerveranlagung.py Bernd")
             print("Example: python3 arbeitnehmerveranlagung.py Julia 2025")
             return
-        
+
         person = sys.argv[1].capitalize()
-        
+
         if person not in ['Bernd', 'Julia']:
             print(f"Invalid person: {person}. Must be 'Bernd' or 'Julia'")
             return
-        
+
         # Get year from command line or use current year
         if len(sys.argv) > 2:
             try:
@@ -411,38 +352,38 @@ def main():
                 return
         else:
             year = datetime.now().year
-        
+
         print(f"Generating Arbeitnehmerveranlagung for: {person}, year: {year}")
         print(f"Fetching data from database...")
         db_rows = get_database_data(person=person, year=year)
-        
+
         if not db_rows:
             print(f"No personal tax data found for {person} in {year}")
             return
-        
+
         print(f"Found {len(db_rows)} total records")
-        
+
         print("Aggregating tax data by month and category...")
         monthly_data = aggregate_data_by_month(db_rows)
-        
-        tax_entries = sum(len(cat['entries']) for month_data in monthly_data.values() 
+
+        tax_entries = sum(len(cat['entries']) for month_data in monthly_data.values()
                          for cat in month_data.values())
         print(f"Found {tax_entries} tax-relevant entries")
-        
+
         print("\nMonthly breakdown:")
         for month in sorted(monthly_data.keys()):
             month_name = MONTH_NAMES.get(month, f"Month {month}")
             total_month = sum(cat['amount'] for cat in monthly_data[month].values())
             print(f"  {month_name}: Total: {abs(total_month):.2f} €")
-        
+
         output_file = f'{person.lower()}_arbeitnehmerveranlagung_{year}.xlsx'
         print(f"\nGenerating Excel file: {output_file}")
         generate_excel(monthly_data, person=person, year=year, output_file=output_file)
-        
+
         print(f"✓ Excel file created successfully: {output_file}")
         print(f"\nTo download from container:")
         print(f"docker cp $(docker-compose ps -q web):/app/{output_file} ./exports/{output_file}")
-        
+
     except Exception as e:
         print(f"Error: {str(e)}")
         import traceback

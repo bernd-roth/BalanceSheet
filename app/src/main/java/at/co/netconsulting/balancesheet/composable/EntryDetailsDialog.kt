@@ -43,7 +43,6 @@ import androidx.compose.ui.window.DialogProperties
 import at.co.netconsulting.balancesheet.DatePickerDialog
 import at.co.netconsulting.balancesheet.enums.Location
 import at.co.netconsulting.balancesheet.enums.Position
-import at.co.netconsulting.balancesheet.enums.TaxCategory
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -54,7 +53,7 @@ fun EntryDetailsDialog(
     entry: at.co.netconsulting.balancesheet.data.IncomeExpense,
     persons: List<String>,
     onDismiss: () -> Unit,
-    onUpdate: (String, String, String, String, String, String, String, String, String) -> Unit
+    onUpdate: (String, String, String, String, String, String, String, String) -> Unit
 ) {
     var id by remember { mutableStateOf(entry.id) }
 
@@ -68,7 +67,6 @@ fun EntryDetailsDialog(
     var income by remember { mutableStateOf(entry.income.toString()) }
     var expense by remember { mutableStateOf(entry.expense.toString()) }
     var position by remember { mutableStateOf(entry.position.name) }
-    var taxCategory by remember { mutableStateOf(entry.taxCategory.name) }
     var comment by remember { mutableStateOf(entry.comment) }
 
     // Format created_at for display using the correct property name
@@ -198,17 +196,6 @@ fun EntryDetailsDialog(
                         .padding(vertical = 4.dp)
                 )
 
-                // Tax Category dropdown
-                DropdownField(
-                    label = "Tax Category",
-                    selectedValue = taxCategory,
-                    options = TaxCategory.values().map { it.name },
-                    onValueChange = { taxCategory = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                )
-
                 // Comment
                 OutlinedTextField(
                     value = comment,
@@ -235,7 +222,7 @@ fun EntryDetailsDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    onUpdate(id, date, person, location, income, expense, position, taxCategory, comment)
+                    onUpdate(id, date, person, location, income, expense, position, comment)
                 }
             ) {
                 Text("Update")

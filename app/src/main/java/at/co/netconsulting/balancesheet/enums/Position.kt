@@ -1,88 +1,31 @@
 package at.co.netconsulting.balancesheet.enums
 
-enum class Position(val displayName: String, val category: PositionCategory) {
-    // Rental-related positions
-    haushaltsversicherung("Haushaltsversicherung", PositionCategory.RENTAL),
-    hausverwaltung("Hausverwaltung", PositionCategory.RENTAL),
-    internet("Internet", PositionCategory.RENTAL),
-    klimaanlage("Klimaanlage", PositionCategory.RENTAL),
-    mieteinkommen("Mieteinkommen", PositionCategory.RENTAL),
-    obs_haushaltsabgabe("OBS Haushaltsabgabe", PositionCategory.RENTAL),
-    rechtsschutzversicherung("Rechtsschutzversicherung", PositionCategory.RENTAL),
-    strom("Strom", PositionCategory.RENTAL),
-    wasser_heizung("Wasser/Heizung", PositionCategory.RENTAL),
-
-    // Garage-related positions (Stipcakgasse)
-    garage_a1_12("Garage A1/12", PositionCategory.GARAGE),
-    garage_a3_17("Garage A3/17", PositionCategory.GARAGE),
-    reparaturruecklage_garage_a1_12("Reparaturrücklage A1/12", PositionCategory.GARAGE),
-    reparaturruecklage_garage_a3_17("Reparaturrücklage A3/17", PositionCategory.GARAGE),
-    betriebskosten_garage_a1_12("Betriebskosten A1/12", PositionCategory.GARAGE),
-    betriebskosten_garage_a3_17("Betriebskosten A3/17", PositionCategory.GARAGE),
-
-    // Personal tax positions
-    amazon("Amazon", PositionCategory.PERSONAL),
-    arbeitssuche("Arbeitssuche", PositionCategory.PERSONAL),
-    auto("Auto", PositionCategory.PERSONAL),
-    bank("Bank", PositionCategory.PERSONAL),
-    betriebsratsumlage("Betriebsratsumlage", PositionCategory.PERSONAL),
-    digitale_arbeitsmittel("Digitale Arbeitsmittel", PositionCategory.PERSONAL),
-    einkommen("Einkommen", PositionCategory.PERSONAL),
-    essen("Essen", PositionCategory.PERSONAL),
-    fachliteratur("Fachliteratur", PositionCategory.PERSONAL),
-    gehalt("Gehalt", PositionCategory.PERSONAL),
-    gesundheit("Gesundheit", PositionCategory.PERSONAL),
-    homeoffice("Homeoffice", PositionCategory.PERSONAL),
-    kammer("Kammer", PositionCategory.PERSONAL),
-    kleinmaterial("Kleinmaterial", PositionCategory.PERSONAL),
-    kurse("Kurse", PositionCategory.PERSONAL),
-    medizin("Medizin", PositionCategory.PERSONAL),
-    sonderausgaben("Sonderausgaben", PositionCategory.PERSONAL),
-    steuerberater("Steuerberater", PositionCategory.PERSONAL),
-    telefon("Telefon", PositionCategory.PERSONAL),
-    verkehrsmittel("Verkehrsmittel", PositionCategory.PERSONAL),
-    versicherung("Versicherung", PositionCategory.PERSONAL),
-    zusatzpension("Zusatzpension", PositionCategory.PERSONAL);
-
-    companion object {
-        fun getByCategory(category: PositionCategory): List<Position> {
-            return values().filter { it.category == category }
-        }
-
-        fun getForLocation(location: Location): List<Position> {
-            return when (location) {
-                Location.Hollgasse_1_1, Location.Hollgasse_1_54 -> getByCategory(PositionCategory.RENTAL)
-                Location.Stipcakgasse_8 -> getByCategory(PositionCategory.GARAGE) + listOf(mieteinkommen)
-                Location.Personal -> getByCategory(PositionCategory.PERSONAL)
-            }
-        }
-
-        fun getForLocationAndTaxCategory(location: Location, taxCategory: TaxCategory): List<Position> {
-            return when (location) {
-                Location.Hollgasse_1_1 -> {
-                    // For Hollgasse 1/1 with Gemeinsam, include bank position
-                    if (taxCategory == TaxCategory.gemeinsam) {
-                        getByCategory(PositionCategory.RENTAL) + listOf(bank)
-                    } else {
-                        getByCategory(PositionCategory.RENTAL)
-                    }
-                }
-                Location.Hollgasse_1_54 -> getByCategory(PositionCategory.RENTAL)
-                Location.Stipcakgasse_8 -> getByCategory(PositionCategory.GARAGE) + listOf(mieteinkommen)
-                Location.Personal -> {
-                    when (taxCategory) {
-                        TaxCategory.gemeinsam -> getByCategory(PositionCategory.PERSONAL) + listOf(einkommen)
-                        TaxCategory.julia_private, TaxCategory.bernd_private -> getByCategory(PositionCategory.PERSONAL) + listOf(amazon)
-                        else -> getByCategory(PositionCategory.PERSONAL)
-                    }
-                }
-            }
-        }
-    }
-}
-
-enum class PositionCategory {
-    RENTAL,
-    GARAGE,
-    PERSONAL
+enum class Position(val displayName: String) {
+    arbeitssuche("Arbeitssuche"),
+    auto("Auto"),
+    bank("Bank"),
+    betriebskosten_garagenplatz_a1_12("Betriebskosten Garagenplatz A1/12"),
+    betriebskosten_garagenplatz_a3_17("Betriebskosten Garagenplatz A3/17"),
+    betriebsratsumlage("Betriebsratsumlage"),
+    digitale_arbeitsmittel("Digitale Arbeitsmittel"),
+    einkommen("Einkommen"),
+    essen("Essen"),
+    fachliteratur("Fachliteratur"),
+    fortbildung("Fortbildung"),
+    hausverwaltung("Hausverwaltung"),
+    homeoffice_pauschale("HomeOffice-Pauschale"),
+    internet("Internet"),
+    klimaanlage("Klimaanlage"),
+    mieteinkommen("Mieteinkommen"),
+    obs_haushaltsabgabe("OBS-Haushaltsabgabe"),
+    reparaturruecklage_garagenplatz_a1_12("Reparaturrücklage Garagenplatz A1/12"),
+    reparaturruecklage_garagenplatz_a3_17("Reparaturrücklage Garagenplatz A3/17"),
+    shop("Shop"),
+    strom("Strom"),
+    steuerberater("Steuerberater"),
+    telefon("Telefon"),
+    medizin("Medizin"),
+    versicherung("Versicherung"),
+    vermietung_garage("Vermietung Garage"),
+    wasser_heizung("Wasser/Heizung")
 }

@@ -4,7 +4,6 @@ import at.co.netconsulting.balancesheet.PersonalFoodSummary
 import at.co.netconsulting.balancesheet.Summary
 import at.co.netconsulting.balancesheet.enums.Location
 import at.co.netconsulting.balancesheet.enums.Position
-import at.co.netconsulting.balancesheet.enums.TaxCategory
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -15,7 +14,6 @@ data class MainUiState(
     val selectedPerson: String = "",
     val selectedPosition: Position = Position.essen,
     val selectedLocation: Location = Location.Hollgasse_1_1,
-    val selectedTaxCategory: TaxCategory = TaxCategory.gemeinsam,
     val selectedPositionString: String = "", // For custom positions
     val selectedLocationString: String = "", // For custom locations
     val inputIncome: String = "0",

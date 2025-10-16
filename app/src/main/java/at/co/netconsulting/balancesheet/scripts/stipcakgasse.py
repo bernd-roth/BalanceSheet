@@ -29,15 +29,13 @@ MONTH_NAMES = {
     12: 'Dezember'
 }
 
-# Template categories for parking lots
+# Template categories for parking lots (ordered by column appearance)
 TEMPLATE_CATEGORIES = [
     'mieteinkommen',
-    'garage a1/12',
-    'garage a3/17',
-    'reparaturrücklage a1/12',
-    'reparaturrücklage a3/17',
-    'betriebskosten a1/12',
-    'betriebskosten a3/17'
+    'betriebskosten_a3_17',
+    'reparatur_a3_17',
+    'betriebskosten_a1_12',
+    'reparatur_a1_12'
 ]
 
 def get_category_column(position, comment):
@@ -47,29 +45,18 @@ def get_category_column(position, comment):
     """
     position_lower = position.lower().strip() if position else ''
 
-    # Direct mapping for parking lot positions
+    # Direct mapping for parking lot positions matching Position enum
+    # Database stores displayName values, not enum names
     parking_positions = {
-        'mieteinkommen': 'mieteinkommen',
-        'garage a3/17': 'garage_a3_17',
-        'garage a1/12': 'garage_a1_12',
-        'garage_a3_17': 'garage_a3_17',
-        'garage_a1_12': 'garage_a1_12',
-        'reparaturrücklage a3/17': 'reparatur_a3_17',
-        'reparaturrücklage a1/12': 'reparatur_a1_12',
-        'reparaturruecklage_garage_a3_17': 'reparatur_a3_17',
-        'reparaturruecklage_garage_a1_12': 'reparatur_a1_12',
-        'betriebskosten a3/17': 'betriebskosten_a3_17',
-        'betriebskosten a1/12': 'betriebskosten_a1_12',
-        'betriebskosten_garage_a3_17': 'betriebskosten_a3_17',
-        'betriebskosten_garage_a1_12': 'betriebskosten_a1_12',
+        'vermietung garage': 'mieteinkommen',
+        'betriebskosten garagenplatz a1/12': 'betriebskosten_a1_12',
+        'betriebskosten garagenplatz a3/17': 'betriebskosten_a3_17',
+        'reparaturrücklage garagenplatz a1/12': 'reparatur_a1_12',
+        'reparaturrücklage garagenplatz a3/17': 'reparatur_a3_17',
     }
 
     # Check position match only
-    if position_lower in parking_positions:
-        return parking_positions[position_lower]
-
-    # Not a parking-related entry
-    return None
+    return parking_positions.get(position_lower, None)
 
 
 def get_database_data(location='Stipcakgasse_8', year=2025):
@@ -143,14 +130,14 @@ def generate_excel(monthly_data, location='Stipcakgasse 8/1', year=2025, output_
     )
     
     # Row 1: Title with yellow background
-    ws.merge_cells('A1:L1')
+    ws.merge_cells('A1:J1')
     title_cell = ws['A1']
     title_cell.value = f"Einnahmen und \nAusgaben\nfür das Jahr {year}\nParkplätze Stipcakgasse 8/1"
     title_cell.fill = yellow_fill
     title_cell.alignment = centered_alignment
     title_cell.font = Font(bold=True, size=12)
     ws.row_dimensions[1].height = 75
-    
+
     # Row 2: Column headers
     headers = [
         'rechnungsnummer',
@@ -158,12 +145,10 @@ def generate_excel(monthly_data, location='Stipcakgasse 8/1', year=2025, output_
         'artikelbeschreibung',
         'ein / aus',
         'mieteinkommen',
-        'garage\na3/17',
-        'reparatur-\nrücklage\na3/17',
         'betriebs-\nkosten\na3/17',
-        'garage\na1/12',
-        'reparatur-\nrücklage\na1/12',
+        'reparatur-\nrücklage\na3/17',
         'betriebs-\nkosten\na1/12',
+        'reparatur-\nrücklage\na1/12',
         'comment'
     ]
     
@@ -186,13 +171,11 @@ def generate_excel(monthly_data, location='Stipcakgasse 8/1', year=2025, output_
         'C': 25,  # artikelbeschreibung
         'D': 12,  # ein/aus
         'E': 13,  # mieteinkommen
-        'F': 10,  # garage a3/17
+        'F': 12,  # betriebskosten a3/17
         'G': 12,  # reparaturrücklage a3/17
-        'H': 12,  # betriebskosten a3/17
-        'I': 10,  # garage a1/12
-        'J': 12,  # reparaturrücklage a1/12
-        'K': 12,  # betriebskosten a1/12
-        'L': 30,  # comment
+        'H': 12,  # betriebskosten a1/12
+        'I': 12,  # reparaturrücklage a1/12
+        'J': 30,  # comment
     }
     
     for col, width in column_widths.items():
@@ -202,26 +185,22 @@ def generate_excel(monthly_data, location='Stipcakgasse 8/1', year=2025, output_
     totals = {
         'ein_aus': 0.0,
         'mieteinkommen': 0.0,
-        'garage_a3_17': 0.0,
-        'reparatur_a3_17': 0.0,
         'betriebskosten_a3_17': 0.0,
-        'garage_a1_12': 0.0,
-        'reparatur_a1_12': 0.0,
+        'reparatur_a3_17': 0.0,
         'betriebskosten_a1_12': 0.0,
+        'reparatur_a1_12': 0.0,
     }
-    
+
     invoice_number = 1
     current_row = 3
-    
+
     # Column mapping
     category_columns = {
         'mieteinkommen': 5,          # E
-        'garage_a3_17': 6,           # F
+        'betriebskosten_a3_17': 6,   # F
         'reparatur_a3_17': 7,        # G
-        'betriebskosten_a3_17': 8,   # H
-        'garage_a1_12': 9,           # I
-        'reparatur_a1_12': 10,       # J
-        'betriebskosten_a1_12': 11,  # K
+        'betriebskosten_a1_12': 8,   # H
+        'reparatur_a1_12': 9,        # I
     }
     
     # Write data for each month
@@ -234,47 +213,45 @@ def generate_excel(monthly_data, location='Stipcakgasse 8/1', year=2025, output_
         current_row += 1
         
         categories_in_month = monthly_data.get(month, {})
-        
-        # Write entries
+
+        # Write entries for each category
         for category in TEMPLATE_CATEGORIES:
-            category_key = category.replace(' ', '_').replace('/', '_').lower()
-            
-            if category_key in categories_in_month:
-                data = categories_in_month[category_key]
-                
+            if category in categories_in_month:
+                data = categories_in_month[category]
+
                 for entry in data['entries']:
                     entry_amount = entry['amount']
-                    
+
                     # Invoice number
                     invoice_cell = ws.cell(row=current_row, column=1)
                     invoice_cell.value = invoice_number
                     invoice_cell.number_format = '000'
                     invoice_number += 1
-                    
+
                     # Date
                     date_cell = ws.cell(row=current_row, column=2)
                     date_cell.value = entry['date']
                     date_cell.number_format = 'dd.mm.yyyy'
-                    
-                    # Description
+
+                    # Description (Column C)
                     ws.cell(row=current_row, column=3).value = entry['description']
-                    
-                    # ein/aus
+
+                    # ein/aus (Column D)
                     ein_aus_cell = ws.cell(row=current_row, column=4)
                     ein_aus_cell.value = entry_amount
                     ein_aus_cell.number_format = '#,##0.00 [$€-1]'
                     totals['ein_aus'] += entry_amount
-                    
-                    # Category column
-                    if category_key in category_columns:
-                        col_idx = category_columns[category_key]
+
+                    # Category column (E-I)
+                    if category in category_columns:
+                        col_idx = category_columns[category]
                         amount_cell = ws.cell(row=current_row, column=col_idx)
                         amount_cell.value = entry_amount
                         amount_cell.number_format = '#,##0.00 [$€-1]'
-                        totals[category_key] += entry_amount
+                        totals[category] += entry_amount
 
-                    # Column L: Comment
-                    ws.cell(row=current_row, column=12).value = entry.get('comment', '')
+                    # Column J: Comment
+                    ws.cell(row=current_row, column=10).value = entry.get('comment', '')
 
                     current_row += 1
             # Skip empty rows - no else clause

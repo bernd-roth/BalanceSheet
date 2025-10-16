@@ -11,7 +11,6 @@ import at.co.netconsulting.balancesheet.Summary
 import at.co.netconsulting.balancesheet.data.MainUiState
 import at.co.netconsulting.balancesheet.enums.Location
 import at.co.netconsulting.balancesheet.enums.Position
-import at.co.netconsulting.balancesheet.enums.TaxCategory
 import at.co.netconsulting.balancesheet.network.BalanceSheetRepository
 import at.co.netconsulting.balancesheet.location.LocationService
 import at.co.netconsulting.balancesheet.currency.CurrencyConversionService
@@ -59,8 +58,7 @@ class MainViewModel(
 
         // Initialize available positions and locations
         val initialLocations = getAllLocations()
-        val initialTaxCategory = TaxCategory.gemeinsam
-        val initialPositions = Position.getForLocationAndTaxCategory(Location.Hollgasse_1_1, initialTaxCategory)
+        val initialPositions = Position.values().toList()
 
         // Validate that the selected position is valid for the current location
         val validPosition = if (initialPositions.contains(_uiState.value.selectedPosition)) {
@@ -73,7 +71,6 @@ class MainViewModel(
             inputDate = currentDate,
             availablePositions = initialPositions,
             availableLocations = initialLocations,
-            selectedTaxCategory = initialTaxCategory,
             selectedPosition = validPosition
         ) }
 
@@ -255,18 +252,7 @@ class MainViewModel(
     }
 
     fun onPersonChanged(value: String) {
-        // Update tax category based on person and location
-        val taxCategory = calculateTaxCategory(_uiState.value.selectedLocation, value)
-
-        // Update available positions based on location and new tax category
-        val filteredPositions = Position.getForLocationAndTaxCategory(_uiState.value.selectedLocation, taxCategory)
-
-        _uiState.update { it.copy(
-            selectedPerson = value,
-            selectedTaxCategory = taxCategory,
-            availablePositions = filteredPositions,
-            selectedPosition = filteredPositions.firstOrNull() ?: Position.essen
-        ) }
+        _uiState.update { it.copy(selectedPerson = value) }
     }
 
     fun onPositionChanged(value: Position) {
@@ -274,50 +260,13 @@ class MainViewModel(
     }
 
     fun onLocationChanged(value: Location) {
-        // Auto-fill tax category based on location and person
-        val taxCategory = calculateTaxCategory(value, _uiState.value.selectedPerson)
-
-        // Update available positions based on location and tax category
-        val filteredPositions = Position.getForLocationAndTaxCategory(value, taxCategory)
-
-        _uiState.update { it.copy(
-            selectedLocation = value,
-            availablePositions = filteredPositions,
-            selectedTaxCategory = taxCategory,
-            selectedPosition = filteredPositions.firstOrNull() ?: Position.essen
-        ) }
-    }
-
-    fun onTaxCategoryChanged(value: TaxCategory) {
-        // Update available positions based on location and new tax category
-        val filteredPositions = Position.getForLocationAndTaxCategory(_uiState.value.selectedLocation, value)
-
-        _uiState.update { it.copy(
-            selectedTaxCategory = value,
-            availablePositions = filteredPositions,
-            selectedPosition = filteredPositions.firstOrNull() ?: Position.essen
-        ) }
+        _uiState.update { it.copy(selectedLocation = value) }
     }
 
     fun onCommentChanged(value: String) {
         _uiState.update { it.copy(inputComment = value) }
     }
 
-    // Calculate tax category based on location and person
-    private fun calculateTaxCategory(location: Location, person: String): TaxCategory {
-        return when (location) {
-            Location.Hollgasse_1_1 -> TaxCategory.gemeinsam
-            Location.Hollgasse_1_54 -> TaxCategory.bernd_private
-            Location.Stipcakgasse_8 -> TaxCategory.bernd_private
-            Location.Personal -> {
-                when (person.lowercase()) {
-                    "bernd" -> TaxCategory.bernd_private
-                    "julia" -> TaxCategory.julia_private
-                    else -> TaxCategory.gemeinsam
-                }
-            }
-        }
-    }
 
     private fun validateInputs() {
         val state = _uiState.value
@@ -465,7 +414,6 @@ class MainViewModel(
                     income = income,
                     expense = expense,
                     location = state.selectedLocation,
-                    taxCategory = state.selectedTaxCategory,
                     comment = state.inputComment
                 )
 
@@ -554,7 +502,6 @@ class MainViewModel(
         income: String,
         expense: String,
         position: String,
-        taxCategory: String,
         comment: String
     ) {
         viewModelScope.launch {
@@ -570,7 +517,6 @@ class MainViewModel(
                     income = income.toDoubleOrNull() ?: 0.0,
                     expense = expense.toDoubleOrNull() ?: 0.0,
                     location = Location.valueOf(location),
-                    taxCategory = TaxCategory.valueOf(taxCategory),
                     comment = comment
                 )
 
@@ -660,9 +606,9 @@ class MainViewModel(
         refreshData()
     }
 
-    // Get all available positions for the selected location and tax category
+    // Get all available positions
     fun getAllPositions(): List<Position> {
-        return Position.getForLocationAndTaxCategory(_uiState.value.selectedLocation, _uiState.value.selectedTaxCategory)
+        return Position.values().toList()
     }
 
     // Get all available locations (enum + custom)

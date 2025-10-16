@@ -27,7 +27,6 @@ import androidx.compose.ui.window.DialogProperties
 import at.co.netconsulting.balancesheet.composable.*
 import at.co.netconsulting.balancesheet.enums.Location
 import at.co.netconsulting.balancesheet.enums.Position
-import at.co.netconsulting.balancesheet.enums.TaxCategory
 import at.co.netconsulting.balancesheet.data.MainUiState
 import at.co.netconsulting.balancesheet.viewmodel.MainViewModel
 import java.time.Instant
@@ -86,7 +85,6 @@ fun MainScreen(
                 onDateChanged = viewModel::onDateChanged,
                 onPersonChanged = viewModel::onPersonChanged,
                 onPositionChanged = viewModel::onPositionChanged,
-                onTaxCategoryChanged = viewModel::onTaxCategoryChanged,
                 onLocationChanged = viewModel::onLocationChanged,
                 onCommentChanged = viewModel::onCommentChanged,
                 onAddClicked = viewModel::addEntry,
@@ -173,7 +171,6 @@ fun MainContent(
     onDateChanged: (String) -> Unit,
     onPersonChanged: (String) -> Unit,
     onPositionChanged: (Position) -> Unit,
-    onTaxCategoryChanged: (TaxCategory) -> Unit,
     onLocationChanged: (Location) -> Unit,
     onCommentChanged: (String) -> Unit,
     onAddClicked: () -> Unit,
@@ -327,17 +324,6 @@ fun MainContent(
                 // Find the location enum by display name and call onLocationChanged
                 val location = Location.values().find { it.displayName == displayName }
                 location?.let { onLocationChanged(it) }
-            }
-        )
-
-        // Tax Category dropdown
-        DropdownRow(
-            label = "Tax Category",
-            selectedValue = uiState.selectedTaxCategory.displayName,
-            options = TaxCategory.values().map { it.displayName },
-            onValueChange = { displayName ->
-                val taxCategory = TaxCategory.values().find { it.displayName == displayName }
-                taxCategory?.let { onTaxCategoryChanged(it) }
             }
         )
 
