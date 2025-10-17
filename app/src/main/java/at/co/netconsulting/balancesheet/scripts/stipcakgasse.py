@@ -58,7 +58,6 @@ def get_category_column(position, comment):
     # Check position match only
     return parking_positions.get(position_lower, None)
 
-
 def get_database_data(location='Stipcakgasse 8', year=2025):
     """Fetch parking lot data from Postgres database"""
     conn = psycopg2.connect(**DB_CONFIG)
