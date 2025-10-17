@@ -138,7 +138,6 @@ def create_header_section(ws):
 
     for label, cell in fixkosten_1:
         ws[cell] = label
-        ws[cell].fill = red_fill
         value_cell = cell.replace('D', 'E')
         # SUMIF formula: sum income + expenses where position matches
         ws[value_cell] = f'=SUMIF($D$14:$D$999,{cell},$E$14:$E$999)+SUMIF($D$14:$D$999,{cell},$F$14:$F$999)'
@@ -156,7 +155,6 @@ def create_header_section(ws):
 
     for label, cell in fixkosten_2:
         ws[cell] = label
-        ws[cell].fill = red_fill
         value_cell = cell.replace('G', 'H')
         # SUMIF formula: sum income + expenses where position matches
         ws[value_cell] = f'=SUMIF($D$14:$D$999,{cell},$E$14:$E$999)+SUMIF($D$14:$D$999,{cell},$F$14:$F$999)'
@@ -174,7 +172,6 @@ def create_header_section(ws):
 
     for label, cell in allgemeine_ausgaben_1:
         ws[cell] = label
-        ws[cell].fill = red_fill
         value_cell = cell.replace('J', 'K')
         # SUMIF formula: sum income + expenses where position matches
         ws[value_cell] = f'=SUMIF($D$14:$D$999,{cell},$E$14:$E$999)+SUMIF($D$14:$D$999,{cell},$F$14:$F$999)'
@@ -192,7 +189,6 @@ def create_header_section(ws):
 
     for label, cell in allgemeine_ausgaben_2:
         ws[cell] = label
-        ws[cell].fill = red_fill
         value_cell = cell.replace('M', 'N')
         # SUMIF formula: sum income + expenses where position matches
         ws[value_cell] = f'=SUMIF($D$14:$D$999,{cell},$E$14:$E$999)+SUMIF($D$14:$D$999,{cell},$F$14:$F$999)'
@@ -201,10 +197,8 @@ def create_header_section(ws):
     # Column P+Q+R: Passive monthly income/expenses
     # Headers
     ws['Q2'] = 'Einnahmen'
-    ws['Q2'].fill = red_fill
     ws['Q2'].font = bold_font
     ws['R2'] = 'Ausgaben'
-    ws['R2'].fill = red_fill
     ws['R2'].font = bold_font
 
     # Location rows
@@ -216,7 +210,6 @@ def create_header_section(ws):
 
     for label, cell in passive:
         ws[cell] = label
-        ws[cell].fill = red_fill
         value_cell_q = cell.replace('P', 'Q')
         value_cell_r = cell.replace('P', 'R')
         ws[value_cell_q] = 0
@@ -270,14 +263,27 @@ def create_header_section(ws):
 
     # Set column widths
     column_widths = {
-        'A': 15,  # wochentag
-        'B': 12,  # datum
+        'A': 15,  # wochentag / Zusammenfassung
+        'B': 15,  # datum / values
         'C': 10,  # person
-        'D': 30,  # position
-        'E': 12,  # einnahmen
-        'F': 12,  # ausgaben
-        'G': 25,  # location
-        'H': 30,  # comment
+        'D': 35,  # position / Fixkosten labels
+        'E': 15,  # einnahmen / Fixkosten values
+        'F': 15,  # ausgaben
+        'G': 35,  # location / Fixkosten labels
+        'H': 15,  # comment / Fixkosten values
+        'I': 3,   # separator
+        'J': 25,  # Allgemeine Ausgaben labels
+        'K': 15,  # Allgemeine Ausgaben values
+        'L': 3,   # separator
+        'M': 20,  # Allgemeine Ausgaben labels
+        'N': 15,  # Allgemeine Ausgaben values
+        'O': 3,   # separator
+        'P': 20,  # Passive income location labels
+        'Q': 12,  # Passive Einnahmen values
+        'R': 12,  # Passive Ausgaben values
+        'S': 3,   # separator
+        'T': 20,  # Yearly summary labels
+        'U': 15,  # Yearly summary values
     }
 
     for col, width in column_widths.items():
@@ -285,6 +291,46 @@ def create_header_section(ws):
 
     # Freeze rows 1-12 (header section)
     ws.freeze_panes = 'A13'
+
+    # Add borders around specific ranges
+    thin_border = Border(
+        left=Side(style='thin'),
+        right=Side(style='thin'),
+        top=Side(style='thin'),
+        bottom=Side(style='thin')
+    )
+
+    border_ranges = [
+        ('A1', 'B7'),
+        ('D1', 'E7'),
+        ('G1', 'H7'),
+        ('J1', 'K7'),
+        ('M1', 'N7'),
+        ('P1', 'R7'),
+        ('T1', 'U7')
+    ]
+
+    for start_cell, end_cell in border_ranges:
+        # Parse cell coordinates
+        from openpyxl.utils import column_index_from_string, get_column_letter
+
+        start_col = column_index_from_string(start_cell[0])
+        start_row = int(start_cell[1])
+        end_col = column_index_from_string(end_cell[0])
+        end_row = int(end_cell[1:])
+
+        # Apply borders to all cells in the range
+        for row in range(start_row, end_row + 1):
+            for col in range(start_col, end_col + 1):
+                cell = ws.cell(row=row, column=col)
+
+                # Determine which borders this cell needs
+                left = Side(style='thin') if col == start_col else None
+                right = Side(style='thin') if col == end_col else None
+                top = Side(style='thin') if row == start_row else None
+                bottom = Side(style='thin') if row == end_row else None
+
+                cell.border = Border(left=left, right=right, top=top, bottom=bottom)
 
 def add_month_data(ws, month_rows):
     """Add transaction data for a specific month to a sheet"""
