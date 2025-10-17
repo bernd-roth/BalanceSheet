@@ -539,7 +539,13 @@ class BalanceSheetRepository(private val baseUrl: String) {
                 orderdate = orderDate,
                 who = item.optString("who", ""),
                 position = try {
-                    Position.valueOf(item.optString("position", "essen"))
+                    val positionStr = item.optString("position", "Essen")
+                    // Try to find position by display name first
+                    Position.values().find { it.displayName == positionStr }
+                        // If not found, try enum name for backward compatibility
+                        ?: Position.values().find { it.name == positionStr }
+                        // Default fallback
+                        ?: Position.essen
                 } catch (e: Exception) {
                     Position.essen
                 },
