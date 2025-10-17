@@ -78,11 +78,11 @@ def get_category_column(position, comment):
     return None
 
 
-def get_database_data(location='Hollgasse_1_54', year=2026):
+def get_database_data(location='Hollgasse 1/54', year=2026):
     """Fetch rental data from Postgres database for specific location and year"""
     conn = psycopg2.connect(**DB_CONFIG)
     cursor = conn.cursor()
-    
+
     query = """
         SELECT id, orderdate, position, income, expense, comment
         FROM incomeexpense
@@ -90,13 +90,13 @@ def get_database_data(location='Hollgasse_1_54', year=2026):
         AND EXTRACT(YEAR FROM orderdate) = %s
         ORDER BY orderdate, id
     """
-    
+
     cursor.execute(query, (location, year))
     rows = cursor.fetchall()
-    
+
     cursor.close()
     conn.close()
-    
+
     return rows
 
 

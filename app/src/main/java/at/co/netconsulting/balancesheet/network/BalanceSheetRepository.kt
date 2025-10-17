@@ -243,7 +243,7 @@ class BalanceSheetRepository(private val baseUrl: String) {
                 .add("position", entry.position.displayName)
                 .add("income", entry.income.toString())
                 .add("expense", entry.expense.toString())
-                .add("location", entry.location.name)
+                .add("location", entry.location.displayName)
                 .add("comment", entry.comment)
                 .build()
 
@@ -276,7 +276,7 @@ class BalanceSheetRepository(private val baseUrl: String) {
                 .add("position", entry.position.displayName)
                 .add("income", entry.income.toString())
                 .add("expense", entry.expense.toString())
-                .add("location", entry.location.name)
+                .add("location", entry.location.displayName)
                 .add("comment", entry.comment)
                 .build()
 
@@ -546,7 +546,13 @@ class BalanceSheetRepository(private val baseUrl: String) {
                 income = item.optString("income", "0").toDoubleOrNull() ?: 0.0,
                 expense = item.optString("expense", "0").toDoubleOrNull() ?: 0.0,
                 location = try {
-                    Location.valueOf(item.optString("location", "Hollgasse_1_1"))
+                    val locationStr = item.optString("location", "Hollgasse 1/1")
+                    // Try to find location by display name first
+                    Location.values().find { it.displayName == locationStr }
+                        // If not found, try enum name for backward compatibility
+                        ?: Location.values().find { it.name == locationStr }
+                        // Default fallback
+                        ?: Location.Hollgasse_1_1
                 } catch (e: Exception) {
                     Location.Hollgasse_1_1
                 },

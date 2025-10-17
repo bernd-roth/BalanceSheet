@@ -59,7 +59,7 @@ def get_category_column(position, comment):
     return parking_positions.get(position_lower, None)
 
 
-def get_database_data(location='Stipcakgasse_8', year=2025):
+def get_database_data(location='Stipcakgasse 8', year=2025):
     """Fetch parking lot data from Postgres database"""
     conn = psycopg2.connect(**DB_CONFIG)
     cursor = conn.cursor()
@@ -74,10 +74,10 @@ def get_database_data(location='Stipcakgasse_8', year=2025):
 
     cursor.execute(query, (location + '%', year))
     rows = cursor.fetchall()
-    
+
     cursor.close()
     conn.close()
-    
+
     return rows
 
 
@@ -280,8 +280,8 @@ def generate_excel(monthly_data, location='Stipcakgasse 8/1', year=2025, output_
 def main():
     """Main function to export parking lot data"""
     try:
-        location = 'Stipcakgasse_8'
-        
+        location = 'Stipcakgasse 8'
+
         # Get year from command line or use current year
         if len(sys.argv) > 1:
             try:
