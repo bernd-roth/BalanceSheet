@@ -158,7 +158,7 @@ def generate_excel(monthly_data, person='Bernd', year=2025, output_file=None):
     )
 
     # Row 1: Title with yellow background
-    ws.merge_cells('A1:P1')
+    ws.merge_cells('A1:R1')
     title_cell = ws['A1']
     title_cell.value = f"Arbeitnehmerveranlagung {person}\nfür das Jahr {year}"
     title_cell.fill = yellow_fill
@@ -166,12 +166,14 @@ def generate_excel(monthly_data, person='Bernd', year=2025, output_file=None):
     title_cell.font = Font(bold=True, size=12)
     ws.row_dimensions[1].height = 45
 
-    # Row 2: Column headers - 11 specified columns
+    # Row 2: Column headers - added 'prozent' and 'ansetzbar' after 'betrag'
     headers = [
         'rechnungsnummer',
         'datum',
         'artikelbeschreibung',
         'betrag',
+        'prozent',
+        'ansetzbar',
         'fortbildung',
         'fachliteratur',
         'kammer',
@@ -204,54 +206,42 @@ def generate_excel(monthly_data, person='Bernd', year=2025, output_file=None):
         'B': 12,  # datum
         'C': 25,  # artikelbeschreibung
         'D': 12,  # betrag
-        'E': 10,  # fortbildung
-        'F': 12,  # fachliteratur
-        'G': 10,  # kammer
-        'H': 10,  # medizin
-        'I': 12,  # arbeitssuche
-        'J': 10,  # strom
-        'K': 12,  # betriebsratsumlage
-        'L': 12,  # homeoffice-pauschale
-        'M': 12,  # steuerberater
-        'N': 12,  # digitale arbeitsmittel
-        'O': 12,  # versicherung
-        'P': 30,  # comment
+        'E': 10,  # prozent
+        'F': 12,  # ansetzbar
+        'G': 10,  # fortbildung
+        'H': 12,  # fachliteratur
+        'I': 10,  # kammer
+        'J': 10,  # medizin
+        'K': 12,  # arbeitssuche
+        'L': 10,  # strom
+        'M': 12,  # betriebsratsumlage
+        'N': 12,  # homeoffice-pauschale
+        'O': 12,  # steuerberater
+        'P': 12,  # digitale arbeitsmittel
+        'Q': 12,  # versicherung
+        'R': 30,  # comment
     }
 
     for col, width in column_widths.items():
         ws.column_dimensions[col].width = width
 
-    # Initialize totals
-    totals = {
-        'betrag': 0.0,
-        'fortbildung': 0.0,
-        'fachliteratur': 0.0,
-        'kammer': 0.0,
-        'medizin': 0.0,
-        'arbeitssuche': 0.0,
-        'strom': 0.0,
-        'betriebsratsumlage': 0.0,
-        'homeoffice_pauschale': 0.0,
-        'steuerberater': 0.0,
-        'digitale_arbeitsmittel': 0.0,
-        'versicherung': 0.0,
-    }
-
     current_row = 3
+    first_data_row = 3  # Track the first row with data for SUM formulas
 
     # Column mapping - maps category to Excel column number
+    # Shifted by 2 columns due to new 'prozent' and 'ansetzbar' columns
     position_to_column = {
-        'fortbildung': 5,                  # E
-        'fachliteratur': 6,                # F
-        'kammer': 7,                       # G
-        'medizin': 8,                      # H
-        'arbeitssuche': 9,                 # I
-        'strom': 10,                       # J
-        'betriebsratsumlage': 11,          # K
-        'homeoffice_pauschale': 12,        # L
-        'steuerberater': 13,               # M
-        'digitale_arbeitsmittel': 14,      # N
-        'versicherung': 15,                # O
+        'fortbildung': 7,                  # G
+        'fachliteratur': 8,                # H
+        'kammer': 9,                       # I
+        'medizin': 10,                     # J
+        'arbeitssuche': 11,                # K
+        'strom': 12,                       # L
+        'betriebsratsumlage': 13,          # M
+        'homeoffice_pauschale': 14,        # N
+        'steuerberater': 15,               # O
+        'digitale_arbeitsmittel': 16,      # P
+        'versicherung': 17,                # Q
     }
 
     invoice_number = 1
@@ -273,6 +263,9 @@ def generate_excel(monthly_data, person='Bernd', year=2025, output_file=None):
         # Write entries
         for category, data in categories_in_month.items():
             for entry in data['entries']:
+                # Update first_data_row if this is the first entry
+                if invoice_number == 1:
+                    first_data_row = current_row
                 # Rechnungsnummer
                 invoice_cell = ws.cell(row=current_row, column=1)
                 invoice_cell.value = invoice_number
@@ -291,18 +284,27 @@ def generate_excel(monthly_data, person='Bernd', year=2025, output_file=None):
                 betrag_cell = ws.cell(row=current_row, column=4)
                 betrag_cell.value = entry['amount']
                 betrag_cell.number_format = '#,##0.00 [$€-1]'
-                totals['betrag'] += entry['amount']
+
+                # Prozent (column E = 5) - default to 100%
+                prozent_cell = ws.cell(row=current_row, column=5)
+                prozent_cell.value = 100
+                prozent_cell.number_format = '0'
+
+                # Ansetzbar (column F = 6) - formula: =(D{row}/100)*E{row}
+                ansetzbar_cell = ws.cell(row=current_row, column=6)
+                ansetzbar_cell.value = f'=(D{current_row}/100)*E{current_row}'
+                ansetzbar_cell.number_format = '#,##0.00 [$€-1]'
 
                 # Map to specific column based on category
+                # Use formula reference to ansetzbar column
                 if category in position_to_column:
                     col_idx = position_to_column[category]
                     amount_cell = ws.cell(row=current_row, column=col_idx)
-                    amount_cell.value = entry['amount']
+                    amount_cell.value = f'=F{current_row}'
                     amount_cell.number_format = '#,##0.00 [$€-1]'
-                    totals[category] += entry['amount']
 
-                # Comment (column P = 16)
-                ws.cell(row=current_row, column=16).value = entry.get('comment', '')
+                # Comment (column R = 18)
+                ws.cell(row=current_row, column=18).value = entry.get('comment', '')
 
                 current_row += 1
 
@@ -310,19 +312,28 @@ def generate_excel(monthly_data, person='Bernd', year=2025, output_file=None):
     ws.cell(row=current_row, column=2).value = "SUMME"
     ws.cell(row=current_row, column=2).font = Font(bold=True)
 
-    # Total Betrag (column D = 4)
+    # Calculate the last data row (current_row - 1)
+    last_data_row = current_row - 1
+
+    # Total Betrag (column D = 4) - use SUM formula
     total_cell = ws.cell(row=current_row, column=4)
-    total_cell.value = totals['betrag']
+    total_cell.value = f'=SUM(D{first_data_row}:D{last_data_row})'
     total_cell.number_format = '#,##0.00 [$€-1]'
     total_cell.font = Font(bold=True)
 
-    # Category totals - use values from totals dict
+    # Total Ansetzbar (column F = 6) - use SUM formula
+    total_ansetzbar_cell = ws.cell(row=current_row, column=6)
+    total_ansetzbar_cell.value = f'=SUM(F{first_data_row}:F{last_data_row})'
+    total_ansetzbar_cell.number_format = '#,##0.00 [$€-1]'
+    total_ansetzbar_cell.font = Font(bold=True)
+
+    # Category totals - use SUM formulas
     for category, col_idx in position_to_column.items():
-        if totals[category] != 0:
-            total_cat_cell = ws.cell(row=current_row, column=col_idx)
-            total_cat_cell.value = totals[category]
-            total_cat_cell.number_format = '#,##0.00 [$€-1]'
-            total_cat_cell.font = Font(bold=True)
+        col_letter = get_column_letter(col_idx)
+        total_cat_cell = ws.cell(row=current_row, column=col_idx)
+        total_cat_cell.value = f'=SUM({col_letter}{first_data_row}:{col_letter}{last_data_row})'
+        total_cat_cell.number_format = '#,##0.00 [$€-1]'
+        total_cat_cell.font = Font(bold=True)
 
     wb.save(output_file)
     return output_file
