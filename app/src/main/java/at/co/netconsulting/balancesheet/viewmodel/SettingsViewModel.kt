@@ -18,21 +18,12 @@ data class SettingsUiState(
     val defaultPosition: String = "",
     val defaultLocation: String = "",
     val defaultCurrency: String = "EUR",
-    val customPositions: List<String> = emptyList(),
-    val customLocations: List<String> = emptyList(),
     val isChanged: Boolean = false
 )
 
 class SettingsViewModel(
     private val sharedPrefs: SharedPreferences
 ) : ViewModel() {
-
-    // Callback for when custom positions/locations change
-    private var onCustomDataChangedCallback: (() -> Unit)? = null
-
-    fun setOnCustomDataChangedCallback(callback: () -> Unit) {
-        onCustomDataChangedCallback = callback
-    }
 
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
@@ -50,20 +41,6 @@ class SettingsViewModel(
         val defaultLocation = sharedPrefs.getString(StaticFields.SP_DEFAULT_LOCATION, "") ?: ""
         val defaultCurrency = sharedPrefs.getString(StaticFields.SP_DEFAULT_CURRENCY, "EUR") ?: "EUR"
 
-        val customPositionsString = sharedPrefs.getString(StaticFields.SP_CUSTOM_POSITIONS, "") ?: ""
-        val customPositions = if (customPositionsString.isNotEmpty()) {
-            customPositionsString.split(",").map { it.trim() }
-        } else {
-            emptyList()
-        }
-
-        val customLocationsString = sharedPrefs.getString(StaticFields.SP_CUSTOM_LOCATIONS, "") ?: ""
-        val customLocations = if (customLocationsString.isNotEmpty()) {
-            customLocationsString.split(",").map { it.trim() }
-        } else {
-            emptyList()
-        }
-
         _uiState.update { it.copy(
             ipAddress = ipAddress,
             port = port,
@@ -72,8 +49,6 @@ class SettingsViewModel(
             defaultPosition = defaultPosition,
             defaultLocation = defaultLocation,
             defaultCurrency = defaultCurrency,
-            customPositions = customPositions,
-            customLocations = customLocations,
             isChanged = false
         )}
     }
@@ -110,102 +85,12 @@ class SettingsViewModel(
         _uiState.update { it.copy(isChanged = false) }
     }
 
-    // Custom positions management
-    fun addCustomPosition(position: String) {
-        println("DEBUG SettingsVM: addCustomPosition called with: '$position'")
-        println("DEBUG SettingsVM: Current positions before add: ${_uiState.value.customPositions}")
-        if (position.isNotBlank() && !_uiState.value.customPositions.contains(position)) {
-            val updatedPositions = _uiState.value.customPositions + position
-            println("DEBUG SettingsVM: Updated positions after add: $updatedPositions")
-            _uiState.update { it.copy(customPositions = updatedPositions, isChanged = true) }
-            saveCustomPositions(updatedPositions)
-
-            // Notify MainViewModel that custom data has changed
-            println("DEBUG SettingsVM: Calling onCustomDataChangedCallback")
-            onCustomDataChangedCallback?.invoke()
-        } else {
-            println("DEBUG SettingsVM: Position NOT added - blank=${position.isBlank()}, exists=${_uiState.value.customPositions.contains(position)}")
-        }
-    }
-
-    fun removeCustomPosition(position: String) {
-        val updatedPositions = _uiState.value.customPositions.filter { it != position }
-        _uiState.update { it.copy(customPositions = updatedPositions, isChanged = true) }
-        saveCustomPositions(updatedPositions)
-
-        // Notify MainViewModel that custom data has changed
-        onCustomDataChangedCallback?.invoke()
-    }
-
-    private fun saveCustomPositions(positions: List<String>) {
-        val positionsString = positions.joinToString(",")
-        println("DEBUG SettingsVM: saveCustomPositions called with: $positions")
-        println("DEBUG SettingsVM: Saving to SharedPrefs: '$positionsString'")
-        val editor = sharedPrefs.edit()
-        editor.putString(StaticFields.SP_CUSTOM_POSITIONS, positionsString)
-        val committed = editor.commit()  // Use commit() instead of apply() for synchronous write
-        println("DEBUG SettingsVM: Commit result: $committed")
-
-        // Verify it was actually saved
-        val saved = sharedPrefs.getString(StaticFields.SP_CUSTOM_POSITIONS, "")
-        println("DEBUG SettingsVM: Verified saved value: '$saved'")
-    }
-
-    // Custom locations management
-    fun addCustomLocation(location: String) {
-        if (location.isNotBlank() && !_uiState.value.customLocations.contains(location)) {
-            val updatedLocations = _uiState.value.customLocations + location
-            _uiState.update { it.copy(customLocations = updatedLocations, isChanged = true) }
-            saveCustomLocations(updatedLocations)
-
-            // Notify MainViewModel that custom data has changed
-            onCustomDataChangedCallback?.invoke()
-        }
-    }
-
-    fun removeCustomLocation(location: String) {
-        val updatedLocations = _uiState.value.customLocations.filter { it != location }
-        _uiState.update { it.copy(customLocations = updatedLocations, isChanged = true) }
-        saveCustomLocations(updatedLocations)
-
-        // Notify MainViewModel that custom data has changed
-        onCustomDataChangedCallback?.invoke()
-    }
-
-    // Debug function to clear all custom positions
-    fun clearAllCustomPositions() {
-        println("DEBUG SettingsVM: clearAllCustomPositions called")
-        _uiState.update { it.copy(customPositions = emptyList(), isChanged = true) }
-        saveCustomPositions(emptyList())
-
-        // Notify MainViewModel that custom data has changed
-        onCustomDataChangedCallback?.invoke()
-    }
-
-    // Debug function to clear all custom locations
-    fun clearAllCustomLocations() {
-        println("DEBUG SettingsVM: clearAllCustomLocations called")
-        _uiState.update { it.copy(customLocations = emptyList(), isChanged = true) }
-        saveCustomLocations(emptyList())
-
-        // Notify MainViewModel that custom data has changed
-        onCustomDataChangedCallback?.invoke()
-    }
-
-    private fun saveCustomLocations(locations: List<String>) {
-        val editor = sharedPrefs.edit()
-        editor.putString(StaticFields.SP_CUSTOM_LOCATIONS, locations.joinToString(","))
-        editor.apply()
-    }
-
-    // Helper methods to get all available options (enum + custom)
+    // Helper methods to get all available options from enums
     fun getAllPositions(): List<String> {
-        val enumPositions = Spending.values().map { it.toString() }
-        return enumPositions + _uiState.value.customPositions
+        return Spending.values().map { it.toString() }
     }
 
     fun getAllLocations(): List<String> {
-        val enumLocations = Location.values().map { it.displayName }
-        return enumLocations + _uiState.value.customLocations
+        return Location.values().map { it.displayName }
     }
 }

@@ -12,7 +12,7 @@ android {
         minSdk 34
         targetSdk 35
         versionCode 1
-        versionName "2.9 (location entry in database updated to using no underscore)"
+        versionName "2.10 (SettingsScreen.kt unnecessary entries removed)"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

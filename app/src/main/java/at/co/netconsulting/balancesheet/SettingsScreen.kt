@@ -2,8 +2,6 @@ package at.co.netconsulting.balancesheet
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,9 +10,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
@@ -223,26 +218,6 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Custom Positions Management
-            CustomValuesSection(
-                title = "Manage Positions",
-                values = uiState.customPositions,
-                onAddValue = viewModel::addCustomPosition,
-                onRemoveValue = viewModel::removeCustomPosition
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Custom Locations Management
-            CustomValuesSection(
-                title = "Manage Locations",
-                values = uiState.customLocations,
-                onAddValue = viewModel::addCustomLocation,
-                onRemoveValue = viewModel::removeCustomLocation
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
             // Save button
             Button(
                 onClick = {
@@ -382,122 +357,3 @@ fun SettingsField(
     }
 }
 
-@Composable
-fun CustomValuesSection(
-    title: String,
-    values: List<String>,
-    onAddValue: (String) -> Unit,
-    onRemoveValue: (String) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-    var newValue by remember { mutableStateOf("") }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            // Header with expand/collapse
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickableWithoutRipple { expanded = !expanded },
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.headlineSmall
-                )
-                Icon(
-                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                    contentDescription = if (expanded) "Collapse" else "Expand"
-                )
-            }
-
-            if (expanded) {
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Add new value section
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    OutlinedTextField(
-                        value = newValue,
-                        onValueChange = { newValue = it },
-                        placeholder = { Text("Enter new $title") },
-                        modifier = Modifier.weight(1f),
-                        singleLine = true
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    IconButton(
-                        onClick = {
-                            if (newValue.isNotBlank()) {
-                                onAddValue(newValue.trim())
-                                newValue = ""
-                            }
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Add"
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // List of custom values
-                if (values.isNotEmpty()) {
-                    Text(
-                        text = "Custom $title:",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-
-                    values.forEach { value ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = value,
-                                modifier = Modifier.weight(1f)
-                            )
-                            IconButton(
-                                onClick = { onRemoveValue(value) }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = "Remove $value"
-                                )
-                            }
-                        }
-                    }
-                } else {
-                    Text(
-                        text = "No custom $title added yet",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun Modifier.clickableWithoutRipple(onClick: () -> Unit): Modifier {
-    return this.then(
-        Modifier.clickable(
-            indication = null,
-            interactionSource = remember { MutableInteractionSource() }
-        ) { onClick() }
-    )
-}

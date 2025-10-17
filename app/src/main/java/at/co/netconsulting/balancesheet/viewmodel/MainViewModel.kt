@@ -611,16 +611,9 @@ class MainViewModel(
         return Position.values().toList()
     }
 
-    // Get all available locations (enum + custom)
+    // Get all available locations from enum
     fun getAllLocations(): List<String> {
-        val enumLocations = Location.values().map { it.displayName }
-        val customLocationsString = sharedPrefs.getString(StaticFields.SP_CUSTOM_LOCATIONS, "") ?: ""
-        val customLocations = if (customLocationsString.isNotEmpty()) {
-            customLocationsString.split(",").map { it.trim() }
-        } else {
-            emptyList()
-        }
-        return enumLocations + customLocations
+        return Location.values().map { it.displayName }
     }
 
     // Updated position change handler
