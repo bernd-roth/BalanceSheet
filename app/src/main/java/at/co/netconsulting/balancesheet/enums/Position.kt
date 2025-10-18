@@ -12,6 +12,7 @@ enum class Position(val displayName: String) {
     essen("Essen"),
     fachliteratur("Fachliteratur"),
     fortbildung("Fortbildung"),
+    freizeit("Freizeit"),
     hausverwaltung("Hausverwaltung"),
     homeoffice_pauschale("HomeOffice-Pauschale"),
     internet("Internet"),

@@ -179,7 +179,7 @@ def create_header_section(ws):
 
     # Column M+N: Allgemeine Ausgaben Group 2
     allgemeine_ausgaben_2 = [
-        ('Fun', 'M2'),
+        ('Freizeit', 'M2'),
         ('Kammer', 'M3'),
         ('Klimaanlage', 'M4'),
         ('Medizin', 'M5'),
