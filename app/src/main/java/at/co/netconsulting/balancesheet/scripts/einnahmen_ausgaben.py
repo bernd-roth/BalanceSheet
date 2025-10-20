@@ -212,10 +212,12 @@ def create_header_section(ws):
         ws[cell] = label
         value_cell_q = cell.replace('P', 'Q')
         value_cell_r = cell.replace('P', 'R')
-        ws[value_cell_q] = 0
-        ws[value_cell_r] = 0
-        ws[value_cell_q].number_format = '0'
-        ws[value_cell_r].number_format = '0'
+        # SUMIF formula: sum income where location matches
+        ws[value_cell_q] = f'=SUMIF($G$13:$G$999,{cell},$E$13:$E$999)'
+        # SUMIF formula: sum expenses where location matches
+        ws[value_cell_r] = f'=SUMIF($G$13:$G$999,{cell},$F$13:$F$999)'
+        ws[value_cell_q].number_format = '#,##0.00 [$€]'
+        ws[value_cell_r].number_format = '#,##0.00 [$€]'
 
     # Column T+U: Jährliches Einkommen/Ausgaben (Yearly income/expense)
     ws['T2'] = 'Einkommen'
