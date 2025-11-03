@@ -59,6 +59,7 @@ def get_category_column(position, comment):
         'mieteinkommen': 'mieteinkommen',
         'wasser/heizung': 'wasser/heizung',
         'haushaltsversicherung': 'haushaltsversicherung',
+        'versicherung': 'haushaltsversicherung',  # Generic insurance maps to household insurance
         'hausverwaltung': 'hausverwaltung',
         'strom': 'strom',
         'internet': 'internet',
@@ -346,7 +347,16 @@ def main():
             return
         
         location = sys.argv[1]
-        
+
+        # Convert location format from command line (Hollgasse_1_1) to database format (Hollgasse 1/1)
+        # Replace first underscore with space and second underscore with slash
+        location_parts = location.split('_')
+        if len(location_parts) == 3:  # Format: Hollgasse_1_1
+            db_location = f"{location_parts[0]} {location_parts[1]}/{location_parts[2]}"
+        else:
+            # Use as-is if format doesn't match expected pattern
+            db_location = location
+
         # Get year from command line argument or use current year
         if len(sys.argv) > 2:
             try:
@@ -360,8 +370,9 @@ def main():
             year = datetime.now().year
         
         print(f"Generating report for location: {location}, year: {year}")
+        print(f"Database location format: {db_location}")
         print(f"Fetching data from database...")
-        db_rows = get_database_data(location=location, year=year)
+        db_rows = get_database_data(location=db_location, year=year)
         
         if not db_rows:
             print(f"No data found for {year}")
