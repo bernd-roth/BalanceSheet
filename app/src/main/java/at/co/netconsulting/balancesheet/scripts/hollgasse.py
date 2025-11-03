@@ -5,6 +5,7 @@ from openpyxl.utils import get_column_letter
 from datetime import datetime
 from collections import defaultdict
 import sys
+import os
 
 # Database connection parameters
 DB_CONFIG = {
@@ -65,7 +66,6 @@ def get_category_column(position, comment):
         'internet': 'internet',
         'klimaanlage': 'klimaanlage',
         'obs haushaltsabgabe': 'obs haushaltsabgabe',
-        'obs_haushaltsabgabe': 'obs haushaltsabgabe',
         'rechtsschutzversicherung': 'rechtsschutzversicherung',
         'steuerberater': 'steuerberater',
         'bank': 'bank'
@@ -79,20 +79,38 @@ def get_category_column(position, comment):
     return None
 
 
-def get_database_data(location='Hollgasse 1/54', year=2026):
-    """Fetch rental data from Postgres database for specific location and year"""
+def get_database_data(location='Hollgasse 1/54', year=2026, taxable=None):
+    """Fetch rental data from Postgres database for specific location and year
+
+    Args:
+        location: The location name (e.g., 'Hollgasse 1/54')
+        year: The year to filter by
+        taxable: If True, filter for taxable entries. If False, filter for non-taxable entries.
+                 If None, return all entries for the location.
+    """
     conn = psycopg2.connect(**DB_CONFIG)
     cursor = conn.cursor()
 
-    query = """
-        SELECT id, orderdate, position, income, expense, comment
-        FROM incomeexpense
-        WHERE location = %s
-        AND EXTRACT(YEAR FROM orderdate) = %s
-        ORDER BY orderdate, id
-    """
+    if taxable is not None:
+        query = """
+            SELECT id, orderdate, position, income, expense, comment, taxable
+            FROM incomeexpense
+            WHERE location = %s
+            AND EXTRACT(YEAR FROM orderdate) = %s
+            AND taxable = %s
+            ORDER BY orderdate, id
+        """
+        cursor.execute(query, (location, year, taxable))
+    else:
+        query = """
+            SELECT id, orderdate, position, income, expense, comment, taxable
+            FROM incomeexpense
+            WHERE location = %s
+            AND EXTRACT(YEAR FROM orderdate) = %s
+            ORDER BY orderdate, id
+        """
+        cursor.execute(query, (location, year))
 
-    cursor.execute(query, (location, year))
     rows = cursor.fetchall()
 
     cursor.close()
@@ -105,18 +123,23 @@ def aggregate_data_by_month(db_rows):
     """Aggregate database entries by month and category"""
     # Structure: monthly_data[month][category] = {amount: float, entries: []}
     monthly_data = defaultdict(lambda: defaultdict(lambda: {'amount': 0.0, 'entries': []}))
-    
+
     for row in db_rows:
-        db_id, orderdate, position, income, expense, comment = row
-        
+        # Handle both old (6 fields) and new (7 fields with taxable) row formats
+        if len(row) == 7:
+            db_id, orderdate, position, income, expense, comment, taxable = row
+        else:
+            db_id, orderdate, position, income, expense, comment = row
+            taxable = False  # Default for old data
+
         # Determine category - skip if not rental-related
         category = get_category_column(position, comment)
         if category is None:
             continue
-        
+
         month = orderdate.month
         amount = float(income) if float(income) > 0 else -float(expense)
-        
+
         monthly_data[month][category]['amount'] += amount
         monthly_data[month][category]['entries'].append({
             'date': orderdate,
@@ -124,7 +147,7 @@ def aggregate_data_by_month(db_rows):
             'amount': amount,
             'comment': comment if comment else ''
         })
-    
+
     return monthly_data
 
 
@@ -333,6 +356,13 @@ def generate_excel(monthly_data, location='Hollgasse_1_54', year=2026, output_fi
     
     # Save the workbook
     wb.save(output_file)
+
+    # Fix file permissions (make it readable/writable for user and group)
+    try:
+        os.chmod(output_file, 0o664)
+    except Exception as e:
+        print(f"Warning: Could not set file permissions: {e}")
+
     return output_file
 
 def main():
@@ -347,6 +377,24 @@ def main():
             return
         
         location = sys.argv[1]
+
+        # Smart taxable detection from location name
+        # Hollgasse_1_54           -> taxable=True  (default: Hollgasse 1 tax report)
+        # Hollgasse_1_54_nontaxable -> taxable=False (Hollgasse 54 report)
+        # Hollgasse_1_54_all       -> taxable=None  (all entries)
+        taxable_filter = True  # Default to taxable=True for backward compatibility
+        location_for_file = location
+
+        if location.endswith('_nontaxable'):
+            taxable_filter = False
+            location = location[:-11]  # Remove '_nontaxable' suffix
+            print(f"INFO: Filtering for NON-TAXABLE entries only (taxable=False)")
+        elif location.endswith('_all'):
+            taxable_filter = None
+            location = location[:-4]  # Remove '_all' suffix
+            print(f"INFO: Including ALL entries (no taxable filter)")
+        else:
+            print(f"INFO: Filtering for TAXABLE entries only (taxable=True) - default behavior")
 
         # Convert location format from command line (Hollgasse_1_1) to database format (Hollgasse 1/1)
         # Replace first underscore with space and second underscore with slash
@@ -364,22 +412,49 @@ def main():
             except ValueError:
                 print(f"Invalid year: {sys.argv[2]}")
                 print("Usage: python3 rental_export_excel.py <location> [year]")
+                print("Examples:")
+                print("  python3 hollgasse.py Hollgasse_1_54              # Taxable entries (default)")
+                print("  python3 hollgasse.py Hollgasse_1_54_nontaxable   # Non-taxable entries")
+                print("  python3 hollgasse.py Hollgasse_1_54_all          # All entries")
                 return
         else:
             # Use current year based on system timestamp
             year = datetime.now().year
-        
-        print(f"Generating report for location: {location}, year: {year}")
+
+        # Allow explicit override via 3rd parameter (optional, for manual testing)
+        if len(sys.argv) > 3:
+            taxable_arg = sys.argv[3].lower()
+            if taxable_arg == 'true':
+                taxable_filter = True
+                print(f"INFO: Explicit override - taxable=True")
+            elif taxable_arg == 'false':
+                taxable_filter = False
+                print(f"INFO: Explicit override - taxable=False")
+            elif taxable_arg == 'all' or taxable_arg == 'none':
+                taxable_filter = None
+                print(f"INFO: Explicit override - taxable=None (all entries)")
+
+        print(f"Generating report for location: {location}, year: {year}, taxable: {taxable_filter}")
         print(f"Database location format: {db_location}")
         print(f"Fetching data from database...")
-        db_rows = get_database_data(location=db_location, year=year)
+        db_rows = get_database_data(location=db_location, year=year, taxable=taxable_filter)
         
         if not db_rows:
             print(f"No data found for {year}")
             return
         
         print(f"Found {len(db_rows)} total records")
-        
+
+        # Debug: Show taxable status of fetched entries
+        print("\nDEBUG - Fetched entries with taxable status:")
+        for row in db_rows[:10]:  # Show first 10 entries
+            if len(row) == 7:
+                db_id, orderdate, position, income, expense, comment, taxable = row
+                print(f"  ID {db_id}: {position} | {expense}€ | taxable={taxable}")
+            else:
+                db_id, orderdate, position, income, expense, comment = row
+                print(f"  ID {db_id}: {position} | {expense}€ | taxable=MISSING")
+
         print("Aggregating rental-related data by month and category...")
         monthly_data = aggregate_data_by_month(db_rows)
         
@@ -394,9 +469,10 @@ def main():
             total_month = sum(cat['amount'] for cat in monthly_data[month].values())
             print(f"  {month_name}: {len(categories)} categories, Total: {total_month:.2f} €")
         
-        output_file = f'{location.lower()}_{year}.xlsx'
+        # Use the original location (with suffix) for filename
+        output_file = f'{location_for_file.lower()}_{year}.xlsx'
         print(f"\nGenerating Excel file: {output_file}")
-        generate_excel(monthly_data, location=location, year=year, output_file=output_file)
+        generate_excel(monthly_data, location=location_for_file, year=year, output_file=output_file)
         
         print(f"✓ Excel file created successfully: {output_file}")
         print(f"\nThe file includes:")

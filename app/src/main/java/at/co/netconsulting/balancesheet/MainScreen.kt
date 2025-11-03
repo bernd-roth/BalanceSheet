@@ -87,6 +87,7 @@ fun MainScreen(
                 onPositionChanged = viewModel::onPositionChanged,
                 onLocationChanged = viewModel::onLocationChanged,
                 onCommentChanged = viewModel::onCommentChanged,
+                onTaxableChanged = viewModel::onTaxableChanged,
                 onAddClicked = viewModel::addEntry,
                 onShowEntriesClicked = viewModel::showEntriesList,
                 onShowAllEntriesClicked = viewModel::showAllEntries
@@ -173,6 +174,7 @@ fun MainContent(
     onPositionChanged: (Position) -> Unit,
     onLocationChanged: (Location) -> Unit,
     onCommentChanged: (String) -> Unit,
+    onTaxableChanged: (Boolean) -> Unit,
     onAddClicked: () -> Unit,
     onShowEntriesClicked: () -> Unit,
     onShowAllEntriesClicked: () -> Unit
@@ -342,6 +344,13 @@ fun MainContent(
             value = uiState.inputComment,
             onValueChange = onCommentChanged,
             keyboardType = KeyboardType.Text
+        )
+
+        // Taxable checkbox
+        CheckboxRow(
+            label = stringResource(R.string.hint_taxable),
+            checked = uiState.inputTaxable,
+            onCheckedChange = onTaxableChanged
         )
 
         // Action buttons - single row with proper layout
@@ -679,5 +688,30 @@ fun DropdownRow(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun CheckboxRow(
+    label: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            modifier = Modifier.weight(1f),
+            fontSize = 16.sp
+        )
+        androidx.compose.material3.Checkbox(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            modifier = Modifier.weight(1f)
+        )
     }
 }

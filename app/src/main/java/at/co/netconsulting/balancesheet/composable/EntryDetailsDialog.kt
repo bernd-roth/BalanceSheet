@@ -53,7 +53,7 @@ fun EntryDetailsDialog(
     entry: at.co.netconsulting.balancesheet.data.IncomeExpense,
     persons: List<String>,
     onDismiss: () -> Unit,
-    onUpdate: (String, String, String, String, String, String, String, String) -> Unit
+    onUpdate: (String, String, String, String, String, String, String, String, Boolean) -> Unit
 ) {
     var id by remember { mutableStateOf(entry.id) }
 
@@ -68,6 +68,7 @@ fun EntryDetailsDialog(
     var expense by remember { mutableStateOf(entry.expense.toString()) }
     var position by remember { mutableStateOf(entry.position.name) }
     var comment by remember { mutableStateOf(entry.comment) }
+    var taxable by remember { mutableStateOf(entry.taxable) }
 
     // Format created_at for display using the correct property name
     val createdAtFormatted = remember {
@@ -206,6 +207,24 @@ fun EntryDetailsDialog(
                         .padding(vertical = 4.dp)
                 )
 
+                // Taxable checkbox
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "Taxable",
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(top = 12.dp)
+                    )
+                    androidx.compose.material3.Checkbox(
+                        checked = taxable,
+                        onCheckedChange = { taxable = it }
+                    )
+                }
+
                 // Created At (read-only)
                 OutlinedTextField(
                     value = createdAtFormatted,
@@ -222,7 +241,7 @@ fun EntryDetailsDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    onUpdate(id, date, person, location, income, expense, position, comment)
+                    onUpdate(id, date, person, location, income, expense, position, comment, taxable)
                 }
             ) {
                 Text("Update")

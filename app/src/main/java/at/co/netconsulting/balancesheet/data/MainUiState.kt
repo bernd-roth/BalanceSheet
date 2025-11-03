@@ -20,6 +20,7 @@ data class MainUiState(
     val inputExpense: String = "0",
     val inputDate: String = "",
     val inputComment: String = "",
+    val inputTaxable: Boolean = true,
     val isAddButtonEnabled: Boolean = false,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,

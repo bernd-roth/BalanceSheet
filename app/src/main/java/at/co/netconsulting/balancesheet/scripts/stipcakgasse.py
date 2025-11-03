@@ -4,6 +4,7 @@ from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from datetime import datetime
 from collections import defaultdict
 import sys
+import os
 
 # Database connection parameters
 DB_CONFIG = {
@@ -58,20 +59,38 @@ def get_category_column(position, comment):
     # Check position match only
     return parking_positions.get(position_lower, None)
 
-def get_database_data(location='Stipcakgasse 8', year=2025):
-    """Fetch parking lot data from Postgres database"""
+def get_database_data(location='Stipcakgasse 8', year=2025, taxable=None):
+    """Fetch parking lot data from Postgres database
+
+    Args:
+        location: The location name (e.g., 'Stipcakgasse 8')
+        year: The year to filter by
+        taxable: If True, filter for taxable entries. If False, filter for non-taxable entries.
+                 If None, return all entries for the location.
+    """
     conn = psycopg2.connect(**DB_CONFIG)
     cursor = conn.cursor()
 
-    query = """
-        SELECT id, orderdate, position, income, expense, comment
-        FROM incomeexpense
-        WHERE location LIKE %s
-        AND EXTRACT(YEAR FROM orderdate) = %s
-        ORDER BY orderdate, id
-    """
+    if taxable is not None:
+        query = """
+            SELECT id, orderdate, position, income, expense, comment, taxable
+            FROM incomeexpense
+            WHERE location LIKE %s
+            AND EXTRACT(YEAR FROM orderdate) = %s
+            AND taxable = %s
+            ORDER BY orderdate, id
+        """
+        cursor.execute(query, (location + '%', year, taxable))
+    else:
+        query = """
+            SELECT id, orderdate, position, income, expense, comment, taxable
+            FROM incomeexpense
+            WHERE location LIKE %s
+            AND EXTRACT(YEAR FROM orderdate) = %s
+            ORDER BY orderdate, id
+        """
+        cursor.execute(query, (location + '%', year))
 
-    cursor.execute(query, (location + '%', year))
     rows = cursor.fetchall()
 
     cursor.close()
@@ -83,17 +102,22 @@ def get_database_data(location='Stipcakgasse 8', year=2025):
 def aggregate_data_by_month(db_rows):
     """Aggregate database entries by month and category"""
     monthly_data = defaultdict(lambda: defaultdict(lambda: {'amount': 0.0, 'entries': []}))
-    
+
     for row in db_rows:
-        db_id, orderdate, position, income, expense, comment = row
-        
+        # Handle both old (6 fields) and new (7 fields with taxable) row formats
+        if len(row) == 7:
+            db_id, orderdate, position, income, expense, comment, taxable = row
+        else:
+            db_id, orderdate, position, income, expense, comment = row
+            taxable = False  # Default for old data
+
         category = get_category_column(position, comment)
         if category is None:
             continue
-        
+
         month = orderdate.month
         amount = float(income) if float(income) > 0 else -float(expense)
-        
+
         monthly_data[month][category]['amount'] += amount
         monthly_data[month][category]['entries'].append({
             'date': orderdate,
@@ -101,7 +125,7 @@ def aggregate_data_by_month(db_rows):
             'amount': amount,
             'comment': comment if comment else ''
         })
-    
+
     return monthly_data
 
 
@@ -274,6 +298,13 @@ def generate_excel(monthly_data, location='Stipcakgasse 8/1', year=2025, output_
             total_cat_cell.font = Font(bold=True)
     
     wb.save(output_file)
+
+    # Fix file permissions (make it readable/writable for user and group)
+    try:
+        os.chmod(output_file, 0o664)
+    except Exception as e:
+        print(f"Warning: Could not set file permissions: {e}")
+
     return output_file
 
 def main():
@@ -287,21 +318,42 @@ def main():
                 year = int(sys.argv[1])
             except ValueError:
                 print(f"Invalid year: {sys.argv[1]}")
-                print("Usage: python3 stipcakgasse.py [year]")
+                print("Usage: python3 stipcakgasse.py [year] [taxable]")
                 return
         else:
             year = datetime.now().year
-        
-        print(f"Generating report for: {location}, year: {year}")
+
+        # Get taxable filter from command line argument (optional)
+        # Options: 'true', 'false', or omit for all entries
+        taxable_filter = None
+        if len(sys.argv) > 2:
+            taxable_arg = sys.argv[2].lower()
+            if taxable_arg == 'true':
+                taxable_filter = True
+            elif taxable_arg == 'false':
+                taxable_filter = False
+            # else: None (all entries)
+
+        print(f"Generating report for: {location}, year: {year}, taxable: {taxable_filter}")
         print(f"Fetching data from database...")
-        db_rows = get_database_data(location=location, year=year)
+        db_rows = get_database_data(location=location, year=year, taxable=taxable_filter)
         
         if not db_rows:
             print(f"No data found for {location} in {year}")
             return
         
         print(f"Found {len(db_rows)} total records")
-        
+
+        # Debug: Show taxable status of fetched entries
+        print("\nDEBUG - Fetched entries with taxable status:")
+        for row in db_rows[:10]:  # Show first 10 entries
+            if len(row) == 7:
+                db_id, orderdate, position, income, expense, comment, taxable = row
+                print(f"  ID {db_id}: {position} | {expense}€ | taxable={taxable}")
+            else:
+                db_id, orderdate, position, income, expense, comment = row
+                print(f"  ID {db_id}: {position} | {expense}€ | taxable=MISSING")
+
         print("Aggregating parking lot data by month and category...")
         monthly_data = aggregate_data_by_month(db_rows)
         

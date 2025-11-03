@@ -10,7 +10,8 @@
       "Bash(python3:*)",
       "Bash(docker-compose exec:*)",
       "Bash(git push:*)",
-      "Bash(git branch:*)"
+      "Bash(git branch:*)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []

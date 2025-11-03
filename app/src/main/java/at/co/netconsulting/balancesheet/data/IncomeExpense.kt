@@ -14,5 +14,6 @@ data class IncomeExpense(
     val expense: Double = 0.0,
     val location: Location = Location.Hollgasse_1_1,
     val comment: String = "",
-    val createdAt: LocalDateTime? = null
+    val createdAt: LocalDateTime? = null,
+    val taxable: Boolean = true
 )

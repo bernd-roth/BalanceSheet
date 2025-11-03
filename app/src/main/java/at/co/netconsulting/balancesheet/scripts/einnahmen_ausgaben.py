@@ -5,6 +5,7 @@ from datetime import datetime
 import sys
 import calendar
 from collections import defaultdict
+import os
 
 # Databas   e connection parameters
 DB_CONFIG = {
@@ -406,6 +407,13 @@ def generate_excel(db_rows, year=2025, output_file=None):
 
     # Save workbook
     wb.save(output_file)
+
+    # Fix file permissions (make it readable/writable for user and group)
+    try:
+        os.chmod(output_file, 0o664)
+    except Exception as e:
+        print(f"Warning: Could not set file permissions: {e}")
+
     return output_file
 
 def main():

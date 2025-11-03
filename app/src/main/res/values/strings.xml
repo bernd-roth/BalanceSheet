@@ -61,6 +61,7 @@
     <string name="hint_date">Date</string>
     <string name="hint_date_dd_mm_yyyy">Date (dd-mm-yyyy)</string>
     <string name="hint_comment">Comment</string>
+    <string name="hint_taxable">Taxable</string>
 
     <!-- textView -->
     <string name="textViewIpAddress">IP Address</string>

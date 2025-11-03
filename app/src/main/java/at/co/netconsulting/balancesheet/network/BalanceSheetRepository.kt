@@ -245,6 +245,7 @@ class BalanceSheetRepository(private val baseUrl: String) {
                 .add("expense", entry.expense.toString())
                 .add("location", entry.location.displayName)
                 .add("comment", entry.comment)
+                .add("taxable", entry.taxable.toString())
                 .build()
 
             val response = makePostRequest(url, formBody)
@@ -278,6 +279,7 @@ class BalanceSheetRepository(private val baseUrl: String) {
                 .add("expense", entry.expense.toString())
                 .add("location", entry.location.displayName)
                 .add("comment", entry.comment)
+                .add("taxable", entry.taxable.toString())
                 .build()
 
             val response = makePutRequest(url, formBody)
@@ -563,7 +565,8 @@ class BalanceSheetRepository(private val baseUrl: String) {
                     Location.Hollgasse_1_1
                 },
                 comment = item.optString("comment", ""),
-                createdAt = createdAt
+                createdAt = createdAt,
+                taxable = item.optBoolean("taxable", false)
             )
         } catch (e: Exception) {
             println("DEBUG: Error in parseEntryFromJson: ${e.message}")
@@ -579,7 +582,8 @@ class BalanceSheetRepository(private val baseUrl: String) {
                 expense = 0.0,
                 location = Location.Hollgasse_1_1,
                 comment = "Error parsing: ${e.message}",
-                createdAt = null
+                createdAt = null,
+                taxable = false
             )
         }
     }
