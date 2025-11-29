@@ -70,15 +70,6 @@ fun EntryDetailsDialog(
     var comment by remember { mutableStateOf(entry.comment) }
     var taxable by remember { mutableStateOf(entry.taxable) }
 
-    // Format created_at for display using the correct property name
-    val createdAtFormatted = remember {
-        if (entry.createdAt != null) {
-            entry.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        } else {
-            "Not available"
-        }
-    }
-
     // Add state for the date picker
     var showDatePicker by remember { mutableStateOf(false) }
 
@@ -224,18 +215,6 @@ fun EntryDetailsDialog(
                         onCheckedChange = { taxable = it }
                     )
                 }
-
-                // Created At (read-only)
-                OutlinedTextField(
-                    value = createdAtFormatted,
-                    onValueChange = { /* Read-only */ },
-                    label = { Text("Created At") },
-                    readOnly = true,
-                    enabled = false,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                )
             }
         },
         confirmButton = {
