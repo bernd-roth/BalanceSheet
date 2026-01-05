@@ -54,7 +54,7 @@ def get_category_column(position, comment, export_to='auto'):
 
     Args:
         position: The position/category name
-        comment: Additional comment (currently unused)
+        comment: Additional comment used to refine insurance categorization
         export_to: Export routing control ('auto', 'hollgasse', 'arbeitnehmerveranlagung', 'both', 'none')
     """
     # Check export_to field first
@@ -65,6 +65,7 @@ def get_category_column(position, comment, export_to='auto'):
     # If export_to is 'auto', 'hollgasse', or 'both', continue with position-based mapping
 
     position_lower = position.lower().strip() if position else ''
+    comment_lower = comment.lower().strip() if comment else ''
 
     # Direct position mapping for rental-related expenses
     # Maps both enum names (with underscores) and display names (with slashes/spaces)
@@ -82,6 +83,14 @@ def get_category_column(position, comment, export_to='auto'):
         'steuerberater': 'steuerberater',
         'bank': 'bank'
     }
+
+    # Special handling for generic "versicherung" - check comment for specific insurance type
+    if position_lower == 'versicherung':
+        # Check comment for Rechtsschutzversicherung keywords
+        if 'rechtsschutz' in comment_lower:
+            return 'rechtsschutzversicherung'
+        # Default to household insurance for other cases
+        return 'haushaltsversicherung'
 
     # For export_to='hollgasse' or 'both', force inclusion even if not in rental_positions
     if export_to in ['hollgasse', 'both']:
