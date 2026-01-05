@@ -9,6 +9,7 @@ import at.co.netconsulting.balancesheet.data.IncomeExpense
 import at.co.netconsulting.balancesheet.PersonalFoodSummary
 import at.co.netconsulting.balancesheet.Summary
 import at.co.netconsulting.balancesheet.data.MainUiState
+import at.co.netconsulting.balancesheet.enums.ExportTo
 import at.co.netconsulting.balancesheet.enums.Location
 import at.co.netconsulting.balancesheet.enums.Position
 import at.co.netconsulting.balancesheet.network.BalanceSheetRepository
@@ -271,6 +272,9 @@ class MainViewModel(
         _uiState.update { it.copy(inputTaxable = value) }
     }
 
+    fun onExportToChanged(value: ExportTo) {
+        _uiState.update { it.copy(inputExportTo = value) }
+    }
 
     private fun validateInputs() {
         val state = _uiState.value
@@ -419,7 +423,8 @@ class MainViewModel(
                     expense = expense,
                     location = state.selectedLocation,
                     comment = state.inputComment,
-                    taxable = state.inputTaxable
+                    taxable = state.inputTaxable,
+                    exportTo = state.inputExportTo
                 )
 
                 val transactionId = "${System.currentTimeMillis()}-${UUID.randomUUID().toString().substring(0, 8)}"
@@ -509,7 +514,8 @@ class MainViewModel(
         expense: String,
         position: String,
         comment: String,
-        taxable: Boolean
+        taxable: Boolean,
+        exportTo: String
     ) {
         viewModelScope.launch {
             try {
@@ -525,7 +531,8 @@ class MainViewModel(
                     expense = expense.toDoubleOrNull() ?: 0.0,
                     location = Location.valueOf(location),
                     comment = comment,
-                    taxable = taxable
+                    taxable = taxable,
+                    exportTo = ExportTo.valueOf(exportTo)
                 )
 
                 val success = repository.updateEntry(entry)

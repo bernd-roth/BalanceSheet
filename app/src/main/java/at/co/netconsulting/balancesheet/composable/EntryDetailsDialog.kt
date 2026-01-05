@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import at.co.netconsulting.balancesheet.DatePickerDialog
+import at.co.netconsulting.balancesheet.enums.ExportTo
 import at.co.netconsulting.balancesheet.enums.Location
 import at.co.netconsulting.balancesheet.enums.Position
 import java.time.Instant
@@ -53,7 +54,7 @@ fun EntryDetailsDialog(
     entry: at.co.netconsulting.balancesheet.data.IncomeExpense,
     persons: List<String>,
     onDismiss: () -> Unit,
-    onUpdate: (String, String, String, String, String, String, String, String, Boolean) -> Unit
+    onUpdate: (String, String, String, String, String, String, String, String, Boolean, String) -> Unit
 ) {
     var id by remember { mutableStateOf(entry.id) }
 
@@ -69,6 +70,7 @@ fun EntryDetailsDialog(
     var position by remember { mutableStateOf(entry.position.name) }
     var comment by remember { mutableStateOf(entry.comment) }
     var taxable by remember { mutableStateOf(entry.taxable) }
+    var exportTo by remember { mutableStateOf(entry.exportTo.name) }
 
     // Add state for the date picker
     var showDatePicker by remember { mutableStateOf(false) }
@@ -215,12 +217,23 @@ fun EntryDetailsDialog(
                         onCheckedChange = { taxable = it }
                     )
                 }
+
+                // Export To dropdown
+                DropdownField(
+                    label = "Export To",
+                    selectedValue = exportTo,
+                    options = ExportTo.values().map { it.name },
+                    onValueChange = { exportTo = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                )
             }
         },
         confirmButton = {
             TextButton(
                 onClick = {
-                    onUpdate(id, date, person, location, income, expense, position, comment, taxable)
+                    onUpdate(id, date, person, location, income, expense, position, comment, taxable, exportTo)
                 }
             ) {
                 Text("Update")

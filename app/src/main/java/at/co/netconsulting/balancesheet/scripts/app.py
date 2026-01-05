@@ -52,8 +52,9 @@ class IncomeExpenseModel(db.Model):
     # Use func.now() to get the server's timezone
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     taxable = db.Column(db.Boolean, default=False)
+    export_to = db.Column(db.String, nullable=True, default='auto')
 
-    def __init__(self, orderdate, who, position, income, expense, location, comment, taxable=False):
+    def __init__(self, orderdate, who, position, income, expense, location, comment, taxable=False, export_to='auto'):
         self.orderdate = orderdate
         self.who = who
         self.position = position
@@ -62,6 +63,7 @@ class IncomeExpenseModel(db.Model):
         self.location = location
         self.comment = comment
         self.taxable = taxable
+        self.export_to = export_to
 
     def __repr__(self):
         return f"IncomeExpenseModel('{self.id}', '{self.orderdate}', '{self.who}', '{self.position}', '{self.income}', '{self.expense}', '{self.location}', '{self.comment}')"
@@ -104,7 +106,8 @@ def handle_incomexpense_all():
                 "location": incomeexpense.location,
                 "comment": incomeexpense.comment,
                 "created_at": created_at_str,
-                "taxable": incomeexpense.taxable
+                "taxable": incomeexpense.taxable,
+                "export_to": incomeexpense.export_to
             }
 
             # Print each entry's serialized form
@@ -218,7 +221,8 @@ def handle_incomexpense_add():
                 expense=request.form.get('expense'),
                 location=request.form.get('location'),
                 comment=request.form.get('comment'),
-                taxable=request.form.get('taxable', 'false').lower() == 'true'
+                taxable=request.form.get('taxable', 'false').lower() == 'true',
+                export_to=request.form.get('export_to', 'auto')
             )
 
             db.session.add(entry)
@@ -330,7 +334,8 @@ def handle_incomexpense_all_entries():
                 "location": incomeexpense.location,
                 "comment": incomeexpense.comment,
                 "created_at": created_at_str,
-                "taxable": incomeexpense.taxable
+                "taxable": incomeexpense.taxable,
+                "export_to": incomeexpense.export_to
             })
         return {"message": "success", "incomeexpense": response}
 
@@ -356,6 +361,8 @@ def handle_incomeexpense_update(id):
             incomeexpense.comment = request.form.get('comment')
         if 'taxable' in request.form:
             incomeexpense.taxable = request.form.get('taxable').lower() == 'true'
+        if 'export_to' in request.form:
+            incomeexpense.export_to = request.form.get('export_to')
 
         # Save the changes
         db.session.commit()

@@ -30,29 +30,25 @@ MONTH_NAMES = {
     12: 'Dezember'
 }
 
-def get_tax_category_column(position, comment):
+def get_tax_category_column(position, comment, export_to='auto'):
     """
     Map database position to Austrian tax category column
     Returns column name or None if not applicable
+
+    Args:
+        position: The position/category name
+        comment: Additional comment (currently unused)
+        export_to: Export routing control ('auto', 'hollgasse', 'arbeitnehmerveranlagung', 'both', 'none')
     """
+    # Check export_to field first
+    if export_to == 'none':
+        return None
+    if export_to == 'hollgasse':
+        return None  # This entry should only go to hollgasse, not arbeitnehmerveranlagung
+    # If export_to is 'auto', 'arbeitnehmerveranlagung', or 'both', continue with position-based mapping
+
     position_lower = position.lower().strip() if position else ''
     comment_lower = comment.lower().strip() if comment else ''
-
-    # Exclude rental-related positions
-    rental_positions = [
-        'mieteinkommen', 'garage a3/17', 'garage a1/12',
-        'reparaturrücklage garage a3/17', 'reparaturrücklage garage a1/12',
-        'betriebskosten garage a3/17', 'betriebskosten garage a1/12',
-        'reparaturrücklage garagenplatz a3/17', 'reparaturrücklage garagenplatz a1/12',
-        'betriebskosten garagenplatz a3/17', 'betriebskosten garagenplatz a1/12',
-        'wasser/heizung', 'haushaltsversicherung', 'hausverwaltung',
-        'internet', 'klimaanlage', 'obs haushaltsabgabe',
-        'rechtsschutzversicherung', 'vermietung garage', 'bank',
-        'auto', 'essen', 'einkommen', 'shop', 'telefon'
-    ]
-
-    if position_lower in rental_positions:
-        return None
 
     # Map positions to tax columns - exact match mapping
     # The key is what's in the database, value is the column category
@@ -69,8 +65,31 @@ def get_tax_category_column(position, comment):
         'steuerberater': 'steuerberater',
         'digitale arbeitsmittel': 'digitale_arbeitsmittel',
         'digitale_arbeitsmittel': 'digitale_arbeitsmittel',
-        'versicherung': 'versicherung'
+        'versicherung': 'versicherung',
+        'internet': 'digitale_arbeitsmittel'  # Internet can be mapped to digitale_arbeitsmittel for personal tax
     }
+
+    # For export_to='arbeitnehmerveranlagung' or 'both', force inclusion
+    if export_to in ['arbeitnehmerveranlagung', 'both']:
+        # Try to map the position, or use a default category if it doesn't match
+        return position_mapping.get(position_lower, 'steuerberater')  # Default to 'steuerberater' for forced entries
+
+    # For export_to='auto', use position-based mapping
+    # Exclude rental-related positions when in auto mode
+    rental_positions = [
+        'mieteinkommen', 'garage a3/17', 'garage a1/12',
+        'reparaturrücklage garage a3/17', 'reparaturrücklage garage a1/12',
+        'betriebskosten garage a3/17', 'betriebskosten garage a1/12',
+        'reparaturrücklage garagenplatz a3/17', 'reparaturrücklage garagenplatz a1/12',
+        'betriebskosten garagenplatz a3/17', 'betriebskosten garagenplatz a1/12',
+        'wasser/heizung', 'haushaltsversicherung', 'hausverwaltung',
+        'internet', 'klimaanlage', 'obs haushaltsabgabe',
+        'rechtsschutzversicherung', 'vermietung garage', 'bank',
+        'auto', 'essen', 'einkommen', 'shop', 'telefon'
+    ]
+
+    if position_lower in rental_positions:
+        return None
 
     # Return the mapped category if position matches
     return position_mapping.get(position_lower, None)
@@ -82,7 +101,7 @@ def get_database_data(person='Bernd', year=2025):
     cursor = conn.cursor()
 
     query = """
-        SELECT id, orderdate, position, income, expense, comment
+        SELECT id, orderdate, position, income, expense, comment, export_to
         FROM incomeexpense
         WHERE who = %s
         AND EXTRACT(YEAR FROM orderdate) = %s
@@ -103,9 +122,14 @@ def aggregate_data_by_month(db_rows):
     monthly_data = defaultdict(lambda: defaultdict(lambda: {'amount': 0.0, 'entries': []}))
 
     for row in db_rows:
-        db_id, orderdate, position, income, expense, comment = row
+        # Handle different row formats (old and new with export_to field)
+        if len(row) == 7:
+            db_id, orderdate, position, income, expense, comment, export_to = row
+        else:
+            db_id, orderdate, position, income, expense, comment = row
+            export_to = 'auto'  # Default for data without export_to field
 
-        category = get_tax_category_column(position, comment)
+        category = get_tax_category_column(position, comment, export_to)
         if category is None:
             continue
 
@@ -378,7 +402,7 @@ def main():
         monthly_data = aggregate_data_by_month(db_rows)
 
         tax_entries = sum(len(cat['entries']) for month_data in monthly_data.values()
-                         for cat in month_data.values())
+                          for cat in month_data.values())
         print(f"Found {tax_entries} tax-relevant entries")
 
         print("\nMonthly breakdown:")

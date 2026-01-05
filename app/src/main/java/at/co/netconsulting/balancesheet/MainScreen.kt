@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import at.co.netconsulting.balancesheet.composable.*
+import at.co.netconsulting.balancesheet.enums.ExportTo
 import at.co.netconsulting.balancesheet.enums.Location
 import at.co.netconsulting.balancesheet.enums.Position
 import at.co.netconsulting.balancesheet.data.MainUiState
@@ -88,6 +89,7 @@ fun MainScreen(
                 onLocationChanged = viewModel::onLocationChanged,
                 onCommentChanged = viewModel::onCommentChanged,
                 onTaxableChanged = viewModel::onTaxableChanged,
+                onExportToChanged = viewModel::onExportToChanged,
                 onAddClicked = viewModel::addEntry,
                 onShowEntriesClicked = viewModel::showEntriesList,
                 onShowAllEntriesClicked = viewModel::showAllEntries
@@ -175,6 +177,7 @@ fun MainContent(
     onLocationChanged: (Location) -> Unit,
     onCommentChanged: (String) -> Unit,
     onTaxableChanged: (Boolean) -> Unit,
+    onExportToChanged: (ExportTo) -> Unit,
     onAddClicked: () -> Unit,
     onShowEntriesClicked: () -> Unit,
     onShowAllEntriesClicked: () -> Unit
@@ -351,6 +354,13 @@ fun MainContent(
             label = stringResource(R.string.hint_taxable),
             checked = uiState.inputTaxable,
             onCheckedChange = onTaxableChanged
+        )
+
+        // Export To dropdown
+        ExportToDropdownRow(
+            label = "Export To",
+            selectedValue = uiState.inputExportTo,
+            onValueChange = onExportToChanged
         )
 
         // Action buttons - single row with proper layout
@@ -713,5 +723,52 @@ fun CheckboxRow(
             onCheckedChange = onCheckedChange,
             modifier = Modifier.weight(1f)
         )
+    }
+}
+
+@Composable
+fun ExportToDropdownRow(
+    label: String,
+    selectedValue: ExportTo,
+    onValueChange: (ExportTo) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            modifier = Modifier.weight(1f),
+            fontSize = 16.sp
+        )
+
+        Box(modifier = Modifier.weight(1f)) {
+            OutlinedButton(
+                onClick = { expanded = true },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(selectedValue.displayName)
+            }
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                ExportTo.values().forEach { exportTo ->
+                    DropdownMenuItem(
+                        text = { Text(exportTo.displayName) },
+                        onClick = {
+                            onValueChange(exportTo)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
     }
 }

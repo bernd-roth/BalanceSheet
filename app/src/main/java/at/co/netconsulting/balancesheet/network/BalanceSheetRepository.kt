@@ -2,6 +2,7 @@ package at.co.netconsulting.balancesheet.network
 
 import at.co.netconsulting.balancesheet.enums.Location
 import at.co.netconsulting.balancesheet.enums.Position
+import at.co.netconsulting.balancesheet.enums.ExportTo
 import at.co.netconsulting.balancesheet.data.IncomeExpense
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -246,6 +247,7 @@ class BalanceSheetRepository(private val baseUrl: String) {
                 .add("location", entry.location.displayName)
                 .add("comment", entry.comment)
                 .add("taxable", entry.taxable.toString())
+                .add("export_to", entry.exportTo.name)
                 .build()
 
             val response = makePostRequest(url, formBody)
@@ -280,6 +282,7 @@ class BalanceSheetRepository(private val baseUrl: String) {
                 .add("location", entry.location.displayName)
                 .add("comment", entry.comment)
                 .add("taxable", entry.taxable.toString())
+                .add("export_to", entry.exportTo.name)
                 .build()
 
             val response = makePutRequest(url, formBody)
@@ -566,7 +569,13 @@ class BalanceSheetRepository(private val baseUrl: String) {
                 },
                 comment = item.optString("comment", ""),
                 createdAt = createdAt,
-                taxable = item.optBoolean("taxable", false)
+                taxable = item.optBoolean("taxable", false),
+                exportTo = try {
+                    val exportToStr = item.optString("export_to", "auto")
+                    ExportTo.values().find { it.name == exportToStr } ?: ExportTo.auto
+                } catch (e: Exception) {
+                    ExportTo.auto
+                }
             )
         } catch (e: Exception) {
             println("DEBUG: Error in parseEntryFromJson: ${e.message}")
@@ -583,7 +592,8 @@ class BalanceSheetRepository(private val baseUrl: String) {
                 location = Location.Hollgasse_1_1,
                 comment = "Error parsing: ${e.message}",
                 createdAt = null,
-                taxable = false
+                taxable = false,
+                exportTo = ExportTo.auto
             )
         }
     }

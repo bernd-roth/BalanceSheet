@@ -2,6 +2,7 @@ package at.co.netconsulting.balancesheet.data
 
 import at.co.netconsulting.balancesheet.enums.Position
 import at.co.netconsulting.balancesheet.enums.Location
+import at.co.netconsulting.balancesheet.enums.ExportTo
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -15,5 +16,6 @@ data class IncomeExpense(
     val location: Location = Location.Hollgasse_1_1,
     val comment: String = "",
     val createdAt: LocalDateTime? = null,
-    val taxable: Boolean = true
+    val taxable: Boolean = true,
+    val exportTo: ExportTo = ExportTo.auto
 )

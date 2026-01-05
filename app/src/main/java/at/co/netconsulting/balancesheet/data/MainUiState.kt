@@ -2,6 +2,7 @@ package at.co.netconsulting.balancesheet.data
 
 import at.co.netconsulting.balancesheet.PersonalFoodSummary
 import at.co.netconsulting.balancesheet.Summary
+import at.co.netconsulting.balancesheet.enums.ExportTo
 import at.co.netconsulting.balancesheet.enums.Location
 import at.co.netconsulting.balancesheet.enums.Position
 import java.time.LocalDate
@@ -21,6 +22,7 @@ data class MainUiState(
     val inputDate: String = "",
     val inputComment: String = "",
     val inputTaxable: Boolean = true,
+    val inputExportTo: ExportTo = ExportTo.auto,
     val isAddButtonEnabled: Boolean = false,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,

@@ -47,11 +47,23 @@ TEMPLATE_CATEGORIES = [
 ]
 
 
-def get_category_column(position, comment):
+def get_category_column(position, comment, export_to='auto'):
     """
-    Determine which sheet column based on position field
+    Determine which sheet column based on position field and export_to setting
     Returns the column name or None if not rental-related
+
+    Args:
+        position: The position/category name
+        comment: Additional comment (currently unused)
+        export_to: Export routing control ('auto', 'hollgasse', 'arbeitnehmerveranlagung', 'both', 'none')
     """
+    # Check export_to field first
+    if export_to == 'none':
+        return None
+    if export_to == 'arbeitnehmerveranlagung':
+        return None  # This entry should only go to arbeitnehmerveranlagung, not hollgasse
+    # If export_to is 'auto', 'hollgasse', or 'both', continue with position-based mapping
+
     position_lower = position.lower().strip() if position else ''
 
     # Direct position mapping for rental-related expenses
@@ -71,7 +83,12 @@ def get_category_column(position, comment):
         'bank': 'bank'
     }
 
-    # Check if position matches any rental category
+    # For export_to='hollgasse' or 'both', force inclusion even if not in rental_positions
+    if export_to in ['hollgasse', 'both']:
+        # Try to map the position, or use a default category if it doesn't match
+        return rental_positions.get(position_lower, 'bank')  # Default to 'bank' for forced entries
+
+    # For export_to='auto', check if position matches any rental category
     if position_lower in rental_positions:
         return rental_positions[position_lower]
 
@@ -93,7 +110,7 @@ def get_database_data(location='Hollgasse 1/54', year=2026, taxable=None):
 
     if taxable is not None:
         query = """
-            SELECT id, orderdate, position, income, expense, comment, taxable
+            SELECT id, orderdate, position, income, expense, comment, taxable, export_to
             FROM incomeexpense
             WHERE location = %s
             AND EXTRACT(YEAR FROM orderdate) = %s
@@ -103,7 +120,7 @@ def get_database_data(location='Hollgasse 1/54', year=2026, taxable=None):
         cursor.execute(query, (location, year, taxable))
     else:
         query = """
-            SELECT id, orderdate, position, income, expense, comment, taxable
+            SELECT id, orderdate, position, income, expense, comment, taxable, export_to
             FROM incomeexpense
             WHERE location = %s
             AND EXTRACT(YEAR FROM orderdate) = %s
@@ -125,15 +142,19 @@ def aggregate_data_by_month(db_rows):
     monthly_data = defaultdict(lambda: defaultdict(lambda: {'amount': 0.0, 'entries': []}))
 
     for row in db_rows:
-        # Handle both old (6 fields) and new (7 fields with taxable) row formats
-        if len(row) == 7:
+        # Handle different row formats (old and new with additional fields)
+        if len(row) == 8:
+            db_id, orderdate, position, income, expense, comment, taxable, export_to = row
+        elif len(row) == 7:
             db_id, orderdate, position, income, expense, comment, taxable = row
+            export_to = 'auto'  # Default for data without export_to field
         else:
             db_id, orderdate, position, income, expense, comment = row
             taxable = False  # Default for old data
+            export_to = 'auto'
 
         # Determine category - skip if not rental-related
-        category = get_category_column(position, comment)
+        category = get_category_column(position, comment, export_to)
         if category is None:
             continue
 
@@ -153,20 +174,20 @@ def aggregate_data_by_month(db_rows):
 
 def generate_excel(monthly_data, location='Hollgasse_1_54', year=2026, output_file=None):
     """Generate Excel file with proper formatting matching the template"""
-    
+
     if output_file is None:
         output_file = f'{location.lower()}_{year}.xlsx'
-    
+
     wb = Workbook()
     ws = wb.active
     ws.title = f"steuererklaerung_{location.lower()[:20]}"
-    
+
     # Define styles
     yellow_fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
     centered_alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
     header_alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
     normal_alignment = Alignment(horizontal="left", vertical="center")
-    
+
     # Thin border
     thin_border = Border(
         left=Side(style='thin'),
@@ -174,7 +195,7 @@ def generate_excel(monthly_data, location='Hollgasse_1_54', year=2026, output_fi
         top=Side(style='thin'),
         bottom=Side(style='thin')
     )
-    
+
     # Row 1: Title (merged across columns A-R) with yellow background
     ws.merge_cells('A1:R1')
     title_cell = ws['A1']
@@ -183,7 +204,7 @@ def generate_excel(monthly_data, location='Hollgasse_1_54', year=2026, output_fi
     title_cell.alignment = centered_alignment
     title_cell.font = Font(bold=True, size=12)
     ws.row_dimensions[1].height = 60
-    
+
     # Row 2: Column headers
     headers = [
         'rechnungsnummer',
@@ -205,19 +226,19 @@ def generate_excel(monthly_data, location='Hollgasse_1_54', year=2026, output_fi
         'bank',
         'comment'
     ]
-    
+
     for col_idx, header in enumerate(headers, start=1):
         cell = ws.cell(row=2, column=col_idx)
         cell.value = header
         cell.alignment = header_alignment
         cell.font = Font(bold=True)
         cell.border = thin_border
-    
+
     ws.row_dimensions[2].height = 30
-    
+
     # Freeze first 2 rows
     ws.freeze_panes = 'A3'
-    
+
     # Set column widths
     column_widths = {
         'A': 18,  # rechnungsnummer
@@ -239,10 +260,10 @@ def generate_excel(monthly_data, location='Hollgasse_1_54', year=2026, output_fi
         'Q': 10,  # bank
         'R': 30,  # comment
     }
-    
+
     for col, width in column_widths.items():
         ws.column_dimensions[col].width = width
-    
+
     # Initialize totals and invoice counter
     totals = {
         'ein_aus': 0.0,
@@ -260,10 +281,10 @@ def generate_excel(monthly_data, location='Hollgasse_1_54', year=2026, output_fi
         'obs haushaltsabgabe': 0.0,
         'bank': 0.0
     }
-    
+
     invoice_number = 1
     current_row = 3
-    
+
     # Column mapping
     category_columns = {
         'mieteinkommen': 5,          # E - mieteinkommen
@@ -280,19 +301,19 @@ def generate_excel(monthly_data, location='Hollgasse_1_54', year=2026, output_fi
         'obs haushaltsabgabe': 16, # P
         'bank': 17,          # Q - bank (for Gemeinsam tax category)
     }
-    
+
     # Write data for each month
     for month in range(1, 13):
         month_name = MONTH_NAMES[month]
-        
+
         # Month header row
         ws.cell(row=current_row, column=1).value = month_name
         ws.cell(row=current_row, column=1).font = Font(bold=True)
         current_row += 1
-        
+
         # Get categories for this month
         categories_in_month = monthly_data.get(month, {})
-        
+
         # Write entries for each category (only if category has entries)
         for category in TEMPLATE_CATEGORIES:
             if category in categories_in_month:
@@ -335,17 +356,17 @@ def generate_excel(monthly_data, location='Hollgasse_1_54', year=2026, output_fi
 
                     current_row += 1
             # Skip empty rows - no else clause
-    
+
     # Add totals row
     ws.cell(row=current_row, column=1).value = "summe"
     ws.cell(row=current_row, column=1).font = Font(bold=True)
-    
+
     # Total ein/aus
     total_cell = ws.cell(row=current_row, column=4)
     total_cell.value = totals['ein_aus']
     total_cell.number_format = '#,##0.00 [$€-1]'
     total_cell.font = Font(bold=True)
-    
+
     # Totals for each category
     for category, col_idx in category_columns.items():
         if totals[category] != 0:
@@ -353,7 +374,7 @@ def generate_excel(monthly_data, location='Hollgasse_1_54', year=2026, output_fi
             total_cat_cell.value = totals[category]
             total_cat_cell.number_format = '#,##0.00 [$€-1]'
             total_cat_cell.font = Font(bold=True)
-    
+
     # Save the workbook
     wb.save(output_file)
 
@@ -375,7 +396,7 @@ def main():
             print("Example: python3 rental_export_excel.py Hollgasse_1_54")
             print("Example: python3 rental_export_excel.py Hollgasse_1_1 2025")
             return
-        
+
         location = sys.argv[1]
 
         # Smart taxable detection from location name
@@ -438,42 +459,45 @@ def main():
         print(f"Database location format: {db_location}")
         print(f"Fetching data from database...")
         db_rows = get_database_data(location=db_location, year=year, taxable=taxable_filter)
-        
+
         if not db_rows:
             print(f"No data found for {year}")
             return
-        
+
         print(f"Found {len(db_rows)} total records")
 
-        # Debug: Show taxable status of fetched entries
-        print("\nDEBUG - Fetched entries with taxable status:")
+        # Debug: Show taxable status and export_to of fetched entries
+        print("\nDEBUG - Fetched entries with taxable and export_to status:")
         for row in db_rows[:10]:  # Show first 10 entries
-            if len(row) == 7:
+            if len(row) == 8:
+                db_id, orderdate, position, income, expense, comment, taxable, export_to = row
+                print(f"  ID {db_id}: {position} | {expense}€ | taxable={taxable} | export_to={export_to}")
+            elif len(row) == 7:
                 db_id, orderdate, position, income, expense, comment, taxable = row
-                print(f"  ID {db_id}: {position} | {expense}€ | taxable={taxable}")
+                print(f"  ID {db_id}: {position} | {expense}€ | taxable={taxable} | export_to=MISSING")
             else:
                 db_id, orderdate, position, income, expense, comment = row
-                print(f"  ID {db_id}: {position} | {expense}€ | taxable=MISSING")
+                print(f"  ID {db_id}: {position} | {expense}€ | taxable=MISSING | export_to=MISSING")
 
         print("Aggregating rental-related data by month and category...")
         monthly_data = aggregate_data_by_month(db_rows)
-        
-        rental_entries = sum(len(cat['entries']) for month_data in monthly_data.values() 
-                           for cat in month_data.values())
+
+        rental_entries = sum(len(cat['entries']) for month_data in monthly_data.values()
+                             for cat in month_data.values())
         print(f"Found {rental_entries} rental-related entries")
-        
+
         print("\nMonthly breakdown:")
         for month in sorted(monthly_data.keys()):
             month_name = MONTH_NAMES.get(month, f"Month {month}")
             categories = list(monthly_data[month].keys())
             total_month = sum(cat['amount'] for cat in monthly_data[month].values())
             print(f"  {month_name}: {len(categories)} categories, Total: {total_month:.2f} €")
-        
+
         # Use the original location (with suffix) for filename
         output_file = f'{location_for_file.lower()}_{year}.xlsx'
         print(f"\nGenerating Excel file: {output_file}")
         generate_excel(monthly_data, location=location_for_file, year=year, output_file=output_file)
-        
+
         print(f"✓ Excel file created successfully: {output_file}")
         print(f"\nThe file includes:")
         print(f"  ✓ Location: {location}")
@@ -485,7 +509,7 @@ def main():
         print(f"  ✓ Monthly breakdown with totals")
         print(f"\nTo download from container:")
         print(f"docker cp $(docker-compose ps -q web):/app/{output_file} ./exports/{output_file}")
-        
+
     except Exception as e:
         print(f"Error: {str(e)}")
         import traceback
