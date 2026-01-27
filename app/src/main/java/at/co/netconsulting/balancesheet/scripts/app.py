@@ -53,8 +53,9 @@ class IncomeExpenseModel(db.Model):
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     taxable = db.Column(db.Boolean, default=False)
     export_to = db.Column(db.String, nullable=True, default='auto')
+    is_info_only = db.Column(db.Boolean, default=False)
 
-    def __init__(self, orderdate, who, position, income, expense, location, comment, taxable=False, export_to='auto'):
+    def __init__(self, orderdate, who, position, income, expense, location, comment, taxable=False, export_to='auto', is_info_only=False):
         self.orderdate = orderdate
         self.who = who
         self.position = position
@@ -64,6 +65,7 @@ class IncomeExpenseModel(db.Model):
         self.comment = comment
         self.taxable = taxable
         self.export_to = export_to
+        self.is_info_only = is_info_only
 
     def __repr__(self):
         return f"IncomeExpenseModel('{self.id}', '{self.orderdate}', '{self.who}', '{self.position}', '{self.income}', '{self.expense}', '{self.location}', '{self.comment}')"
@@ -107,7 +109,8 @@ def handle_incomexpense_all():
                 "comment": incomeexpense.comment,
                 "created_at": created_at_str,
                 "taxable": incomeexpense.taxable,
-                "export_to": incomeexpense.export_to
+                "export_to": incomeexpense.export_to,
+                "is_info_only": incomeexpense.is_info_only
             }
 
             # Print each entry's serialized form
@@ -147,6 +150,7 @@ def handle_expense_sum():
     FROM incomeexpense
     WHERE orderdate BETWEEN date_trunc('month', current_date)
     AND (date_trunc('month', now()) + interval '1 month - 1 day')::date
+    AND (is_info_only = false OR is_info_only IS NULL)
     """
     result = execute_query(query)
     return {"message": "success", "incomeexpense": {"Total income": [result[0][0]]}}
@@ -158,6 +162,7 @@ def handle_incomexpense_sum():
     FROM incomeexpense
     WHERE orderdate BETWEEN date_trunc('month', now())
     AND (date_trunc('month', now()) + interval '1 month - 1 day')::date
+    AND (is_info_only = false OR is_info_only IS NULL)
     """
     result = execute_query(query)
     return {"message": "success", "incomeexpense": {"Total income": [result[0][0]]}}
@@ -169,6 +174,7 @@ def handle_incomexpense_sum_savings():
     FROM incomeexpense
     WHERE orderdate BETWEEN date_trunc('month', current_date)
     AND (date_trunc('month', now()) + interval '1 month - 1 day')::date
+    AND (is_info_only = false OR is_info_only IS NULL)
     """
     result = execute_query(query)
     return {"message": "success", "incomeexpense": {"Total income": [result[0][0]]}}
@@ -181,6 +187,7 @@ def handle_incomexpense_sum_food():
     WHERE LOWER(position) = 'essen'
     AND orderdate BETWEEN date_trunc('month', current_date)
     AND (date_trunc('month', now()) + interval '1 month - 1 day')::date
+    AND (is_info_only = false OR is_info_only IS NULL)
     """
     print(f"DEBUG sum_food query: {query}")
     result = execute_query(query)
@@ -222,7 +229,8 @@ def handle_incomexpense_add():
                 location=request.form.get('location'),
                 comment=request.form.get('comment'),
                 taxable=request.form.get('taxable', 'false').lower() == 'true',
-                export_to=request.form.get('export_to', 'auto')
+                export_to=request.form.get('export_to', 'auto'),
+                is_info_only=request.form.get('is_info_only', 'false').lower() == 'true'
             )
 
             db.session.add(entry)
@@ -249,6 +257,7 @@ def handle_incomexpense_sum_average_spending_day_of_month():
     WHERE LOWER(position) = 'essen'
     AND orderdate BETWEEN date_trunc('year', now())
     AND date_trunc('day', current_date)
+    AND (is_info_only = false OR is_info_only IS NULL)
     """
     result = execute_query(query)
     return {"message": "success", "incomeexpense": {"Total income": [result[0][0]]}}
@@ -263,6 +272,7 @@ def handle_incomexpense_sum_reserved_per_day_until_end_of_month():
     WHERE LOWER(position) = 'essen'
     AND orderdate::date BETWEEN date_trunc('year', CURRENT_DATE)::date
     AND CURRENT_DATE::date
+    AND (is_info_only = false OR is_info_only IS NULL)
     """
     result = execute_query(query)
     return {"message": "success", "incomeexpense": {"Total income": [result[0][0]]}}
@@ -275,6 +285,7 @@ def handle_incomexpense_sum_spending_food_since_beginning_of_year():
     WHERE LOWER(position) = 'essen'
     AND orderdate BETWEEN date_trunc('year', now())
     AND date_trunc('year', now() + interval '1 year') - interval '1 day'
+    AND (is_info_only = false OR is_info_only IS NULL)
     """
     result = execute_query(query)
     return {"message": "success", "incomeexpense": {"Total income": [result[0][0]]}}
@@ -287,6 +298,7 @@ def handle_sum_income_year():
     WHERE LOWER(position) = 'einkommen'
     AND orderdate BETWEEN date_trunc('year', now())
     AND date_trunc('year', now() + interval '1 year') - interval '1 day'
+    AND (is_info_only = false OR is_info_only IS NULL)
     """
     result = execute_query(query)
     return {"message": "success", "incomeexpense": {"Total income": [result[0][0]]}}
@@ -310,6 +322,7 @@ def handle_incomexpense_sum_spending_food_per_person_per_month():
     AND who = {person}
     AND orderdate BETWEEN date_trunc('month', now())
     AND (date_trunc('month', now() + interval '1 month') - interval '1 day')::date
+    AND (is_info_only = false OR is_info_only IS NULL)
     """
     result = execute_query(query)
     return {"message": "success", "incomeexpense": {"Total income": [result[0][0]]}}
@@ -335,7 +348,8 @@ def handle_incomexpense_all_entries():
                 "comment": incomeexpense.comment,
                 "created_at": created_at_str,
                 "taxable": incomeexpense.taxable,
-                "export_to": incomeexpense.export_to
+                "export_to": incomeexpense.export_to,
+                "is_info_only": incomeexpense.is_info_only
             })
         return {"message": "success", "incomeexpense": response}
 
@@ -343,6 +357,12 @@ def handle_incomexpense_all_entries():
 def handle_incomeexpense_update(id):
     try:
         incomeexpense = IncomeExpenseModel.query.get_or_404(id)
+
+        # Debug: Print all form data received
+        print(f"DEBUG UPDATE: Received form data: {dict(request.form)}")
+        print(f"DEBUG UPDATE: is_info_only in form: {'is_info_only' in request.form}")
+        if 'is_info_only' in request.form:
+            print(f"DEBUG UPDATE: is_info_only value: '{request.form.get('is_info_only')}'")
 
         # Update the entry with the new values
         if 'orderdate' in request.form:
@@ -363,6 +383,8 @@ def handle_incomeexpense_update(id):
             incomeexpense.taxable = request.form.get('taxable').lower() == 'true'
         if 'export_to' in request.form:
             incomeexpense.export_to = request.form.get('export_to')
+        if 'is_info_only' in request.form:
+            incomeexpense.is_info_only = request.form.get('is_info_only').lower() == 'true'
 
         # Save the changes
         db.session.commit()

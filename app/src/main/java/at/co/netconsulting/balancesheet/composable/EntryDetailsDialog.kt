@@ -54,7 +54,7 @@ fun EntryDetailsDialog(
     entry: at.co.netconsulting.balancesheet.data.IncomeExpense,
     persons: List<String>,
     onDismiss: () -> Unit,
-    onUpdate: (String, String, String, String, String, String, String, String, Boolean, String) -> Unit
+    onUpdate: (String, String, String, String, String, String, String, String, Boolean, String, Boolean) -> Unit
 ) {
     var id by remember { mutableStateOf(entry.id) }
 
@@ -71,6 +71,7 @@ fun EntryDetailsDialog(
     var comment by remember { mutableStateOf(entry.comment) }
     var taxable by remember { mutableStateOf(entry.taxable) }
     var exportTo by remember { mutableStateOf(entry.exportTo.name) }
+    var isInfoOnly by remember { mutableStateOf(entry.isInfoOnly) }
 
     // Add state for the date picker
     var showDatePicker by remember { mutableStateOf(false) }
@@ -228,12 +229,30 @@ fun EntryDetailsDialog(
                         .fillMaxWidth()
                         .padding(vertical = 4.dp)
                 )
+
+                // Info Only checkbox
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "Info Only (exclude from balance)",
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(top = 12.dp)
+                    )
+                    androidx.compose.material3.Checkbox(
+                        checked = isInfoOnly,
+                        onCheckedChange = { isInfoOnly = it }
+                    )
+                }
             }
         },
         confirmButton = {
             TextButton(
                 onClick = {
-                    onUpdate(id, date, person, location, income, expense, position, comment, taxable, exportTo)
+                    onUpdate(id, date, person, location, income, expense, position, comment, taxable, exportTo, isInfoOnly)
                 }
             ) {
                 Text("Update")

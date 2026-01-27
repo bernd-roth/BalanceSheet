@@ -276,6 +276,10 @@ class MainViewModel(
         _uiState.update { it.copy(inputExportTo = value) }
     }
 
+    fun onInfoOnlyChanged(value: Boolean) {
+        _uiState.update { it.copy(inputInfoOnly = value) }
+    }
+
     private fun validateInputs() {
         val state = _uiState.value
         val income = state.inputIncome.toDoubleOrNull() ?: 0.0
@@ -424,7 +428,8 @@ class MainViewModel(
                     location = state.selectedLocation,
                     comment = state.inputComment,
                     taxable = state.inputTaxable,
-                    exportTo = state.inputExportTo
+                    exportTo = state.inputExportTo,
+                    isInfoOnly = state.inputInfoOnly
                 )
 
                 val transactionId = "${System.currentTimeMillis()}-${UUID.randomUUID().toString().substring(0, 8)}"
@@ -437,6 +442,7 @@ class MainViewModel(
                         inputExpense = "0",
                         inputComment = "",
                         inputTaxable = true,
+                        inputInfoOnly = false,
                         isAddButtonEnabled = false
                     )}
                     // Refresh data
@@ -515,7 +521,8 @@ class MainViewModel(
         position: String,
         comment: String,
         taxable: Boolean,
-        exportTo: String
+        exportTo: String,
+        isInfoOnly: Boolean
     ) {
         viewModelScope.launch {
             try {
@@ -532,7 +539,8 @@ class MainViewModel(
                     location = Location.valueOf(location),
                     comment = comment,
                     taxable = taxable,
-                    exportTo = ExportTo.valueOf(exportTo)
+                    exportTo = ExportTo.valueOf(exportTo),
+                    isInfoOnly = isInfoOnly
                 )
 
                 val success = repository.updateEntry(entry)

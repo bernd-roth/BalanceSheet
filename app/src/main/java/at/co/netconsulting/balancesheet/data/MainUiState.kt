@@ -23,6 +23,7 @@ data class MainUiState(
     val inputComment: String = "",
     val inputTaxable: Boolean = true,
     val inputExportTo: ExportTo = ExportTo.auto,
+    val inputInfoOnly: Boolean = false,
     val isAddButtonEnabled: Boolean = false,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,

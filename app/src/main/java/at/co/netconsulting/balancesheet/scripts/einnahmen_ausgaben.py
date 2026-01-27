@@ -40,6 +40,7 @@ def get_database_data(year=2025):
         SELECT id, orderdate, who, position, income, expense, location, comment
         FROM incomeexpense
         WHERE EXTRACT(YEAR FROM orderdate) = %s
+        AND (is_info_only = false OR is_info_only IS NULL)
         ORDER BY orderdate, id
     """
 

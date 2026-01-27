@@ -17,5 +17,6 @@ data class IncomeExpense(
     val comment: String = "",
     val createdAt: LocalDateTime? = null,
     val taxable: Boolean = true,
-    val exportTo: ExportTo = ExportTo.auto
+    val exportTo: ExportTo = ExportTo.auto,
+    val isInfoOnly: Boolean = false
 )

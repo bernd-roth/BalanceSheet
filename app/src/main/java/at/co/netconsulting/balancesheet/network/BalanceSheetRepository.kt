@@ -248,6 +248,7 @@ class BalanceSheetRepository(private val baseUrl: String) {
                 .add("comment", entry.comment)
                 .add("taxable", entry.taxable.toString())
                 .add("export_to", entry.exportTo.name)
+                .add("is_info_only", entry.isInfoOnly.toString())
                 .build()
 
             val response = makePostRequest(url, formBody)
@@ -271,6 +272,7 @@ class BalanceSheetRepository(private val baseUrl: String) {
             println("DEBUG: Updating entry with ID: ${entry.id}")
             println("DEBUG: Update URL: $url")
             println("DEBUG: Entry data: income=${entry.income}, expense=${entry.expense}, date=${formattedDate}")
+            println("DEBUG: Entry isInfoOnly=${entry.isInfoOnly}, taxable=${entry.taxable}, exportTo=${entry.exportTo.name}")
 
             val formBody = FormBody.Builder()
                 .add("id", entry.id)
@@ -283,6 +285,7 @@ class BalanceSheetRepository(private val baseUrl: String) {
                 .add("comment", entry.comment)
                 .add("taxable", entry.taxable.toString())
                 .add("export_to", entry.exportTo.name)
+                .add("is_info_only", entry.isInfoOnly.toString())
                 .build()
 
             val response = makePutRequest(url, formBody)
@@ -575,7 +578,8 @@ class BalanceSheetRepository(private val baseUrl: String) {
                     ExportTo.values().find { it.name == exportToStr } ?: ExportTo.auto
                 } catch (e: Exception) {
                     ExportTo.auto
-                }
+                },
+                isInfoOnly = item.optBoolean("is_info_only", false)
             )
         } catch (e: Exception) {
             println("DEBUG: Error in parseEntryFromJson: ${e.message}")
@@ -593,7 +597,8 @@ class BalanceSheetRepository(private val baseUrl: String) {
                 comment = "Error parsing: ${e.message}",
                 createdAt = null,
                 taxable = false,
-                exportTo = ExportTo.auto
+                exportTo = ExportTo.auto,
+                isInfoOnly = false
             )
         }
     }

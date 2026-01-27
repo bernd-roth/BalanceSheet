@@ -90,6 +90,7 @@ fun MainScreen(
                 onCommentChanged = viewModel::onCommentChanged,
                 onTaxableChanged = viewModel::onTaxableChanged,
                 onExportToChanged = viewModel::onExportToChanged,
+                onInfoOnlyChanged = viewModel::onInfoOnlyChanged,
                 onAddClicked = viewModel::addEntry,
                 onShowEntriesClicked = viewModel::showEntriesList,
                 onShowAllEntriesClicked = viewModel::showAllEntries
@@ -178,6 +179,7 @@ fun MainContent(
     onCommentChanged: (String) -> Unit,
     onTaxableChanged: (Boolean) -> Unit,
     onExportToChanged: (ExportTo) -> Unit,
+    onInfoOnlyChanged: (Boolean) -> Unit,
     onAddClicked: () -> Unit,
     onShowEntriesClicked: () -> Unit,
     onShowAllEntriesClicked: () -> Unit
@@ -361,6 +363,13 @@ fun MainContent(
             label = "Export To",
             selectedValue = uiState.inputExportTo,
             onValueChange = onExportToChanged
+        )
+
+        // Info Only checkbox
+        CheckboxRow(
+            label = "Info Only (exclude from balance)",
+            checked = uiState.inputInfoOnly,
+            onCheckedChange = onInfoOnlyChanged
         )
 
         // Action buttons - single row with proper layout
