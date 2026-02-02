@@ -186,7 +186,8 @@ def create_header_section(ws):
         ('Klimaanlage', 'M4'),
         ('Medizin', 'M5'),
         ('Shop', 'M6'),
-        ('Steuerberater', 'M7')
+        ('Steuerberater', 'M7'),
+        ('Rechts -und Beratungskosten', 'M8')
     ]
 
     for label, cell in allgemeine_ausgaben_2:
@@ -309,7 +310,7 @@ def create_header_section(ws):
         ('D1', 'E7'),
         ('G1', 'H7'),
         ('J1', 'K7'),
-        ('M1', 'N7'),
+        ('M1', 'N8'),
         ('P1', 'R7'),
         ('T1', 'U7')
     ]

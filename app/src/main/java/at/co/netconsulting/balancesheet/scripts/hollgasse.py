@@ -43,7 +43,8 @@ TEMPLATE_CATEGORIES = [
     'klimaanlage',
     'rechtsschutzversicherung',
     'steuerberater',
-    'bank'
+    'bank',
+    'rechts_und_beratungskosten'
 ]
 
 
@@ -81,7 +82,9 @@ def get_category_column(position, comment, export_to='auto'):
         'obs haushaltsabgabe': 'obs haushaltsabgabe',
         'rechtsschutzversicherung': 'rechtsschutzversicherung',
         'steuerberater': 'steuerberater',
-        'bank': 'bank'
+        'bank': 'bank',
+        'rechts -und beratungskosten': 'rechts_und_beratungskosten',
+        'rechts_und_beratungskosten': 'rechts_und_beratungskosten'
     }
 
     # Special handling for generic "versicherung" - check comment for specific insurance type
@@ -206,7 +209,7 @@ def generate_excel(monthly_data, location='Hollgasse_1_54', year=2026, output_fi
     )
 
     # Row 1: Title (merged across columns A-R) with yellow background
-    ws.merge_cells('A1:R1')
+    ws.merge_cells('A1:S1')
     title_cell = ws['A1']
     title_cell.value = f"Einnahmen und \nAusgaben\nfür das Jahr {year}"
     title_cell.fill = yellow_fill
@@ -233,6 +236,7 @@ def generate_excel(monthly_data, location='Hollgasse_1_54', year=2026, output_fi
         'steuerberater',
         'obs haushalts-\nabgabe',
         'bank',
+        'rechts -und\nberatungskosten',
         'comment'
     ]
 
@@ -267,7 +271,8 @@ def generate_excel(monthly_data, location='Hollgasse_1_54', year=2026, output_fi
         'O': 13,  # obs haushaltsabgabe
         'P': 10,  # (empty/reserved)
         'Q': 10,  # bank
-        'R': 30,  # comment
+        'R': 14,  # rechts -und beratungskosten
+        'S': 30,  # comment
     }
 
     for col, width in column_widths.items():
@@ -288,7 +293,8 @@ def generate_excel(monthly_data, location='Hollgasse_1_54', year=2026, output_fi
         'rechtsschutzversicherung': 0.0,
         'steuerberater': 0.0,
         'obs haushaltsabgabe': 0.0,
-        'bank': 0.0
+        'bank': 0.0,
+        'rechts_und_beratungskosten': 0.0
     }
 
     invoice_number = 1
@@ -309,6 +315,7 @@ def generate_excel(monthly_data, location='Hollgasse_1_54', year=2026, output_fi
         'steuerberater': 15, # O
         'obs haushaltsabgabe': 16, # P
         'bank': 17,          # Q - bank (for Gemeinsam tax category)
+        'rechts_und_beratungskosten': 18,  # R
     }
 
     # Write data for each month
@@ -360,8 +367,8 @@ def generate_excel(monthly_data, location='Hollgasse_1_54', year=2026, output_fi
                         amount_cell.number_format = '#,##0.00 [$€-1]'
                         totals[category] += entry_amount
 
-                    # Column R: Comment
-                    ws.cell(row=current_row, column=18).value = entry.get('comment', '')
+                    # Column S: Comment
+                    ws.cell(row=current_row, column=19).value = entry.get('comment', '')
 
                     current_row += 1
             # Skip empty rows - no else clause

@@ -19,6 +19,7 @@ enum class Position(val displayName: String) {
     klimaanlage("Klimaanlage"),
     mieteinkommen("Mieteinkommen"),
     obs_haushaltsabgabe("OBS-Haushaltsabgabe"),
+    rechts_und_beratungskosten("Rechts -und Beratungskosten"),
     reparaturruecklage_garagenplatz_a1_12("Reparaturrücklage Garagenplatz A1/12"),
     reparaturruecklage_garagenplatz_a3_17("Reparaturrücklage Garagenplatz A3/17"),
     shop("Shop"),

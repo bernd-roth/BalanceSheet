@@ -12,7 +12,7 @@ android {
         minSdk 34
         targetSdk 35
         versionCode 1
-        versionName "2.16 ('betriebsratsumlage' with info-only field implemented)"
+        versionName "2.17 ('rechts- und beratungskosten' field added)"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

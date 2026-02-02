@@ -66,6 +66,8 @@ def get_tax_category_column(position, comment, export_to='auto'):
         'digitale arbeitsmittel': 'digitale_arbeitsmittel',
         'digitale_arbeitsmittel': 'digitale_arbeitsmittel',
         'versicherung': 'versicherung',
+        'rechts -und beratungskosten': 'rechts_und_beratungskosten',
+        'rechts_und_beratungskosten': 'rechts_und_beratungskosten',
         'internet': 'digitale_arbeitsmittel'  # Internet can be mapped to digitale_arbeitsmittel for personal tax
     }
 
@@ -182,7 +184,7 @@ def generate_excel(monthly_data, person='Bernd', year=2025, output_file=None):
     )
 
     # Row 1: Title with yellow background
-    ws.merge_cells('A1:R1')
+    ws.merge_cells('A1:S1')
     title_cell = ws['A1']
     title_cell.value = f"Arbeitnehmerveranlagung {person}\nfür das Jahr {year}"
     title_cell.fill = yellow_fill
@@ -209,6 +211,7 @@ def generate_excel(monthly_data, person='Bernd', year=2025, output_file=None):
         'steuerberater',
         'digitale\narbeitsmittel',
         'versicherung',
+        'rechts -und\nberatungskosten',
         'comment'
     ]
 
@@ -243,7 +246,8 @@ def generate_excel(monthly_data, person='Bernd', year=2025, output_file=None):
         'O': 12,  # steuerberater
         'P': 12,  # digitale arbeitsmittel
         'Q': 12,  # versicherung
-        'R': 30,  # comment
+        'R': 14,  # rechts -und beratungskosten
+        'S': 30,  # comment
     }
 
     for col, width in column_widths.items():
@@ -266,6 +270,7 @@ def generate_excel(monthly_data, person='Bernd', year=2025, output_file=None):
         'steuerberater': 15,               # O
         'digitale_arbeitsmittel': 16,      # P
         'versicherung': 17,                # Q
+        'rechts_und_beratungskosten': 18,  # R
     }
 
     invoice_number = 1
@@ -327,8 +332,8 @@ def generate_excel(monthly_data, person='Bernd', year=2025, output_file=None):
                     amount_cell.value = f'=F{current_row}'
                     amount_cell.number_format = '#,##0.00 [$€-1]'
 
-                # Comment (column R = 18)
-                ws.cell(row=current_row, column=18).value = entry.get('comment', '')
+                # Comment (column S = 19)
+                ws.cell(row=current_row, column=19).value = entry.get('comment', '')
 
                 current_row += 1
 
