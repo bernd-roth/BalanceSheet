@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import at.co.netconsulting.balancesheet.DatePickerDialog
+import at.co.netconsulting.balancesheet.composable.DatePickerDialog
 import at.co.netconsulting.balancesheet.enums.ExportTo
 import at.co.netconsulting.balancesheet.enums.Location
 import at.co.netconsulting.balancesheet.enums.Position

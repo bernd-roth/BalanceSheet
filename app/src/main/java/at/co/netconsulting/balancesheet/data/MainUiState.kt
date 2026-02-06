@@ -11,7 +11,9 @@ import java.time.format.DateTimeFormatter
 data class MainUiState(
     val summary: Summary = Summary(),
     val entries: List<IncomeExpense> = emptyList(),
+    val recentEntries: List<IncomeExpense> = emptyList(),
     val personalFoodSummaries: List<PersonalFoodSummary> = emptyList(),
+    val isEntryFormExpanded: Boolean = false,
     val selectedPerson: String = "",
     val selectedPosition: Position = Position.essen,
     val selectedLocation: Location = Location.Hollgasse_1_1,

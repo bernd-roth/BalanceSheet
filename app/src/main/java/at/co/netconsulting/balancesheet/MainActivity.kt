@@ -13,12 +13,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import at.co.netconsulting.balancesheet.ui.screens.EditEntryScreen
+import at.co.netconsulting.balancesheet.ui.screens.EntriesScreen
+import at.co.netconsulting.balancesheet.ui.screens.MainScreen
 import at.co.netconsulting.balancesheet.ui.theme.BalanceSheetTheme
 import at.co.netconsulting.balancesheet.viewmodel.ChartViewModel
 import at.co.netconsulting.balancesheet.viewmodel.ChartViewModelFactory
@@ -206,8 +211,47 @@ fun BalanceSheetNavigation(
                         totalFood = mainViewModel.uiState.value.summary.totalFood.toFloat()
                     )
                     navController.navigate("chart")
+                },
+                onNavigateToEntries = { navController.navigate("entries") },
+                onNavigateToEditEntry = { entry ->
+                    mainViewModel.showEntryDetails(entry)
+                    navController.navigate("edit_entry")
                 }
             )
+        }
+
+        composable("entries") {
+            val uiState by mainViewModel.uiState.collectAsState()
+            EntriesScreen(
+                entries = uiState.entries,
+                isLoading = uiState.isLoading,
+                onNavigateBack = { navController.popBackStack() },
+                onEntryClick = { entry ->
+                    mainViewModel.showEntryDetails(entry)
+                    navController.navigate("edit_entry")
+                },
+                onRefresh = { mainViewModel.refreshData() }
+            )
+        }
+
+        composable("edit_entry") {
+            val uiState by mainViewModel.uiState.collectAsState()
+            val entry = uiState.selectedEntry
+            if (entry != null) {
+                EditEntryScreen(
+                    entry = entry,
+                    persons = mainViewModel.personsList,
+                    onNavigateBack = {
+                        mainViewModel.hideEntryDetails()
+                        navController.popBackStack()
+                    },
+                    onSave = { id, date, person, location, income, expense, position, comment, taxable, exportTo, isInfoOnly ->
+                        mainViewModel.updateEntry(id, date, person, location, income, expense, position, comment, taxable, exportTo, isInfoOnly)
+                        mainViewModel.hideEntryDetails()
+                        navController.popBackStack()
+                    }
+                )
+            }
         }
 
         composable("settings") {

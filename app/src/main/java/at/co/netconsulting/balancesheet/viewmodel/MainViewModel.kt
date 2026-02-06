@@ -211,6 +211,11 @@ class MainViewModel(
 
                 val entries = repository.getAllEntries()
 
+                // Get recent entries (last 5, sorted by date descending)
+                val recentEntries = entries
+                    .sortedByDescending { it.orderdate }
+                    .take(5)
+
                 val personalSummaries = personsList.map { person ->
                     val budget = repository.getPersonFoodSummary(person, defaultReserve)
                     PersonalFoodSummary(person, budget)
@@ -219,6 +224,7 @@ class MainViewModel(
                 _uiState.update { it.copy(
                     summary = summary,
                     entries = entries,
+                    recentEntries = recentEntries,
                     personalFoodSummaries = personalSummaries,
                     isLoading = false,
                     errorMessage = null,
@@ -627,6 +633,10 @@ class MainViewModel(
 
     fun loadData() {
         refreshData()
+    }
+
+    fun toggleEntryForm() {
+        _uiState.update { it.copy(isEntryFormExpanded = !it.isEntryFormExpanded) }
     }
 
     // Get all available positions
