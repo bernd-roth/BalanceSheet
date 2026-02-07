@@ -12,7 +12,7 @@ android {
         minSdk 34
         targetSdk 35
         versionCode 1
-        versionName "3.00 (complete makeover of layout)"
+        versionName "3.01 ('Recent Entries' made scrollable; added comment field as output to 'Recent Entries')"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -42,6 +42,11 @@ android {
     packaging {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "balancesheet.apk"
         }
     }
 }

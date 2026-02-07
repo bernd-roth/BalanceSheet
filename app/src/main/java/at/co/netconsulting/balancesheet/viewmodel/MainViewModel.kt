@@ -211,10 +211,10 @@ class MainViewModel(
 
                 val entries = repository.getAllEntries()
 
-                // Get recent entries (last 5, sorted by date descending)
+                // Get recent entries (last 10, sorted by date descending)
                 val recentEntries = entries
                     .sortedByDescending { it.orderdate }
-                    .take(5)
+                    .take(10)
 
                 val personalSummaries = personsList.map { person ->
                     val budget = repository.getPersonFoodSummary(person, defaultReserve)

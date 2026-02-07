@@ -58,6 +58,13 @@ fun EntryListItem(
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium
                 )
+                if (entry.comment.isNotEmpty()) {
+                    Text(
+                        text = entry.comment,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
                 if (entry.who.isNotEmpty()) {
                     Text(
                         text = entry.who,

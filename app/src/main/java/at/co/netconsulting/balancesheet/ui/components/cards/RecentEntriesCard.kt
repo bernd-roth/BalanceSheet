@@ -7,7 +7,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.CardDefaults
@@ -83,13 +86,17 @@ fun RecentEntriesCard(
                 }
             } else {
                 // Entries list
-                Column {
-                    entries.take(5).forEachIndexed { index, entry ->
+                Column(
+                    modifier = Modifier
+                        .heightIn(max = 400.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    entries.take(10).forEachIndexed { index, entry ->
                         EntryListItem(
                             entry = entry,
                             onClick = { onEntryClick(entry) }
                         )
-                        if (index < entries.size - 1 && index < 4) {
+                        if (index < entries.size - 1 && index < 10) {
                             Divider(
                                 modifier = Modifier.padding(horizontal = 4.dp),
                                 color = MaterialTheme.colorScheme.outlineVariant
