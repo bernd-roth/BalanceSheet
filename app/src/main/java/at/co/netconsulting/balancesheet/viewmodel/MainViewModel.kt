@@ -72,10 +72,12 @@ class MainViewModel(
             inputDate = currentDate,
             availablePositions = initialPositions,
             availableLocations = initialLocations,
-            selectedPosition = validPosition
+            selectedPosition = validPosition,
+            defaultCurrencyDisplay = defaultCurrency
         ) }
 
         refreshData()
+        detectCurrentLocation()
     }
 
     private fun loadDefaultSettings() {
@@ -184,6 +186,61 @@ class MainViewModel(
         }
     }
 
+    private fun detectCurrentLocation() {
+        viewModelScope.launch {
+            try {
+                _uiState.update { it.copy(isLocationDetecting = true) }
+
+                val location = locationService.getCurrentLocation()
+                if (location != null) {
+                    val (latitude, longitude) = location
+                    val countryCurrency = locationService.getCountryCurrencyFromLocation(latitude, longitude)
+                    if (countryCurrency != null) {
+                        val (country, localCurrency) = countryCurrency
+
+                        // Fetch and cache the exchange rate if currencies differ
+                        var cachedRate = 0.0
+                        if (localCurrency.isNotEmpty() && localCurrency != defaultCurrency) {
+                            val rate = currencyService.getExchangeRate(localCurrency, defaultCurrency)
+                            if (rate != null) {
+                                cachedRate = rate
+                            }
+                        }
+
+                        _uiState.update { it.copy(
+                            currentCountry = country,
+                            currentCurrency = localCurrency,
+                            cachedExchangeRate = cachedRate,
+                            isLocationDetecting = false
+                        ) }
+                        return@launch
+                    }
+                }
+                _uiState.update { it.copy(isLocationDetecting = false) }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(isLocationDetecting = false) }
+            }
+        }
+    }
+
+    private fun updateLivePreview() {
+        val state = _uiState.value
+        if (state.cachedExchangeRate <= 0.0 || state.currentCurrency == state.defaultCurrencyDisplay) {
+            _uiState.update { it.copy(livePreviewAmount = 0.0) }
+            return
+        }
+
+        val income = state.inputIncome.toDoubleOrNull() ?: 0.0
+        val expense = state.inputExpense.toDoubleOrNull() ?: 0.0
+        val amount = if (income > 0) income else expense
+        val isIncome = income > 0
+
+        _uiState.update { it.copy(
+            livePreviewAmount = if (amount > 0) amount * state.cachedExchangeRate else 0.0,
+            livePreviewIsIncome = isIncome
+        ) }
+    }
+
     fun refreshData() {
         viewModelScope.launch {
             try {
@@ -247,11 +304,13 @@ class MainViewModel(
     fun onIncomeChanged(value: String) {
         _uiState.update { it.copy(inputIncome = value) }
         validateInputs()
+        updateLivePreview()
     }
 
     fun onExpenseChanged(value: String) {
         _uiState.update { it.copy(inputExpense = value) }
         validateInputs()
+        updateLivePreview()
     }
 
     fun onDateChanged(value: String) {

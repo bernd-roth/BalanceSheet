@@ -34,6 +34,7 @@ import at.co.netconsulting.balancesheet.composable.CurrencyConversionDialog
 import at.co.netconsulting.balancesheet.composable.DatePickerDialog
 import at.co.netconsulting.balancesheet.data.IncomeExpense
 import at.co.netconsulting.balancesheet.enums.Location
+import at.co.netconsulting.balancesheet.ui.components.cards.CurrencyInfoCard
 import at.co.netconsulting.balancesheet.ui.components.cards.EntryFormCard
 import at.co.netconsulting.balancesheet.ui.components.cards.RecentEntriesCard
 import at.co.netconsulting.balancesheet.ui.components.cards.SummaryGrid
@@ -98,6 +99,19 @@ fun MainScreen(
                 SummaryGrid(
                     summary = uiState.summary,
                     personalFoodSummaries = uiState.personalFoodSummaries
+                )
+
+                // Currency/Location Info Card
+                CurrencyInfoCard(
+                    currentCountry = uiState.currentCountry,
+                    currentCurrency = uiState.currentCurrency,
+                    defaultCurrency = uiState.defaultCurrencyDisplay,
+                    isDetecting = uiState.isLocationDetecting,
+                    livePreviewAmount = uiState.livePreviewAmount,
+                    livePreviewIsIncome = uiState.livePreviewIsIncome,
+                    cachedExchangeRate = uiState.cachedExchangeRate,
+                    inputIncome = uiState.inputIncome,
+                    inputExpense = uiState.inputExpense
                 )
 
                 // Expandable Entry Form Card
@@ -175,7 +189,7 @@ fun MainScreen(
             CurrencyConversionDialog(
                 country = uiState.detectedCountry,
                 localCurrency = uiState.detectedCurrency,
-                defaultCurrency = "EUR",
+                defaultCurrency = uiState.defaultCurrencyDisplay,
                 originalAmount = uiState.originalAmount,
                 convertedAmount = uiState.convertedAmount,
                 exchangeRate = uiState.exchangeRate,

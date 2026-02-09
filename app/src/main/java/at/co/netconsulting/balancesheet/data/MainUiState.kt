@@ -43,5 +43,13 @@ data class MainUiState(
     val originalAmount: Double = 0.0,
     val convertedAmount: Double = 0.0,
     val exchangeRate: Double = 0.0,
-    val isIncome: Boolean = false // Track if it's income or expense
+    val isIncome: Boolean = false, // Track if it's income or expense
+    // Persistent location/currency info for display
+    val currentCountry: String = "",
+    val currentCurrency: String = "",
+    val defaultCurrencyDisplay: String = "EUR",
+    val isLocationDetecting: Boolean = false,
+    val cachedExchangeRate: Double = 0.0,
+    val livePreviewAmount: Double = 0.0,
+    val livePreviewIsIncome: Boolean = true
 )

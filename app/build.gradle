@@ -12,7 +12,7 @@ android {
         minSdk 34
         targetSdk 35
         versionCode 1
-        versionName "3.01 ('Recent Entries' made scrollable; added comment field as output to 'Recent Entries')"
+        versionName "3.02 (Display location, and live currency conversion on main screen)"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
