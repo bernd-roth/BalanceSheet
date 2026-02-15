@@ -237,7 +237,7 @@ class BalanceSheetRepository(private val baseUrl: String) {
 
             val url = "$baseUrl${StaticFields.REST_URL_ADD}"
 
-            val formBody = FormBody.Builder()
+            val formBodyBuilder = FormBody.Builder()
                 .add("transaction_id", transactionId)
                 .add("orderdate", formattedDate)
                 .add("who", entry.who)
@@ -249,7 +249,15 @@ class BalanceSheetRepository(private val baseUrl: String) {
                 .add("taxable", entry.taxable.toString())
                 .add("export_to", entry.exportTo.name)
                 .add("is_info_only", entry.isInfoOnly.toString())
-                .build()
+
+            // Only send original currency fields when a conversion occurred
+            if (entry.originalCurrency != null) {
+                entry.originalIncome?.let { formBodyBuilder.add("original_income", it.toString()) }
+                entry.originalExpense?.let { formBodyBuilder.add("original_expense", it.toString()) }
+                formBodyBuilder.add("original_currency", entry.originalCurrency)
+            }
+
+            val formBody = formBodyBuilder.build()
 
             val response = makePostRequest(url, formBody)
             true
@@ -448,7 +456,7 @@ class BalanceSheetRepository(private val baseUrl: String) {
                 try {
                     val dateParts = orderDateStr.split(",")[1].trim().split(" ")
                     val day = dateParts[0].toInt()
-                    val month = when (dateParts[1].toLowerCase()) {
+                    val month = when (dateParts[1].lowercase()) {
                         "jan" -> 1
                         "feb" -> 2
                         "mar" -> 3

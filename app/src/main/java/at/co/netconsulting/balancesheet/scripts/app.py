@@ -54,8 +54,11 @@ class IncomeExpenseModel(db.Model):
     taxable = db.Column(db.Boolean, default=False)
     export_to = db.Column(db.String, nullable=True, default='auto')
     is_info_only = db.Column(db.Boolean, default=False)
+    original_income = db.Column(db.Numeric(16,2), nullable=True)
+    original_expense = db.Column(db.Numeric(16,2), nullable=True)
+    original_currency = db.Column(db.String(10), nullable=True)
 
-    def __init__(self, orderdate, who, position, income, expense, location, comment, taxable=False, export_to='auto', is_info_only=False):
+    def __init__(self, orderdate, who, position, income, expense, location, comment, taxable=False, export_to='auto', is_info_only=False, original_income=None, original_expense=None, original_currency=None):
         self.orderdate = orderdate
         self.who = who
         self.position = position
@@ -66,6 +69,9 @@ class IncomeExpenseModel(db.Model):
         self.taxable = taxable
         self.export_to = export_to
         self.is_info_only = is_info_only
+        self.original_income = original_income
+        self.original_expense = original_expense
+        self.original_currency = original_currency
 
     def __repr__(self):
         return f"IncomeExpenseModel('{self.id}', '{self.orderdate}', '{self.who}', '{self.position}', '{self.income}', '{self.expense}', '{self.location}', '{self.comment}')"
@@ -220,6 +226,15 @@ def handle_incomexpense_add():
             transaction_log = TransactionLog(transaction_id=transaction_id)
             db.session.add(transaction_log)
 
+            # Read optional original currency fields (NULL when no conversion)
+            raw_original_income = request.form.get('original_income')
+            raw_original_expense = request.form.get('original_expense')
+            raw_original_currency = request.form.get('original_currency')
+
+            original_income = Decimal(raw_original_income) if raw_original_income and raw_original_income != '' else None
+            original_expense = Decimal(raw_original_expense) if raw_original_expense and raw_original_expense != '' else None
+            original_currency = raw_original_currency if raw_original_currency and raw_original_currency != '' else None
+
             entry = IncomeExpenseModel(
                 orderdate=request.form.get('orderdate'),
                 who=request.form.get('who'),
@@ -230,7 +245,10 @@ def handle_incomexpense_add():
                 comment=request.form.get('comment'),
                 taxable=request.form.get('taxable', 'false').lower() == 'true',
                 export_to=request.form.get('export_to', 'auto'),
-                is_info_only=request.form.get('is_info_only', 'false').lower() == 'true'
+                is_info_only=request.form.get('is_info_only', 'false').lower() == 'true',
+                original_income=original_income,
+                original_expense=original_expense,
+                original_currency=original_currency
             )
 
             db.session.add(entry)

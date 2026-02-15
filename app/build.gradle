@@ -13,7 +13,7 @@ android {
         minSdk 34
         targetSdk 35
         versionCode 1
-        versionName "3.02 (Display location, and live currency conversion on main screen)"
+        versionName "3.03 (Saveing the original local currency conversion)"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

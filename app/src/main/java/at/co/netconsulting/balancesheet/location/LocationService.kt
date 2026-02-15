@@ -71,7 +71,7 @@ class LocationService(private val context: Context, private val apiKey: String) 
                         currency = currencyObj.optString("iso_code", "")
                     } else {
                         // Get currency based on country code
-                        val countryCode = components.optString("country_code", "").toUpperCase()
+                        val countryCode = components.optString("country_code", "").uppercase()
                         currency = getCurrencyForCountryCode(countryCode)
                     }
 

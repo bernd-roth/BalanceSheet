@@ -449,6 +449,11 @@ class MainViewModel(
                 var income = state.inputIncome.toDoubleOrNull() ?: 0.0
                 var expense = state.inputExpense.toDoubleOrNull() ?: 0.0
 
+                // Capture original values before any conversion
+                val originalIncome = if (income > 0) income else null
+                val originalExpense = if (expense > 0) expense else null
+                var originalCurrency: String? = null
+
                 // Get current location
                 val location = locationService.getCurrentLocation()
 
@@ -463,6 +468,8 @@ class MainViewModel(
 
                         // Convert income/expense if currencies are different
                         if (localCurrency.isNotEmpty() && localCurrency != defaultCurrency) {
+                            originalCurrency = localCurrency
+
                             if (income > 0) {
                                 val convertedIncome = currencyService.convertCurrency(income, localCurrency, defaultCurrency)
                                 if (convertedIncome != null) {
@@ -494,7 +501,10 @@ class MainViewModel(
                     comment = state.inputComment,
                     taxable = state.inputTaxable,
                     exportTo = state.inputExportTo,
-                    isInfoOnly = state.inputInfoOnly
+                    isInfoOnly = state.inputInfoOnly,
+                    originalIncome = if (originalCurrency != null) originalIncome else null,
+                    originalExpense = if (originalCurrency != null) originalExpense else null,
+                    originalCurrency = originalCurrency
                 )
 
                 val transactionId = "${System.currentTimeMillis()}-${UUID.randomUUID().toString().substring(0, 8)}"
