@@ -3,11 +3,16 @@ package at.co.netconsulting.balancesheet.location
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
 import android.location.LocationManager
+import android.os.Bundle
+import android.os.Looper
 import androidx.core.app.ActivityCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
@@ -16,6 +21,8 @@ import kotlin.coroutines.resume
 class LocationService(private val context: Context, private val apiKey: String) {
 
     private val client = OkHttpClient()
+
+    private val locationTimeoutMs = 10_000L // 10 seconds
 
     suspend fun getCurrentLocation(): Pair<Double, Double>? {
         return withContext(Dispatchers.IO) {
@@ -27,19 +34,67 @@ class LocationService(private val context: Context, private val apiKey: String) 
                     return@withContext null
                 }
 
-                suspendCancellableCoroutine { continuation ->
-                    val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-                        ?: locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+                // 1. Fast path: try cached locations (GPS first, then Network)
+                val cachedLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                    ?: locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
 
-                    if (location != null) {
-                        continuation.resume(Pair(location.latitude, location.longitude))
-                    } else {
-                        continuation.resume(null)
-                    }
+                if (cachedLocation != null) {
+                    println("DEBUG LocationService: Using cached location from provider")
+                    return@withContext Pair(cachedLocation.latitude, cachedLocation.longitude)
                 }
+
+                // 2. Slow path: actively request a fresh location from Network provider
+                println("DEBUG LocationService: No cached location, requesting fresh network location")
+                val freshLocation = requestFreshNetworkLocation(locationManager)
+                if (freshLocation != null) {
+                    println("DEBUG LocationService: Got fresh network location")
+                    return@withContext Pair(freshLocation.latitude, freshLocation.longitude)
+                }
+
+                println("DEBUG LocationService: Could not obtain any location")
+                null
             } catch (e: Exception) {
                 e.printStackTrace()
                 null
+            }
+        }
+    }
+
+    private suspend fun requestFreshNetworkLocation(locationManager: LocationManager): Location? {
+        // Check if network provider is available
+        if (!locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+            println("DEBUG LocationService: Network provider is disabled")
+            return null
+        }
+
+        return withTimeoutOrNull(locationTimeoutMs) {
+            suspendCancellableCoroutine { continuation ->
+                val listener = object : LocationListener {
+                    override fun onLocationChanged(location: Location) {
+                        locationManager.removeUpdates(this)
+                        continuation.resume(location)
+                    }
+
+                    @Deprecated("Deprecated in API")
+                    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+                    override fun onProviderEnabled(provider: String) {}
+                    override fun onProviderDisabled(provider: String) {
+                        locationManager.removeUpdates(this)
+                        if (continuation.isActive) {
+                            continuation.resume(null)
+                        }
+                    }
+                }
+
+                locationManager.requestSingleUpdate(
+                    LocationManager.NETWORK_PROVIDER,
+                    listener,
+                    Looper.getMainLooper()
+                )
+
+                continuation.invokeOnCancellation {
+                    locationManager.removeUpdates(listener)
+                }
             }
         }
     }
