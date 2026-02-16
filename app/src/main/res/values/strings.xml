@@ -71,4 +71,8 @@
     <string name="textViewDefaultPosition">Position</string>
     <string name="textViewDefaultLocation">Location</string>
     <string name="textViewDefaultCurrency">Default Currency</string>
+
+    <!-- widget -->
+    <string name="widget_name">BalanceSheet Overview</string>
+    <string name="widget_description">Shows income, spending, savings, food budget and recent entries</string>
 </resources>

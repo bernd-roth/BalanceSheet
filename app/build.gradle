@@ -13,7 +13,7 @@ android {
         minSdk 34
         targetSdk 35
         versionCode 1
-        versionName "3.04 (check cached GPS location first, then network cache, if both are empty, fallback to request a fresh location from Netwrk provider)"
+        versionName "3.05 (added widget to homescreen)"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -75,4 +75,11 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7"
     // ViewModel utilities for Compose
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7"
+
+    // Glance (AppWidget with Compose-like API)
+    implementation "androidx.glance:glance-appwidget:1.1.1"
+    implementation "androidx.glance:glance-material3:1.1.1"
+
+    // WorkManager for periodic widget refresh
+    implementation "androidx.work:work-runtime-ktx:2.10.0"
 }

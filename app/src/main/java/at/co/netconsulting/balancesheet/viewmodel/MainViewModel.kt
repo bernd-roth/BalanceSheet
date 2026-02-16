@@ -22,6 +22,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import at.co.netconsulting.balancesheet.widget.BalanceSheetWidget
+import androidx.glance.appwidget.updateAll
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.time.LocalDate
@@ -287,6 +289,11 @@ class MainViewModel(
                     errorMessage = null,
                     showRetryButton = false
                 )}
+
+                // Update home screen widget
+                try {
+                    BalanceSheetWidget().updateAll(context)
+                } catch (_: Exception) { }
             } catch (e: Exception) {
                 val isNetworkError = e.message?.contains("Unable to connect") == true ||
                                    e.message?.contains("Network error") == true ||
