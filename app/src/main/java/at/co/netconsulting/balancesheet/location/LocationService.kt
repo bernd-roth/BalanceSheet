@@ -152,6 +152,21 @@ class LocationService(private val context: Context, private val apiKey: String) 
             "IT" to "EUR",
             "ES" to "EUR",
             "AT" to "EUR",
+            "FI" to "EUR",
+            "IE" to "EUR",
+            "NL" to "EUR",
+            "BE" to "EUR",
+            "LU" to "EUR",
+            "PT" to "EUR",
+            "GR" to "EUR",
+            "EE" to "EUR",
+            "LV" to "EUR",
+            "LT" to "EUR",
+            "SK" to "EUR",
+            "SI" to "EUR",
+            "MT" to "EUR",
+            "CY" to "EUR",
+            "HR" to "EUR",
             "JP" to "JPY",
             "CN" to "CNY",
             "IN" to "INR",
@@ -172,6 +187,6 @@ class LocationService(private val context: Context, private val apiKey: String) 
             // Add more countries as needed
         )
 
-        return countryCurrencyMap[countryCode] ?: "USD" // Default to USD if not found
+        return countryCurrencyMap[countryCode] ?: "EUR" // Default to EUR if not found
     }
 }
