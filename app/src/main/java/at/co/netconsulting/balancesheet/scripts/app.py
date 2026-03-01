@@ -188,7 +188,7 @@ def handle_incomexpense_sum_savings():
 @app.route('/incomeexpense/sum_food', methods=['GET'])
 def handle_incomexpense_sum_food():
     query = """
-    SELECT COALESCE(SUM(expense), 0) - COALESCE(SUM(income), 0)
+    SELECT GREATEST(COALESCE(SUM(expense), 0) - COALESCE(SUM(income), 0), 0)
     FROM incomeexpense
     WHERE LOWER(position) = 'essen'
     AND orderdate BETWEEN date_trunc('month', current_date)
