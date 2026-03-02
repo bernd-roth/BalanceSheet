@@ -277,7 +277,10 @@ class MainViewModel(
 
                 val personalSummaries = personsList.map { person ->
                     val budget = repository.getPersonFoodSummary(person, defaultReserve)
-                    PersonalFoodSummary(person, budget)
+                    val foodIncome = entries
+                        .filter { it.who == person && it.position == Position.essen && it.income > 0 }
+                        .sumOf { it.income }
+                    PersonalFoodSummary(person, budget + foodIncome)
                 }
 
                 _uiState.update { it.copy(

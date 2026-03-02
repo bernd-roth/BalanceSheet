@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.glance.unit.ColorProvider
 import at.co.netconsulting.balancesheet.MainActivity
 import at.co.netconsulting.balancesheet.data.IncomeExpense
+import at.co.netconsulting.balancesheet.enums.Position
 import at.co.netconsulting.balancesheet.network.BalanceSheetRepository
 import at.co.netconsulting.general.StaticFields
 import kotlinx.coroutines.Dispatchers
@@ -76,7 +77,10 @@ class BalanceSheetWidget : GlanceAppWidget() {
                     val persons = personsString.split(" ")
                     personSummaries = persons.map { person ->
                         val budget = repository.getPersonFoodSummary(person, defaultReserve)
-                        person to budget
+                        val foodIncome = entries
+                            .filter { it.who == person && it.position == Position.essen && it.income > 0 }
+                            .sumOf { it.income }
+                        person to (budget + foodIncome)
                     }
                 }
             }

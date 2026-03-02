@@ -13,7 +13,7 @@ android {
         minSdk 34
         targetSdk 35
         versionCode 1
-        versionName "3.05 (added widget to homescreen)"
+        versionName "3.06 (calculation error when bottles are returned/added)"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

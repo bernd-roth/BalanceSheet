@@ -89,6 +89,6 @@ private fun buildFoodSubtitle(personalFoodSummaries: List<PersonalFoodSummary>):
 
     return personalFoodSummaries
         .filter { it.remainingBudget != 0.0 }
-        .joinToString(", ") { "${it.person}: €${String.format("%.0f", it.remainingBudget)}" }
+        .joinToString(", ") { "${it.person}: €${String.format("%.2f", it.remainingBudget)}" }
         .takeIf { it.isNotEmpty() }
 }
