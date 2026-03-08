@@ -13,7 +13,7 @@ android {
         minSdk 34
         targetSdk 35
         versionCode 1
-        versionName "3.06 (calculation error when bottles are returned/added)"
+        versionName "3.07 (currency conversion target missing when default currency is blank)"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

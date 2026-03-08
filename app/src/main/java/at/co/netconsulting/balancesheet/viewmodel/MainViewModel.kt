@@ -50,7 +50,7 @@ class MainViewModel(
     private val _personsList = mutableStateOf(listOf<String>())
     val personsList: List<String> get() = _personsList.value
 
-    private val defaultCurrency get() = sharedPrefs.getString(StaticFields.SP_DEFAULT_CURRENCY, "EUR") ?: "EUR"
+    private val defaultCurrency get() = sharedPrefs.getString(StaticFields.SP_DEFAULT_CURRENCY, "EUR")?.takeIf { it.isNotEmpty() } ?: "EUR"
 
     init {
         // Set current date in the input field
@@ -176,7 +176,8 @@ class MainViewModel(
             availablePositions = newPositions,
             availableLocations = newLocations,
             selectedPosition = validPosition,
-            selectedLocationString = validLocation
+            selectedLocationString = validLocation,
+            defaultCurrencyDisplay = defaultCurrency
         )}
         println("DEBUG MainVM.reloadDefaultSettings(): UI state updated")
     }
