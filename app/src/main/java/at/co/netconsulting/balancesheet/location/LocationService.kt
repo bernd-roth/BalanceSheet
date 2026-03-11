@@ -34,9 +34,13 @@ class LocationService(private val context: Context, private val apiKey: String) 
                     return@withContext null
                 }
 
-                // 1. Fast path: try cached locations (GPS first, then Network)
-                val cachedLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-                    ?: locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+                // 1. Fast path: try cached locations (GPS first, then Network),
+                //    but only if fresh enough (within 1 hour) to avoid stale
+                //    country/currency detection after international travel.
+                val maxCacheAgeMs = 60 * 60 * 1000L
+                val cachedLocation = (locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                    ?: locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER))
+                    ?.takeIf { (System.currentTimeMillis() - it.time) <= maxCacheAgeMs }
 
                 if (cachedLocation != null) {
                     println("DEBUG LocationService: Using cached location from provider")

@@ -13,7 +13,7 @@ android {
         minSdk 34
         targetSdk 35
         versionCode 1
-        versionName "3.07 (currency conversion target missing when default currency is blank)"
+        versionName "3.08 (currency refreshed, if location less than 1 hour old)"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
